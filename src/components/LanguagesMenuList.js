@@ -42,15 +42,7 @@ class LanguagesMenuList extends React.Component {
     ));
 
     return (
-      <List
-        subheader={
-          languages && languages.length > 0 ? (
-            <ListSubheader component="div">Linguagens regulares</ListSubheader>
-          ) : (
-            undefined
-          )
-        }
-      >
+      <List>
         {listItems}
 
         <ListItem>

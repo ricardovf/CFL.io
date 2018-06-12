@@ -9,6 +9,7 @@ import FSMCardConnector from '../connectors/FSMCardConnector';
 import RecognizeCardConnector from '../connectors/RecognizeCardConnector';
 import EnumerationCardConnector from '../connectors/EnumerationCardConnector';
 import TableOrGraphCardConnector from '../connectors/TableOrGraphCardConnector';
+import EditableTransitionTable from './EditableTransitionTable';
 
 const styles = theme => ({
   // root: {
@@ -49,14 +50,11 @@ function LayoutDashboard(props) {
               spacing={24}
               style={{ height: 'calc(100% + 24px)' }}
             >
-              <Grid item xs={12} sm={6}>
-                <ExpressionCardConnector />
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={12}>
                 <GrammarCardConnector />
               </Grid>
               <Grid item xs={12}>
-                <TableOrGraphCardConnector />
+                <EditableTransitionTable />
               </Grid>
             </Grid>
           </Grid>

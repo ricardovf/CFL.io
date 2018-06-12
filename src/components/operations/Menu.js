@@ -179,44 +179,32 @@ class OperationsMenu extends React.Component {
             disabled={fsm.hasEpsilonTransitions() ? false : true}
             onClick={this.makeOperationHandler('removeEpsilon')}
           >
-            Eliminar epsilon
+            Eliminar produções com epsilon
           </MenuItem>
           <MenuItem
             disabled={fsm.isDeterministic() ? true : false}
             onClick={this.makeOperationHandler('determinate')}
           >
-            Determinizar
+            Eliminar produções simples
           </MenuItem>
           <MenuItem
             disabled={fsm.isMinimal() ? true : false}
             onClick={this.makeOperationHandler('minimize')}
           >
-            Minimizar
+            Eliminar símbolos inférteis
+          </MenuItem>
+
+          <MenuItem
+            disabled={fsm.isMinimal() ? true : false}
+            onClick={this.makeOperationHandler('minimize')}
+          >
+            Eliminar símbolos inalcançáveis
           </MenuItem>
 
           <Divider />
 
           <MenuItem onClick={this.makeOperationHandler('negation')}>
-            Complemento
-          </MenuItem>
-          <MenuItem onClick={this.makeOperationHandler('reverse')}>
-            Reverso
-          </MenuItem>
-          <MenuItem onClick={this.makeOperationHandler('closure')}>
-            Fechamento
-          </MenuItem>
-
-          <Divider />
-
-          <MenuItem onClick={this.makeOperationHandler('concatenation')}>
-            Concatenar
-          </MenuItem>
-          <MenuItem onClick={this.makeOperationHandler('difference')}>
-            Diferença
-          </MenuItem>
-          <MenuItem onClick={this.makeOperationHandler('union')}>Unir</MenuItem>
-          <MenuItem onClick={this.makeOperationHandler('intersection')}>
-            Interseção
+            Transformar em GLC Própria
           </MenuItem>
 
           <Divider />

@@ -55,40 +55,25 @@ class FSMCard extends React.Component {
         <List dense>
           <ListItem disableGutters>
             <ListItemText
-              secondary={'Estados'}
+              secondary={'Não terminais (Vn)'}
               primary={fsm.states.join(', ')}
             />
           </ListItem>
           <ListItem disableGutters>
             <ListItemText
-              secondary="Alfabeto"
+              secondary="Terminais (Vt)"
               primary={fsm.alphabet.join(', ')}
             />
           </ListItem>
           <ListItem disableGutters>
-            <ListItemText secondary="Estado inicial" primary={fsm.initial} />
+            <ListItemText secondary="Símbolo inicial" primary={fsm.initial} />
           </ListItem>
           <ListItem disableGutters>
-            <ListItemText
-              secondary={
-                fsm.finals.length > 1 ? 'Estados finais' : 'Estado final'
-              }
-              primary={fsm.finals.join(', ')}
-            />
+            <ListItemText secondary="Linguagem" primary={'Vazia'} />
           </ListItem>
         </List>
         <Divider />
         <List dense className={classes.lastList}>
-          <ListItem disableGutters>
-            <ListItemIcon>
-              {fsm
-                ? fsm.acceptsEmptySentence()
-                  ? yesIcon
-                  : noIcon
-                : dontKnowIcon}
-            </ListItemIcon>
-            <ListItemText primary="Aceita sentença vazia" />
-          </ListItem>
           <ListItem disableGutters>
             <ListItemIcon>
               {fsm
@@ -103,14 +88,19 @@ class FSMCard extends React.Component {
             <ListItemIcon>
               {fsm ? (fsm.isDeterministic() ? yesIcon : noIcon) : dontKnowIcon}
             </ListItemIcon>
-            <ListItemText primary="Determinístico" />
+            <ListItemText primary="Sem produções simples" />
           </ListItem>
-
           <ListItem disableGutters>
             <ListItemIcon>
               {fsm ? (fsm.isMinimal() ? yesIcon : noIcon) : dontKnowIcon}
             </ListItemIcon>
-            <ListItemText primary="Mínimo" />
+            <ListItemText primary="Sem não terminais inférteis" />
+          </ListItem>
+          <ListItem disableGutters>
+            <ListItemIcon>
+              {fsm ? (fsm.isMinimal() ? yesIcon : noIcon) : dontKnowIcon}
+            </ListItemIcon>
+            <ListItemText primary="Sem não terminais inalcançáveis" />
           </ListItem>
         </List>
       </React.Fragment>
@@ -161,7 +151,7 @@ class FSMCard extends React.Component {
       <Card className={classes.card}>
         <CardContent className={classes.cardContent}>
           <Typography gutterBottom variant="headline" component="h2">
-            Autômato finito
+            Informações
           </Typography>
 
           {info}

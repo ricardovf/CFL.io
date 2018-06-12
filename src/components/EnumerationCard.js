@@ -1,11 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Typography } from 'material-ui';
+import { Button, Input, Typography } from 'material-ui';
 import { withStyles } from 'material-ui/styles';
 import Card, { CardContent } from 'material-ui/Card';
 import FSM from '../logic/FSM';
 import { FormControl } from 'material-ui/Form';
 import Select from 'material-ui/Select';
+import Table, {
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+} from 'material-ui/Table';
 import * as R from 'ramda';
 
 const styles = () => ({
@@ -55,32 +61,49 @@ class EnumerationCard extends React.Component {
   render() {
     const { classes, language, length, onLengthChange } = this.props;
 
-    const Sentences = '{ ' + this.state.sentences.join(', ') + ' }';
+    const table = (
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell padding="dense">Símbolo (Vn)</TableCell>
+            <TableCell padding="dense">Fatorado</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          <TableRow hover={true}>
+            <TableCell padding="dense">S</TableCell>
+            <TableCell padding="dense">Sim</TableCell>
+          </TableRow>
+          <TableRow hover={true}>
+            <TableCell padding="dense">B</TableCell>
+            <TableCell padding="dense">Não</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    );
 
     return (
       <Card className={classes.card}>
         <CardContent>
-          <FormControl className={classes.form}>
-            <Select
-              native
-              onChange={event =>
-                onLengthChange(language.id, event.target.value)
-              }
-              value={length}
-            >
-              {R.range(1, 101).map(n => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              ))}
-            </Select>
-          </FormControl>
           <Typography gutterBottom variant="headline" component="h2">
-            Enumeração
+            Fatoração
           </Typography>
-          <Typography gutterBottom variant="body1" component="p">
-            {Sentences}
-          </Typography>
+          <div>
+            Em até <Input type="number" value={100} /> passos a gramática{' '}
+            <strong style={{ color: 'green' }}>é fatorável</strong>.{' '}
+            <Button color="primary" size="small">
+              Fatorar
+            </Button>
+          </div>
+          <div>
+            Em até <Input type="number" value={10} /> passos a gramática{' '}
+            <strong style={{ color: 'red' }}>não é fatorável</strong>.
+          </div>
+          <div>
+            <strong style={{ color: 'green' }}>
+              A gramática está fatorada
+            </strong>.
+          </div>
         </CardContent>
       </Card>
     );

@@ -66,7 +66,7 @@ class GrammarCard extends React.Component {
       <Card className={classes.card}>
         <CardContent>
           <Typography gutterBottom variant="headline" component="h2">
-            Gramática regular
+            Gramática livre de contexto
           </Typography>
           <form noValidate autoComplete="off">
             <FormControl
@@ -78,7 +78,7 @@ class GrammarCard extends React.Component {
               {!isEmpty &&
                 !valid && (
                   <FormHelperText id="grammar-error-text">
-                    Gramática inválida ou não regular
+                    Gramática inválida ou não livre de contexto
                   </FormHelperText>
                 )}
             </FormControl>
