@@ -1,10 +1,10 @@
-# LR.io
+# CFL.io
 
-This is a tool to manipulate regular languages.
+This is a tool to manipulate context free languages.
 
 ## Demonstration
 
-https://ricardovf.github.io/LR.io/
+https://ricardovf.github.io/CFL.io/
 
 ## Information
 

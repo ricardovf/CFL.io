@@ -1,8 +1,8 @@
 {
-  "name": "LR.io",
+  "name": "CFL.io",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://ricardovf.github.io/LR.io",
+  "homepage": "https://ricardovf.github.io/CFL.io",
   "dependencies": {
     "@rematch/core": "^0.6.0",
     "@rematch/persist": "^0.2.1",

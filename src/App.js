@@ -11,7 +11,7 @@ class App extends React.Component {
       <Router
         basename={
           process && process.env && process.env.NODE_ENV === 'production'
-            ? '/LR.io'
+            ? '/CFL.io'
             : undefined
         }
       >

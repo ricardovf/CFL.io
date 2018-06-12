@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
-import LRLogo from '../media/img/LR_logo.png';
+import CFLLogo from '../media/img/CFL_logo.png';
 import Drawer from 'material-ui/Drawer';
 import AppBar from 'material-ui/AppBar';
 import Hidden from 'material-ui/Hidden';
@@ -90,7 +90,7 @@ class LayoutWithResponsiveDrawer extends React.Component {
       <div>
         <div className={classes.logoToolbar}>
           <a className={classes.logo} href="/">
-            <img alt="LR.io Logo" src={LRLogo} style={{ height: '26px' }} />
+            <img alt="CFL.io Logo" src={CFLLogo} style={{ height: '26px' }} />
           </a>
         </div>
         <Divider />
