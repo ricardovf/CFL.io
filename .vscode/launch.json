@@ -1,0 +1,23 @@
+{ 
+    "version": "0.2.0", 
+    "configurations": [ 
+        { 
+            "name": "Debug Jest Tests", 
+            "type": "node", 
+            "request": "launch", 
+            "cwd": "${workspaceRoot}",
+            "program": "${workspaceFolder}/node_modules/.bin/react-app-rewired", 
+            "env": {}, 
+            "args": [ 
+                "--inspect",
+                "test", 
+                "--env=jsdom", 
+                "--testPathPattern", 
+                "Minimizer.test.js" 
+            ],
+            "protocol": "inspector",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+        } 
+    ] 
+}

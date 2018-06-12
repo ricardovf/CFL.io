@@ -1,0 +1,48 @@
+{
+  "name": "LR.io",
+  "version": "0.1.0",
+  "private": true,
+  "homepage": "https://ricardovf.github.io/LR.io",
+  "dependencies": {
+    "@rematch/core": "^0.6.0",
+    "@rematch/persist": "^0.2.1",
+    "@rematch/updated": "^0.1.5",
+    "lodash": "^4.17.10",
+    "material-ui": "next",
+    "material-ui-chip-input": "^1.0.0-beta.4",
+    "prop-types": "^15.6.1",
+    "ramda": "^0.25.0",
+    "react": "^16.3.2",
+    "react-app-rewire-hot-loader": "^1.0.1",
+    "react-app-rewired": "^1.5.2",
+    "react-dom": "^16.3.2",
+    "react-hot-loader": "^4.1.2",
+    "react-redux": "^5.0.7",
+    "react-router-dom": "^4.2.2",
+    "react-scripts": "1.1.4",
+    "react-styleguidist": "^7.0.8",
+    "redux": "^4.0.0",
+    "redux-devtools-extension": "^2.13.2",
+    "redux-persist": "^5.9.1",
+    "source-map-explorer": "^1.5.0",
+    "uuid": "^3.2.1",
+    "viz.js": "^1.8.2",
+    "xregexp": "^4.1.1"
+  },
+  "scripts": {
+    "styleguide": "styleguidist server",
+    "styleguide:build": "styleguidist build",
+    "analyze": "source-map-explorer gh-pages/static/js/main.*",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test --env=jsdom",
+    "coverage": "react-app-rewired test --env=jsdom --coverage",
+    "eject": "react-app-rewired eject",
+    "predeploy": "yarn build",
+    "deploy": "gh-pages -d build"
+  },
+  "devDependencies": {
+    "gh-pages": "^1.1.0",
+    "prettier": "1.12.1"
+  }
+}
