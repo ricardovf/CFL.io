@@ -1,7 +1,7 @@
 import React from 'react'; // eslint-disable-line no-unused-vars
 import { connect } from 'react-redux';
 import { find, propEq } from 'ramda';
-import EditableTransitionTable from '../components/EditableTransitionTable';
+import FirstFollowTable from '../components/FirstFollowTable';
 
 const mapState = state => {
   const language = find(propEq('id', state.selectedLanguage))(state.languages);
@@ -27,4 +27,4 @@ const mapDispatch = dispatch => ({
     dispatch.languages.changeTransition({ id, symbol, fromState, toStates }),
 });
 
-export default connect(mapState, mapDispatch)(EditableTransitionTable);
+export default connect(mapState, mapDispatch)(FirstFollowTable);

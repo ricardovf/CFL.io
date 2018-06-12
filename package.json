@@ -26,7 +26,6 @@
     "redux-persist": "^5.9.1",
     "source-map-explorer": "^1.5.0",
     "uuid": "^3.2.1",
-    "viz.js": "^1.8.2",
     "xregexp": "^4.1.1"
   },
   "scripts": {

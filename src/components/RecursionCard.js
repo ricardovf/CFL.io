@@ -1,12 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Icon, Typography } from 'material-ui';
+import { Button, Typography } from 'material-ui';
 import { withStyles } from 'material-ui/styles';
 import Card, { CardContent } from 'material-ui/Card';
-import ChipInput from 'material-ui-chip-input';
-import Avatar from 'material-ui/Avatar';
-import Chip from 'material-ui/Chip';
-import FSM from '../logic/FSM';
 import Table, {
   TableBody,
   TableCell,
@@ -26,7 +22,7 @@ const styles = () => ({
   },
 });
 
-class RecognizeCard extends React.Component {
+class RecursionCard extends React.Component {
   render() {
     const { classes, language } = this.props;
 
@@ -79,8 +75,8 @@ class RecognizeCard extends React.Component {
   }
 }
 
-RecognizeCard.propTypes = {
+RecursionCard.propTypes = {
   language: PropTypes.object,
 };
 
-export default withStyles(styles)(RecognizeCard);
+export default withStyles(styles)(RecursionCard);

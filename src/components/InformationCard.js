@@ -5,9 +5,7 @@ import { withStyles } from 'material-ui/styles';
 import Card, { CardContent } from 'material-ui/Card';
 import List, { ListItem, ListItemIcon, ListItemText } from 'material-ui/List';
 import Divider from 'material-ui/Divider';
-import FSM from '../logic/FSM';
-import { SnackbarContent } from 'material-ui/Snackbar';
-import Button from 'material-ui/Button';
+import Grammar from '../logic/Grammar';
 
 const styles = () => ({
   card: {
@@ -27,7 +25,7 @@ const styles = () => ({
   },
 });
 
-class FSMCard extends React.Component {
+class InformationCard extends React.Component {
   render() {
     const {
       classes,
@@ -43,41 +41,44 @@ class FSMCard extends React.Component {
       <Icon style={{ fontSize: 24, color: 'gray' }}>help</Icon>
     );
 
-    /** @type {FSM} */
-    let fsm = null;
+    /** @type {Grammar} */
+    let grammar = null;
 
-    if (language && language.fsm) {
-      fsm = FSM.fromPlainObject(language.fsm);
+    if (language && language.grammar) {
+      grammar = Grammar.fromPlainObject(language.grammar);
     }
 
-    const info = fsm && (
+    const info = grammar && (
       <React.Fragment>
         <List dense>
           <ListItem disableGutters>
             <ListItemText
               secondary={'Não terminais (Vn)'}
-              primary={fsm.states.join(', ')}
+              primary={grammar.Vn.join(', ')}
             />
           </ListItem>
           <ListItem disableGutters>
             <ListItemText
               secondary="Terminais (Vt)"
-              primary={fsm.alphabet.join(', ')}
+              primary={grammar.Vt.join(', ')}
             />
           </ListItem>
           <ListItem disableGutters>
-            <ListItemText secondary="Símbolo inicial" primary={fsm.initial} />
+            <ListItemText secondary="Símbolo inicial" primary={grammar.S} />
           </ListItem>
           <ListItem disableGutters>
-            <ListItemText secondary="Linguagem" primary={'Vazia'} />
+            <ListItemText
+              secondary="Linguagem"
+              primary={grammar.getLanguageFinitude()}
+            />
           </ListItem>
         </List>
         <Divider />
         <List dense className={classes.lastList}>
           <ListItem disableGutters>
             <ListItemIcon>
-              {fsm
-                ? fsm.hasEpsilonTransitions()
+              {grammar
+                ? grammar.hasEpsilonTransitions()
                   ? noIcon
                   : yesIcon
                 : dontKnowIcon}
@@ -86,19 +87,37 @@ class FSMCard extends React.Component {
           </ListItem>
           <ListItem disableGutters>
             <ListItemIcon>
-              {fsm ? (fsm.isDeterministic() ? yesIcon : noIcon) : dontKnowIcon}
+              {grammar
+                ? grammar.hasSimpleProductions()
+                  ? yesIcon
+                  : noIcon
+                : dontKnowIcon}
             </ListItemIcon>
             <ListItemText primary="Sem produções simples" />
           </ListItem>
           <ListItem disableGutters>
             <ListItemIcon>
-              {fsm ? (fsm.isMinimal() ? yesIcon : noIcon) : dontKnowIcon}
+              {grammar ? (grammar.hasCycle() ? yesIcon : noIcon) : dontKnowIcon}
+            </ListItemIcon>
+            <ListItemText primary="Sem ciclos" />
+          </ListItem>
+          <ListItem disableGutters>
+            <ListItemIcon>
+              {grammar
+                ? grammar.hasInfertileSymbols()
+                  ? yesIcon
+                  : noIcon
+                : dontKnowIcon}
             </ListItemIcon>
             <ListItemText primary="Sem não terminais inférteis" />
           </ListItem>
           <ListItem disableGutters>
             <ListItemIcon>
-              {fsm ? (fsm.isMinimal() ? yesIcon : noIcon) : dontKnowIcon}
+              {grammar
+                ? grammar.hasUnreachableSymbols()
+                  ? yesIcon
+                  : noIcon
+                : dontKnowIcon}
             </ListItemIcon>
             <ListItemText primary="Sem não terminais inalcançáveis" />
           </ListItem>
@@ -111,16 +130,16 @@ class FSMCard extends React.Component {
       action,
       actions = null;
 
-    // if (fsm) {
-    //   if (fsm.hasEpsilonTransitions()) {
+    // if (grammar) {
+    //   if (grammar.hasEpsilonTransitions()) {
     //     message = 'Você pode eliminar as transições por epsilon';
     //     action = eliminateEpsilonTransitions;
     //     actionText = 'Eliminar epsilon';
-    //   } else if (!fsm.isDeterministic()) {
+    //   } else if (!grammar.isDeterministic()) {
     //     message = 'Você pode tornar esse autômato determinístico';
     //     action = determinate;
     //     actionText = 'Determinizar';
-    //   } else if (!fsm.isMinimal()) {
+    //   } else if (!grammar.isMinimal()) {
     //     message = 'Você pode minimizar o autômato';
     //     action = minimize;
     //     actionText = 'Minimizar';
@@ -162,7 +181,7 @@ class FSMCard extends React.Component {
   }
 }
 
-FSMCard.propTypes = {
+InformationCard.propTypes = {
   classes: PropTypes.object.isRequired,
   language: PropTypes.object,
   determinate: PropTypes.func,
@@ -170,4 +189,4 @@ FSMCard.propTypes = {
   minimize: PropTypes.func,
 };
 
-export default withStyles(styles)(FSMCard);
+export default withStyles(styles)(InformationCard);

@@ -4,12 +4,10 @@ import { withStyles } from 'material-ui/styles';
 import Paper from 'material-ui/Paper';
 import Grid from 'material-ui/Grid';
 import GrammarCardConnector from '../connectors/GrammarCardConnector';
-import ExpressionCardConnector from '../connectors/ExpressionCardConnector';
-import FSMCardConnector from '../connectors/FSMCardConnector';
-import RecognizeCardConnector from '../connectors/RecognizeCardConnector';
+import InformationCardConnector from '../connectors/InformationCardConnector';
+import RecursionCardConnector from '../connectors/RecursionCardConnector';
 import EnumerationCardConnector from '../connectors/EnumerationCardConnector';
-import TableOrGraphCardConnector from '../connectors/TableOrGraphCardConnector';
-import EditableTransitionTable from './EditableTransitionTable';
+import FirstFollowTableConnector from '../connectors/FirstFollowTableConnector';
 
 const styles = theme => ({
   // root: {
@@ -54,16 +52,16 @@ function LayoutDashboard(props) {
                 <GrammarCardConnector />
               </Grid>
               <Grid item xs={12}>
-                <EditableTransitionTable />
+                <FirstFollowTableConnector />
               </Grid>
             </Grid>
           </Grid>
           <Grid item xs={12} sm={12} md={3}>
-            <FSMCardConnector />
+            <InformationCardConnector />
           </Grid>
 
           <Grid item xs={12} sm={6} md={6}>
-            <RecognizeCardConnector />
+            <RecursionCardConnector />
           </Grid>
           <Grid item xs={12} sm={6} md={6}>
             <EnumerationCardConnector />

@@ -19,9 +19,9 @@ const styles = () => ({
   },
 });
 
-class EditableTransitionTable extends React.Component {
+class FirstFollowTable extends React.Component {
   render() {
-    const { classes, language, fsm } = this.props;
+    const { classes, language, grammar } = this.props;
 
     return (
       <Card className={classes.card}>
@@ -64,9 +64,9 @@ class EditableTransitionTable extends React.Component {
   }
 }
 
-EditableTransitionTable.propTypes = {
+FirstFollowTable.propTypes = {
   classes: PropTypes.object.isRequired,
-  fsm: PropTypes.object,
+  grammar: PropTypes.object,
   valid: PropTypes.bool,
   changeInitialState: PropTypes.func,
   addToFinalStates: PropTypes.func,
@@ -78,4 +78,4 @@ EditableTransitionTable.propTypes = {
   changeTransition: PropTypes.func,
 };
 
-export default withStyles(styles)(EditableTransitionTable);
+export default withStyles(styles)(FirstFollowTable);

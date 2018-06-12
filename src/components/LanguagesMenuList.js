@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import List, { ListItem, ListItemText } from 'material-ui/List';
 import Button from 'material-ui/Button';
-import ListSubheader from 'material-ui/List/ListSubheader';
 import { withStyles } from 'material-ui';
 
 const isSelected = (item, language) =>

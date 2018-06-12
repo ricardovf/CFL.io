@@ -1,7 +1,7 @@
 import React from 'react'; // eslint-disable-line no-unused-vars
 import { connect } from 'react-redux';
 import { find, propEq } from 'ramda';
-import FSMCard from '../components/FSMCard';
+import InformationCard from '../components/InformationCard';
 
 const mapState = state => {
   const language = find(propEq('id', state.selectedLanguage))(state.languages);
@@ -18,4 +18,4 @@ const mapDispatch = dispatch => ({
   minimize: id => dispatch.languages.minimize({ id }),
 });
 
-export default connect(mapState, mapDispatch)(FSMCard);
+export default connect(mapState, mapDispatch)(InformationCard);

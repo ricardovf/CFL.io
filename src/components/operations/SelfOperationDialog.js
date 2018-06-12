@@ -8,8 +8,7 @@ import Dialog, {
 } from 'material-ui/Dialog';
 import { withStyles } from 'material-ui/styles';
 import { Typography } from 'material-ui';
-import FSM from '../../logic/FSM';
-import FSMGraph from '../FSMGraph';
+import Grammar from '../../logic/Grammar';
 import * as R from 'ramda';
 import PropTypes from 'prop-types';
 
@@ -53,7 +52,7 @@ class SelfOperationDialog extends React.Component {
       reset = true;
     } else if (nextProps.open === true) {
       let fsms = nextProps.operation
-        ? nextProps.operation(FSM.fromPlainObject(nextProps.language.fsm))
+        ? nextProps.operation(Grammar.fromPlainObject(nextProps.language.fsm))
         : [];
       if (fsms.length > 0) {
         fsms = R.map(fsm => fsm.toPlainObject(), fsms);
@@ -180,10 +179,10 @@ class SelfOperationDialog extends React.Component {
           {Array.isArray(this.state.steps) && (
             <div>
               <div className={classes.graphContainer}>
-                <FSMGraph
-                  showTitle={false}
-                  fsm={this.state.steps[this.state.step - 1]}
-                />
+                {/*<FSMGraph*/}
+                {/*showTitle={false}*/}
+                {/*fsm={this.state.steps[this.state.step - 1]}*/}
+                {/*/>*/}
               </div>
             </div>
           )}

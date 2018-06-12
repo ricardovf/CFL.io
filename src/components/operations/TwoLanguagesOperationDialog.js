@@ -8,8 +8,7 @@ import Dialog, {
 } from 'material-ui/Dialog';
 import { withStyles } from 'material-ui/styles';
 import { FormControlLabel, Radio, RadioGroup, Typography } from 'material-ui';
-import FSM from '../../logic/FSM';
-import FSMGraph from '../FSMGraph';
+import Grammar from '../../logic/Grammar';
 import * as R from 'ramda';
 import PropTypes from 'prop-types';
 
@@ -53,7 +52,7 @@ class TwoLanguagesOperationDialog extends React.Component {
     if (
       nextProps.open === false ||
       !nextProps.language ||
-      !nextProps.language.fsm
+      !nextProps.language.grammar
     ) {
       reset = true;
     } else if (nextProps.open === true) {
@@ -97,20 +96,20 @@ class TwoLanguagesOperationDialog extends React.Component {
     if (
       this.props.operation &&
       this.props.language &&
-      this.props.language.fsm &&
+      this.props.language.grammar &&
       selectedLanguage &&
-      selectedLanguage.fsm
+      selectedLanguage.grammar
     ) {
-      let fsms = this.props.operation(
-        FSM.fromPlainObject(this.props.language.fsm),
-        FSM.fromPlainObject(selectedLanguage.fsm)
+      let grammars = this.props.operation(
+        Grammar.fromPlainObject(this.props.language.grammar),
+        Grammar.fromPlainObject(selectedLanguage.grammar)
       );
 
-      if (fsms.length > 0) {
-        fsms = R.map(fsm => fsm.toPlainObject(), fsms);
+      if (grammars.length > 0) {
+        grammars = R.map(grammar => grammar.toPlainObject(), grammars);
 
         this.setState({
-          steps: fsms,
+          steps: grammars,
           step: 1,
         });
       }
@@ -193,7 +192,7 @@ class TwoLanguagesOperationDialog extends React.Component {
                   key={radioLanguage.id}
                   control={<Radio />}
                   label={radioLanguage.name}
-                  disabled={!radioLanguage.fsm}
+                  disabled={!radioLanguage.grammar}
                 />
               ))}
           </RadioGroup>
@@ -276,10 +275,10 @@ class TwoLanguagesOperationDialog extends React.Component {
           {Array.isArray(this.state.steps) && (
             <div>
               <div className={classes.graphContainer}>
-                <FSMGraph
-                  showTitle={false}
-                  fsm={this.state.steps[this.state.step - 1]}
-                />
+                {/*<FSMGraph*/}
+                {/*showTitle={false}*/}
+                {/*grammar={this.state.steps[this.state.step - 1]}*/}
+                {/*/>*/}
               </div>
             </div>
           )}

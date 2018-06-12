@@ -3,9 +3,7 @@ import PropTypes from 'prop-types';
 import { Button, Input, Typography } from 'material-ui';
 import { withStyles } from 'material-ui/styles';
 import Card, { CardContent } from 'material-ui/Card';
-import FSM from '../logic/FSM';
-import { FormControl } from 'material-ui/Form';
-import Select from 'material-ui/Select';
+import Grammar from '../logic/Grammar';
 import Table, {
   TableBody,
   TableCell,
@@ -23,7 +21,7 @@ const styles = () => ({
   },
 });
 
-class EnumerationCard extends React.Component {
+class FactorizationCard extends React.Component {
   constructor(props) {
     super(props);
 
@@ -40,11 +38,11 @@ class EnumerationCard extends React.Component {
     if (language) {
       let sentences = [];
 
-      if (language && language.fsm) {
-        const fsm = FSM.fromPlainObject(language.fsm);
+      if (language && language.grammar) {
+        const grammar = Grammar.fromPlainObject(language.grammar);
 
-        if (fsm) {
-          sentences = R.sortBy(s => s.length, fsm.generate(length).sort());
+        if (grammar) {
+          //sentences = R.sortBy(s => s.length, fsm.generate(length).sort());
         }
       }
 
@@ -110,10 +108,10 @@ class EnumerationCard extends React.Component {
   }
 }
 
-EnumerationCard.propTypes = {
+FactorizationCard.propTypes = {
   language: PropTypes.object,
   length: PropTypes.number,
   onLengthChange: PropTypes.func,
 };
 
-export default withStyles(styles)(EnumerationCard);
+export default withStyles(styles)(FactorizationCard);

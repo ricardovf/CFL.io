@@ -6,9 +6,9 @@ import createRematchPersist from '@rematch/persist';
 // const updated = updatedPlugin();
 
 const persistPlugin = createRematchPersist({
-  // whitelist: ['languages', 'selectedLanguage'],
+  key: 'cfl',
   throttle: 500,
-  version: 1,
+  version: 2,
 });
 
 export const store = init({
