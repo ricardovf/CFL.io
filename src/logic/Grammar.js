@@ -18,6 +18,22 @@ export default class Grammar {
     this.S = S;
   }
 
+  terminals() {
+    return this.Vt;
+  }
+
+  nonTerminals() {
+    return this.Vn;
+  }
+
+  rules() {
+    return this.P;
+  }
+
+  initialSymbol() {
+    return this.S;
+  }
+
   /**
    * @todo implement
    * @throws
