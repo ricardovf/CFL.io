@@ -14,7 +14,7 @@ export default class Grammar {
   constructor(Vn, Vt, P, S) {
     this.Vn = !Vn || !Array.isArray(Vn) ? [] : Vn;
     this.Vt = !Vt || !Array.isArray(Vt) ? [] : Vt;
-    this.P = !P || !Array.isArray(P) ? [] : P;
+    this.P = P;
     this.S = S;
   }
 
@@ -51,7 +51,7 @@ export default class Grammar {
       );
 
     if (this.P[this.S] === undefined)
-      throw new Error(`There should be an ${this.P} -> x | xY | & production`);
+      throw new Error(`There should be an ${this.S} -> x | xY | & production`);
 
     let hasEpsilonOnInitialNonTerminal = false;
 
@@ -159,6 +159,7 @@ export default class Grammar {
     try {
       this._validate();
     } catch (e) {
+      // console.log(e);
       return false;
     }
 
@@ -331,6 +332,8 @@ export default class Grammar {
    */
   static fromPlainObject(object) {
     try {
+      // if (typeof object === 'string') return Grammar.fromText(object);
+
       return new Grammar(object.Vn, object.Vt, object.P, object.S);
     } catch (e) {
       return null;

@@ -9,6 +9,7 @@ import Table, {
   TableHead,
   TableRow,
 } from 'material-ui/Table';
+import Grammar from '../logic/Grammar';
 
 const styles = () => ({
   card: {
@@ -25,6 +26,9 @@ const styles = () => ({
 class RecursionCard extends React.Component {
   render() {
     const { classes, language } = this.props;
+
+    if (!language || !language.valid) return null;
+    const grammar = Grammar.fromPlainObject(language.grammar);
 
     const hasLanguage = language !== undefined;
 

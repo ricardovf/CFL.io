@@ -9,6 +9,7 @@ import Table, {
   TableRow,
 } from 'material-ui/Table';
 import Card, { CardContent } from 'material-ui/Card';
+import Grammar from '../logic/Grammar';
 
 const styles = () => ({
   card: {
@@ -21,7 +22,10 @@ const styles = () => ({
 
 class FirstFollowTable extends React.Component {
   render() {
-    const { classes, language, grammar } = this.props;
+    const { classes, language } = this.props;
+
+    if (!language || !language.valid) return null;
+    const grammar = Grammar.fromPlainObject(language.grammar);
 
     return (
       <Card className={classes.card}>
@@ -66,16 +70,7 @@ class FirstFollowTable extends React.Component {
 
 FirstFollowTable.propTypes = {
   classes: PropTypes.object.isRequired,
-  grammar: PropTypes.object,
-  valid: PropTypes.bool,
-  changeInitialState: PropTypes.func,
-  addToFinalStates: PropTypes.func,
-  deleteFromFinalStates: PropTypes.func,
-  addNewState: PropTypes.func,
-  deleteState: PropTypes.func,
-  addNewSymbol: PropTypes.func,
-  deleteSymbol: PropTypes.func,
-  changeTransition: PropTypes.func,
+  language: PropTypes.object,
 };
 
 export default withStyles(styles)(FirstFollowTable);

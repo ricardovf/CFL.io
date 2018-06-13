@@ -11,6 +11,7 @@ function _makeNewLanguage(name) {
     name: name,
     valid: false,
     grammar: undefined,
+    grammarInputText: '',
     factorizationLength: 5,
   };
 }
@@ -49,8 +50,9 @@ export default {
               language.grammar instanceof Grammar
                 ? language.grammar
                 : Grammar.fromPlainObject(language.grammar);
-            language.grammar = grammar.getFormattedText();
+
             language.valid = grammar.isValid();
+            language.grammar = grammar.toPlainObject();
           } catch (e) {
             language.grammar = undefined;
             language.valid = false;
@@ -172,16 +174,16 @@ export default {
         let language = find(propEq('id', id))(rootState.languages);
 
         if (language) {
-          const grammar = Grammar.fromText(text);
+          const trimmedText = multiTrim(text, false);
+
+          const grammar = Grammar.fromText(trimmedText);
           const valid = grammar && grammar.isValid();
 
           language = {
             ...language,
             valid: valid,
-            // expression: undefined,
-            grammar: valid
-              ? grammar.getFormattedText() || multiTrim(text, false)
-              : multiTrim(text, false),
+            grammar: valid ? grammar.toPlainObject() : undefined,
+            grammarInputText: trimmedText,
           };
 
           dispatch.languages._updateLanguage({

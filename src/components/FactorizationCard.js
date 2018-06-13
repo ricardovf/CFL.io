@@ -59,6 +59,9 @@ class FactorizationCard extends React.Component {
   render() {
     const { classes, language, length, onLengthChange } = this.props;
 
+    if (!language || !language.valid) return null;
+    const grammar = Grammar.fromPlainObject(language.grammar);
+
     const table = (
       <Table>
         <TableHead>

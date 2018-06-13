@@ -20,33 +20,20 @@ const styles = () => ({
     paddingTop: '5px',
     paddingBottom: 0,
   },
-  snackbar: {
-    minWidth: '100px',
-  },
 });
 
 class InformationCard extends React.Component {
   render() {
-    const {
-      classes,
-      language,
-      determinate,
-      eliminateEpsilonTransitions,
-      minimize,
-    } = this.props;
+    const { classes, language } = this.props;
+
+    if (!language || !language.valid) return null;
+    const grammar = Grammar.fromPlainObject(language.grammar);
 
     const yesIcon = <Icon style={{ fontSize: 24, color: 'green' }}>check</Icon>;
     const noIcon = <Icon style={{ fontSize: 24, color: 'red' }}>close</Icon>;
     const dontKnowIcon = (
       <Icon style={{ fontSize: 24, color: 'gray' }}>help</Icon>
     );
-
-    /** @type {Grammar} */
-    let grammar = null;
-
-    if (language && language.grammar) {
-      grammar = Grammar.fromPlainObject(language.grammar);
-    }
 
     const info = grammar && (
       <React.Fragment>
@@ -125,47 +112,6 @@ class InformationCard extends React.Component {
       </React.Fragment>
     );
 
-    let message,
-      actionText,
-      action,
-      actions = null;
-
-    // if (grammar) {
-    //   if (grammar.hasEpsilonTransitions()) {
-    //     message = 'Você pode eliminar as transições por epsilon';
-    //     action = eliminateEpsilonTransitions;
-    //     actionText = 'Eliminar epsilon';
-    //   } else if (!grammar.isDeterministic()) {
-    //     message = 'Você pode tornar esse autômato determinístico';
-    //     action = determinate;
-    //     actionText = 'Determinizar';
-    //   } else if (!grammar.isMinimal()) {
-    //     message = 'Você pode minimizar o autômato';
-    //     action = minimize;
-    //     actionText = 'Minimizar';
-    //   }
-    // }
-
-    // actions = message && (
-    //   <React.Fragment>
-    //     <SnackbarContent
-    //       className={classes.snackbar}
-    //       message={message}
-    //       action={
-    //         <Button
-    //           color="secondary"
-    //           size="small"
-    //           onClick={() => {
-    //             action(language.id);
-    //           }}
-    //         >
-    //           {actionText}
-    //         </Button>
-    //       }
-    //     />
-    //   </React.Fragment>
-    // );
-
     return (
       <Card className={classes.card}>
         <CardContent className={classes.cardContent}>
@@ -175,7 +121,6 @@ class InformationCard extends React.Component {
 
           {info}
         </CardContent>
-        {actions}
       </Card>
     );
   }
@@ -184,9 +129,6 @@ class InformationCard extends React.Component {
 InformationCard.propTypes = {
   classes: PropTypes.object.isRequired,
   language: PropTypes.object,
-  determinate: PropTypes.func,
-  eliminateEpsilonTransitions: PropTypes.func,
-  minimize: PropTypes.func,
 };
 
 export default withStyles(styles)(InformationCard);

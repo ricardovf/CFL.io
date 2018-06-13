@@ -5,6 +5,8 @@ import { withStyles } from 'material-ui/styles';
 import Card, { CardContent } from 'material-ui/Card';
 import TextField from 'material-ui/TextField';
 import { FormControl, FormHelperText } from 'material-ui/Form';
+import { multiTrim } from '../logic/helpers';
+import Grammar from '../logic/Grammar';
 
 const styles = () => ({
   card: {
@@ -22,28 +24,30 @@ class GrammarCard extends React.Component {
   }
 
   render() {
-    const {
-      classes,
-      language,
-      grammar,
-      valid = true,
-      onGrammarChange,
-    } = this.props;
+    const { classes, language, onGrammarChange } = this.props;
 
-    const isEmpty =
-      grammar === undefined ||
-      (typeof grammar === 'string' && grammar.length === 0);
+    let grammar = undefined;
 
+    if (language && language.valid)
+      grammar = Grammar.fromPlainObject(language.grammar);
+
+    const isEmpty = grammar ? false : language.grammarInputText.length === 0;
     const isFocused = this.state.isFocused;
 
     const input = (
       <TextField
-        error={!isEmpty && !valid}
+        error={!isEmpty && !language.valid}
         id="multiline-flexible"
         label=""
         multiline
         rowsMax="10"
-        value={isFocused ? undefined : isEmpty ? '' : grammar}
+        value={
+          isFocused
+            ? undefined
+            : grammar
+              ? grammar.getFormattedText()
+              : language.grammarInputText
+        }
         onChange={event => {
           onGrammarChange(
             language ? language.id : undefined,
@@ -71,14 +75,14 @@ class GrammarCard extends React.Component {
           <form noValidate autoComplete="off">
             <FormControl
               fullWidth
-              error={!isEmpty && !valid}
-              aria-describedby={!valid ? 'grammar-error-text' : ''}
+              error={!isEmpty && !language.valid}
+              aria-describedby={!language.valid ? 'grammar-error-text' : ''}
             >
               {input}
               {!isEmpty &&
-                !valid && (
+                !language.valid && (
                   <FormHelperText id="grammar-error-text">
-                    Gramática inválida ou não livre de contexto
+                    Gramática é inválida ou não é livre de contexto
                   </FormHelperText>
                 )}
             </FormControl>
@@ -91,8 +95,7 @@ class GrammarCard extends React.Component {
 
 GrammarCard.propTypes = {
   classes: PropTypes.object.isRequired,
-  grammar: PropTypes.string,
-  valid: PropTypes.bool,
+  language: PropTypes.object.isRequired,
   onGrammarChange: PropTypes.func,
 };
 

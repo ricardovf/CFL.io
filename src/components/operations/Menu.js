@@ -31,14 +31,8 @@ class OperationsMenu extends React.Component {
     const { anchorEl, operation } = this.state;
     const { language, languages, handleSave } = this.props;
 
-    if (!language || !language.grammar) {
-      return '';
-    }
-
-    const grammar =
-      language.grammar instanceof Grammar
-        ? language.grammar
-        : Grammar.fromPlainObject(language.grammar);
+    if (!language || !language.valid) return null;
+    const grammar = Grammar.fromPlainObject(language.grammar);
 
     return (
       <div>
@@ -52,8 +46,8 @@ class OperationsMenu extends React.Component {
           language={language}
         />
         <SelfOperationDialog
-          title="Eliminar produções simples"
-          subtitle="Eliminando produções simples de "
+          title="Eliminar ciclos (produções simples)"
+          subtitle="Eliminando ciclos (produções simples) de "
           open={operation === 'eliminate-simple'}
           operation={mockWithSteps}
           handleCancel={this.handleClose}
@@ -117,10 +111,10 @@ class OperationsMenu extends React.Component {
             Eliminar produções com epsilon
           </MenuItem>
           <MenuItem
-            disabled={grammar.hasSimpleProductions() ? true : false}
+            disabled={grammar.hasCycle() ? true : false}
             onClick={this.makeOperationHandler('eliminate-simple')}
           >
-            Eliminar produções simples
+            Eliminar ciclos (produções simples)
           </MenuItem>
           <MenuItem
             disabled={grammar.hasInfertileSymbols() ? true : false}

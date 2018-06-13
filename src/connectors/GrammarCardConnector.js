@@ -7,8 +7,6 @@ const mapState = state => {
   const language = find(propEq('id', state.selectedLanguage))(state.languages);
   return {
     language,
-    valid: language !== undefined && language.valid,
-    grammar: language !== undefined ? language.grammar : undefined,
   };
 };
 
