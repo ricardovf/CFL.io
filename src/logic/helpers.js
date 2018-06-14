@@ -19,3 +19,7 @@ export function multiTrim(input, noSpaces = true, noLines = false) {
 export function multiTrimNoLines(input) {
   return multiTrim(input, true, true);
 }
+
+export function removeDoubleSpaces(input) {
+  return input.replace(/\s\s+/g, ' ');
+}

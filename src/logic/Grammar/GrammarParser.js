@@ -1,11 +1,10 @@
-import { multiTrim } from '../helpers';
-import XRegExp from 'xregexp';
-import SymbolValidator, { SEPARATOR } from '../SymbolValidator';
+import { multiTrim, removeDoubleSpaces } from '../helpers';
+import SymbolValidator, {
+  DERIVATION,
+  EPSILON,
+  SEPARATOR,
+} from '../SymbolValidator';
 import * as R from 'ramda';
-
-const fullLineRegExp = XRegExp(
-  `^(?<left>[A-Z])->(?<right>((([a-z]|[0-9])([A-Z])?)|&)(\\|(([a-z]|[0-9])([A-Z])?|&))*)$`
-);
 
 export default class GrammarParser {
   constructor(input = '') {
@@ -56,37 +55,87 @@ export default class GrammarParser {
     return this;
   }
 
+  /**
+   * Will extract the elements of the grammar only if all lines and all productions are valid
+   *
+   * @private
+   */
   _extractElements() {
     const lines = this._input.split('\n');
+    let P = [],
+      S = undefined,
+      validLines = 0;
 
+    // For each line of the grammar we extract productions
     for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-      const line = lines[lineIndex];
+      // Breaks in two parts using the -> separator, should result in two parts
+      let [left, right] = lines[lineIndex].split(DERIVATION);
 
-      const match = XRegExp.exec(line, fullLineRegExp);
+      if (left === undefined || right === undefined) continue;
 
-      if (match === null) {
-        this._resetElements();
-        return this;
-      }
+      left = left.trim();
+      right = right.trim();
 
-      // First Symbol of the Grammar
-      if (lineIndex === 0) this.S = match.left;
+      // If left is not a Non Terminal, we abort
+      if (!SymbolValidator.isValidNonTerminal(left)) continue;
 
-      // Extract rules
-      match.right.split(SEPARATOR).forEach(rule => {
-        if (this.P[match.left] === undefined) this.P[match.left] = [];
-        this.P[match.left].push(rule);
+      // Break the right into productions
+      let productions = right.split(SEPARATOR);
+      let validProductions = 0;
+
+      // If we do not have productions on this line, abort
+      if (productions.length === 0) continue;
+
+      // Extract productions in the form a b C
+      productions.forEach(production => {
+        const productionSymbols = R.uniq(
+          production
+            .trim()
+            .split(' ')
+            .map(s => s.trim())
+        );
+
+        // If symbols include & it is not the only production, we abort
+        if (
+          productionSymbols.includes(EPSILON) &&
+          productionSymbols.length !== 1
+        )
+          return;
+
+        if (
+          R.all(SymbolValidator.isValidTerminalOrNonTerminal)(productionSymbols)
+        ) {
+          if (P[left] === undefined) P[left] = [];
+          P[left].push(productionSymbols.join(' '));
+          validProductions++;
+        }
       });
 
-      this.P[match.left] = R.uniq(this.P[match.left]);
+      // If we found valid productions we can increment the valid lines count
+      if (validProductions === productions.length) {
+        validLines++;
+
+        // If this is the first line, we set the initial symbol
+        if (lineIndex === 0) S = left;
+      }
+
+      // Make productions unique and sort
+      if (P[left] !== undefined) P[left] = R.uniq(P[left]).sort();
     }
 
-    this.Vt = this._extractTerminals(this.P);
-    this.Vn = this._extractNonTerminals(this.P);
+    // We only extract elements if all the lines and its productions are valid
+    if (lines.length > 0 && validLines === lines.length) {
+      this.S = S;
+      this.P = P;
+      this.Vt = this._extractTerminals(P);
+      this.Vn = this._extractNonTerminals(P);
+    }
   }
 
   _extractTerminals(rules) {
-    const symbols = R.uniq(R.map(s => s.charAt(0), R.flatten(R.values(rules))));
+    const symbols = R.uniq(
+      R.flatten(R.map(s => s.split(' '), R.flatten(R.values(rules))))
+    );
 
     return R.filter(production => {
       return SymbolValidator.isValidTerminal(production);
@@ -94,38 +143,21 @@ export default class GrammarParser {
   }
 
   _extractNonTerminals(rules) {
-    let producers = R.keys(rules);
-    const first = producers[0];
+    const symbols = R.uniq(
+      R.flatten(R.map(s => s.split(' '), R.flatten(R.values(rules))))
+    );
 
-    const symbols = R.uniq(R.flatten(R.values(rules)));
-
-    let moreProducers = R.map(production => {
-      if (
-        production.length === 1 &&
-        SymbolValidator.isValidNonTerminal(production)
-      )
-        return production;
-      if (
-        production.length === 2 &&
-        SymbolValidator.isValidNonTerminal(production.charAt(1))
-      )
-        return production.charAt(1);
-      return null;
+    const nonTerminalsOnRight = R.filter(production => {
+      return SymbolValidator.isValidNonTerminal(production);
     }, symbols);
 
-    moreProducers = R.reject(v => v === null, moreProducers);
+    const nonTerminalsOnLeft = R.keys(rules);
 
-    producers = R.uniq(producers.concat(moreProducers)).sort();
-
-    if (first && first !== producers[0]) {
-      producers = R.insert(0, first, R.without(first, producers));
-    }
-
-    return producers;
+    return R.union(nonTerminalsOnLeft, nonTerminalsOnRight).sort();
   }
 
   trim() {
-    this._input = multiTrim(this._input);
+    this._input = removeDoubleSpaces(multiTrim(this._input, false).trim());
 
     return this._input;
   }

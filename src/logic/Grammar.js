@@ -1,6 +1,6 @@
 import GrammarParser from './Grammar/GrammarParser';
 import * as R from 'ramda';
-import SymbolValidator, { ACCEPT_STATE, EPSILON } from './SymbolValidator';
+import SymbolValidator, { EPSILON } from './SymbolValidator';
 
 const parser = new GrammarParser();
 
@@ -63,81 +63,36 @@ export default class Grammar {
 
     if (!(typeof this.P === 'object'))
       throw new Error(
-        `The productions should be an object with the form: {S: ['a', 'aS']}`
+        `The productions should be an object with the form: {S: ['a', 'a S', '&', 'A A a']}`
       );
 
     if (this.P[this.S] === undefined)
       throw new Error(`There should be an ${this.S} -> x | xY | & production`);
 
-    let hasEpsilonOnInitialNonTerminal = false;
-
-    R.forEachObjIndexed((productions, producer) => {
-      if (producer !== this.S) {
-        if (productions.includes(EPSILON))
-          throw new Error(
-            `There should not be a production of type ${producer} -> & (epsilon)`
-          );
-      } else if (productions.includes(EPSILON)) {
-        hasEpsilonOnInitialNonTerminal = true;
-      }
-    }, this.P);
-
-    if (hasEpsilonOnInitialNonTerminal) {
-      R.forEachObjIndexed((productions, producer) => {
-        R.forEach(production => {
-          if (production.length === 2 && production.charAt(1) === this.S)
-            throw new Error(
-              `There should not be a production of type ${producer} -> x${producer} when there is & (epsilon)`
-            );
-        }, productions);
-      }, this.P);
-    }
-
-    let states = [...this.Vn, ACCEPT_STATE];
-    let alphabet = [...this.Vt];
-    let transitions = [];
-    let initial = this.S;
-    let finals = this.P[this.S].includes(EPSILON)
-      ? [this.S, ACCEPT_STATE]
-      : [ACCEPT_STATE];
-
-    R.forEachObjIndexed((productions, producer) => {
-      R.forEach(production => {
-        if (production.length === 1) {
-          if (!alphabet.includes(production))
-            throw new Error(
-              `The production ${producer} -> ${production} is invalid because ${production} is not on terminals/alphabet list`
-            );
-
-          // @todo review format
-          transitions.push({
-            from: producer,
-            to: ACCEPT_STATE,
-            when: production,
-          });
-        } else if (production.length === 2) {
-          if (!alphabet.includes(production.charAt(0)))
-            throw new Error(
-              `The production ${producer} -> ${production} is invalid because ${production.charAt(
-                0
-              )} is not on terminals/alphabet list`
-            );
-
-          if (!states.includes(production.charAt(1)))
-            throw new Error(
-              `The production ${producer} -> ${production} is invalid because ${production.charAt(
-                1
-              )} is not on non terminals list`
-            );
-
-          transitions.push({
-            from: producer,
-            to: production.charAt(1),
-            when: production.charAt(0),
-          });
-        }
-      })(productions);
-    }, this.P);
+    // Restrictions on epsilon no longer apply
+    // let hasEpsilonOnInitialNonTerminal = false;
+    //
+    // R.forEachObjIndexed((productions, producer) => {
+    //   if (producer !== this.S) {
+    //     if (productions.includes(EPSILON))
+    //       throw new Error(
+    //         `There should not be a production of type ${producer} -> & (epsilon)`
+    //       );
+    //   } else if (productions.includes(EPSILON)) {
+    //     hasEpsilonOnInitialNonTerminal = true;
+    //   }
+    // }, this.P);
+    //
+    // if (hasEpsilonOnInitialNonTerminal) {
+    //   R.forEachObjIndexed((productions, producer) => {
+    //     R.forEach(production => {
+    //       if (production.length === 2 && production.charAt(1) === this.S)
+    //         throw new Error(
+    //           `There should not be a production of type ${producer} -> x${producer} when there is & (epsilon)`
+    //         );
+    //     }, productions);
+    //   }, this.P);
+    // }
 
     return true;
   }

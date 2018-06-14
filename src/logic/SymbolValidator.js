@@ -3,44 +3,36 @@ import * as R from 'ramda';
 export const EPSILON = '&';
 export const SEPARATOR = '|';
 export const DERIVATION = '->';
-export const ACCEPT_STATE = 'Ã';
-export const SPECIAL_NEW_STATE = '$';
-export const PHI = 'Φ';
-export const STATES_NAMES = Object.freeze(
-  R.map(decimal => String.fromCharCode(decimal), R.range(65, 91))
-);
 
-export default {
+const NON_TERMINAL_REGEXP = /^[A-Z]+[0-9]*$/;
+const TERMINAL_EXCEPTIONS_REGEXP = /[A-Z|\s]|\->/;
+
+const SymbolValidator = {
+  // Everything that does not contains UPPERCASE and is not empty or special grammar character is valid terminal
   isValidTerminal: terminal => {
-    return /^([a-z]|[0-9]|&)$/.test(terminal);
-  },
-  isValidTerminalWithoutEpsilon: terminal => {
-    return /^([a-z]|[0-9])$/.test(terminal);
+    return (
+      terminal !== undefined &&
+      typeof terminal === 'string' &&
+      terminal.trim() !== '' &&
+      !TERMINAL_EXCEPTIONS_REGEXP.test(terminal)
+    );
   },
   isValidNonTerminal: nonTerminal => {
-    return /^([A-Z])$/.test(nonTerminal) || nonTerminal === ACCEPT_STATE;
-  },
-  isStandardAtoZName: stateName => {
-    return /^([A-Z])$/.test(stateName);
-  },
-  isStandardStateName: stateName => {
-    return /^([A-Z]|Q[0-9]*)$/.test(stateName);
+    return (
+      nonTerminal !== undefined &&
+      typeof nonTerminal === 'string' &&
+      NON_TERMINAL_REGEXP.test(nonTerminal)
+    );
   },
   isEpsilon: str => {
     return str === EPSILON;
   },
+  isValidTerminalOrNonTerminal: symbol => {
+    return (
+      SymbolValidator.isValidTerminal(symbol) ||
+      SymbolValidator.isValidNonTerminal(symbol)
+    );
+  },
 };
 
-export function makeNewUniqueStateName(states = []) {
-  const possibleStates = R.difference(STATES_NAMES, states);
-
-  let index = 0;
-  let nextName = possibleStates.length ? R.head(possibleStates) : `Q${index}`;
-
-  while (true) {
-    if (!states.includes(nextName)) {
-      return nextName;
-    }
-    nextName = `Q${++index}`;
-  }
-}
+export default SymbolValidator;
