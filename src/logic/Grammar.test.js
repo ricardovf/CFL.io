@@ -116,4 +116,55 @@ describe('Grammar', () => {
       });
     });
   });
+  describe('properties', () => {
+    it('should detect epsilon free', () => {
+      const grammar = Grammar.fromText(`S -> a S b | ab`);
+      expect(grammar.isEpsilonFree()).toBeTruthy();
+    });
+
+    it('should detect epsilon free with epsilon on initial symbol', () => {
+      const grammar = Grammar.fromText(`S -> A | &\nA -> a A b | a b`);
+      expect(grammar.isEpsilonFree()).toBeTruthy();
+    });
+
+    it('should not detect epsilon free with epsilon on initial symbol', () => {
+      const grammar = Grammar.fromText(`S -> A | &\nA -> a S b | a b`);
+      expect(grammar.isEpsilonFree()).toBeFalsy();
+    });
+
+    it('should not detect epsilon free with non terminal producing epsilon', () => {
+      const grammar = Grammar.fromText(`S -> A \nA -> a S b | a b | &`);
+      expect(grammar.isEpsilonFree()).toBeFalsy();
+    });
+
+    it('should not detect simple productions', () => {
+      const grammar = Grammar.fromText(`S -> a S b | a b`);
+      expect(grammar.hasSimpleProductions()).toBeFalsy();
+    })
+
+    it('should detect simple productions', () => {
+      const grammar = Grammar.fromText(`S -> A | &\nA -> a S b | a b`);
+      expect(grammar.hasSimpleProductions()).toBeTruthy();
+    })
+
+    it('should not detect unreachable symbols', () => {
+      const grammar = Grammar.fromText(`S -> A | &\nA -> a S b | a b`);
+      expect(grammar.hasUnreachableSymbols()).toBeTruthy();
+    })
+
+    it('should detect unreachable symbols', () => {
+      const grammar = Grammar.fromText(`S -> A | &\nA -> a S b | a b\nB -> c B | c`);
+      expect(grammar.hasUnreachableSymbols()).toBeFalsy();
+    })
+
+    it('should detect only fertile symbols', () => {
+      const grammar = Grammar.fromText(`S -> A | &\nA -> a S b | a b\nB -> c B | c`);
+      expect(grammar.hasInfertileSymbols()).toBeFalsy();
+    })
+
+    it('should detect not fertile symbols', () => {
+      const grammar = Grammar.fromText(`S -> A | &\nA -> a S b | a b\nB -> c B | c\nC -> c C`);
+      expect(grammar.hasInfertileSymbols()).toBeTruthy();
+    })
+  });
 });

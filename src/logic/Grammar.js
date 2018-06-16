@@ -34,6 +34,22 @@ export default class Grammar {
     return this.S;
   }
 
+  initialSymbolDerivesEpsilon() {
+    for (let production of this.P[this.S]) {
+      if (production === '&') return true;
+    }
+    return false;
+  }
+
+  nonTerminalDerivesInitialSymbol() {
+    for (let nonTerminal of this.Vn) {
+      for (let production of this.P[nonTerminal]) {
+        if (production.includes(this.S)) return true;
+      }
+    }
+    return false;
+  }
+
   /**
    * @todo implement
    * @throws
@@ -141,7 +157,21 @@ export default class Grammar {
    * @todo
    * @returns {boolean}
    */
-  hasEpsilonTransitions() {
+  isEpsilonFree() {
+    for (let nonTerminal of this.Vn) {
+      for (let production_ of this.P[nonTerminal]) {
+        if (production_ === '&' && nonTerminal !== this.initialSymbol()) {
+          return false;
+        } else {
+          if (
+            this.initialSymbolDerivesEpsilon() &&
+            this.nonTerminalDerivesInitialSymbol()
+          ) {
+            return false;
+          }
+        }
+      }
+    }
     return true;
   }
 
@@ -150,7 +180,13 @@ export default class Grammar {
    * @returns {boolean}
    */
   hasSimpleProductions() {
-    return true;
+    for (let nonTerminal of this.Vn) {
+      for (let production of this.P[nonTerminal]) {
+        if (production.length === 1 && this.Vn.indexOf(production) > -1)
+          return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -158,7 +194,28 @@ export default class Grammar {
    * @returns {boolean}
    */
   hasInfertileSymbols() {
-    return true;
+    let fertileSymbols = [];
+    let oldSize = fertileSymbols.length;
+    let newSize = 1;
+    while (oldSize != newSize) {
+      for (let nonTerminal of this.Vn) {
+        for (let production of this.P[nonTerminal]) {
+          production = production.replace(/\s/g, '');
+          if (this.productionWithOnlyTerminals(production))
+            if (!fertileSymbols.includes(nonTerminal))
+              fertileSymbols.push(nonTerminal);
+
+          let nonTerminals = this.getNonTerminalsFromProduction(production);
+          for (let nonTerminal_ of nonTerminals)
+            if (fertileSymbols.includes(nonTerminal_))
+              if (!fertileSymbols.includes(nonTerminal))
+                fertileSymbols.push(nonTerminal);
+        }
+      }
+      oldSize = newSize;
+      newSize = fertileSymbols.length;
+    }
+    return fertileSymbols.length !== this.Vn.length;
   }
 
   /**
@@ -166,7 +223,30 @@ export default class Grammar {
    * @returns {boolean}
    */
   hasUnreachableSymbols() {
-    return true;
+    let reachableSymbols = [this.initialSymbol()];
+    let oldSize = reachableSymbols.length;
+    let newSize = 0;
+    while (oldSize != newSize) {
+      for (let symbol of reachableSymbols) {
+        if (this.Vn.includes(symbol)) {
+          for (let production of this.P[symbol]) {
+            production = production.replace(/\s/g, '');
+            let nonTerminals = this.getNonTerminalsFromProduction(production);
+            let terminals = this.getTerminalsFromProduction(production);
+            for (let nonTerminal of nonTerminals)
+              if (!reachableSymbols.includes(nonTerminal))
+                reachableSymbols.push(nonTerminal);
+
+            for (let terminal of terminals)
+              if (!reachableSymbols.includes(terminal))
+                reachableSymbols.push(terminal);
+          }
+        }
+      }
+      oldSize = newSize;
+      newSize = reachableSymbols.length;
+    }
+    return reachableSymbols.length === (this.Vn.length + this.Vt.length)
   }
 
   /**
@@ -199,20 +279,8 @@ export default class Grammar {
     );
   }
 
-  /**
-   * @todo
-   * @return {string}
-   */
   getLanguageFinitude() {
     return INFINITE;
-  }
-
-  /**
-   * @todo
-   * @returns {boolean}
-   */
-  hasEpsilonTransitions() {
-    return true;
   }
 
   getFirst() {}
@@ -220,6 +288,32 @@ export default class Grammar {
   getFirstNT() {}
 
   getFollow() {}
+
+  getNonTerminalsFromProduction(p) {
+    let nonTerminals = [];
+    for (let char of p) {
+      if (char !== '&' && char ===  char.toUpperCase())
+        nonTerminals.push(char)
+    }
+    return nonTerminals;
+  }
+
+  getTerminalsFromProduction(p) {
+    let terminals = [];
+    for (let char of p) {
+      if (char === char.toLowerCase())
+        terminals.push(char);
+    }
+    return terminals;
+  }
+
+  productionWithOnlyTerminals(p) {
+    for (let char of p) {
+      if (char !== char.toLowerCase())
+        return false;
+    }
+    return true;
+  }
 
   isFactorable(steps) {
     return true;
