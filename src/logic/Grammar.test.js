@@ -166,5 +166,17 @@ describe('Grammar', () => {
       const grammar = Grammar.fromText(`S -> A | &\nA -> a S b | a b\nB -> c B | c\nC -> c C`);
       expect(grammar.hasInfertileSymbols()).toBeTruthy();
     })
+
+    it('should remove infertile symbols', () => {
+      const grammar = Grammar.fromText(`S -> A | &\nA -> a S b C | a b\nC -> c C`);
+      grammar.removeInfertileSymbols();
+      expect(grammar.hasInfertileSymbols()).toBeFalsy();
+    })
+
+    it('should not remove infertile symbols', () => {
+      const grammar = Grammar.fromText(`S -> A | &\nA -> a S b C | a b\nC -> c C | c`);
+      grammar.removeInfertileSymbols();
+      expect(grammar.hasInfertileSymbols()).toBeFalsy();
+    })
   });
 });

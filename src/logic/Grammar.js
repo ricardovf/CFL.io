@@ -194,28 +194,7 @@ export default class Grammar {
    * @returns {boolean}
    */
   hasInfertileSymbols() {
-    let fertileSymbols = [];
-    let oldSize = fertileSymbols.length;
-    let newSize = 1;
-    while (oldSize != newSize) {
-      for (let nonTerminal of this.Vn) {
-        for (let production of this.P[nonTerminal]) {
-          production = production.replace(/\s/g, '');
-          if (this.productionWithOnlyTerminals(production))
-            if (!fertileSymbols.includes(nonTerminal))
-              fertileSymbols.push(nonTerminal);
-
-          let nonTerminals = this.getNonTerminalsFromProduction(production);
-          for (let nonTerminal_ of nonTerminals)
-            if (fertileSymbols.includes(nonTerminal_))
-              if (!fertileSymbols.includes(nonTerminal))
-                fertileSymbols.push(nonTerminal);
-        }
-      }
-      oldSize = newSize;
-      newSize = fertileSymbols.length;
-    }
-    return fertileSymbols.length !== this.Vn.length;
+    return this.getFertileSymbols().length !== this.Vn.length;
   }
 
   /**
@@ -223,30 +202,7 @@ export default class Grammar {
    * @returns {boolean}
    */
   hasUnreachableSymbols() {
-    let reachableSymbols = [this.initialSymbol()];
-    let oldSize = reachableSymbols.length;
-    let newSize = 0;
-    while (oldSize != newSize) {
-      for (let symbol of reachableSymbols) {
-        if (this.Vn.includes(symbol)) {
-          for (let production of this.P[symbol]) {
-            production = production.replace(/\s/g, '');
-            let nonTerminals = this.getNonTerminalsFromProduction(production);
-            let terminals = this.getTerminalsFromProduction(production);
-            for (let nonTerminal of nonTerminals)
-              if (!reachableSymbols.includes(nonTerminal))
-                reachableSymbols.push(nonTerminal);
-
-            for (let terminal of terminals)
-              if (!reachableSymbols.includes(terminal))
-                reachableSymbols.push(terminal);
-          }
-        }
-      }
-      oldSize = newSize;
-      newSize = reachableSymbols.length;
-    }
-    return reachableSymbols.length === (this.Vn.length + this.Vt.length)
+    return this.getReachableSymbols().length === (this.Vn.length + this.Vt.length)
   }
 
   /**
@@ -256,6 +212,49 @@ export default class Grammar {
   hasUselessSymbols() {
     return this.hasInfertileSymbols() || this.hasUnreachableSymbols();
   }
+
+  removeUselessSymbols() {
+    if (this.hasUselessSymbols()) {
+      this.removeInfertileSymbols();
+      this.removeUnreachableSymbols();
+    }
+  }
+
+  removeInfertileSymbols() {
+    let fertileSymbols = this.getFertileSymbols();
+    let infertileSymbols = [];
+    let newProductions = [];
+    let newVn = [];
+    let productionIncludesInfertile = false;
+    for (let symbol of this.Vn)
+      if (!fertileSymbols.includes(symbol))
+        infertileSymbols.push(symbol);
+
+    for (let nonTerminal of this.Vn) {
+      for (let production of this.P[nonTerminal]) {
+        let nonTerminals = this.getNonTerminalsFromProduction(production);
+        for (let nonTerminal_ of nonTerminals) {
+          if (infertileSymbols.includes(nonTerminal_))
+            productionIncludesInfertile = true;
+        }
+        if (!productionIncludesInfertile) {
+          if (newProductions[nonTerminal] === undefined)
+            newProductions[nonTerminal] = [];
+          newVn.push(nonTerminal)
+          newProductions[nonTerminal].push(production);
+        }
+        productionIncludesInfertile = false;
+      }
+    }
+    this.Vn = R.uniq(newVn);
+    this.P = newProductions;
+  }
+
+  removeUnreachableSymbols() {
+
+  }
+
+
 
   /**
    * Cycles in the form of A -> B | B -> A or A -> A
@@ -288,6 +287,58 @@ export default class Grammar {
   getFirstNT() {}
 
   getFollow() {}
+
+  getFertileSymbols() {
+    let fertileSymbols = [];
+    let oldSize = fertileSymbols.length;
+    let newSize = 1;
+    while (oldSize != newSize) {
+      for (let nonTerminal of this.Vn) {
+        for (let production of this.P[nonTerminal]) {
+          production = production.replace(/\s/g, '');
+          if (this.productionWithOnlyTerminals(production))
+            if (!fertileSymbols.includes(nonTerminal))
+              fertileSymbols.push(nonTerminal);
+
+          let nonTerminals = this.getNonTerminalsFromProduction(production);
+          for (let nonTerminal_ of nonTerminals)
+            if (fertileSymbols.includes(nonTerminal_))
+              if (!fertileSymbols.includes(nonTerminal))
+                fertileSymbols.push(nonTerminal);
+        }
+      }
+      oldSize = newSize;
+      newSize = fertileSymbols.length;
+    }
+    return fertileSymbols;
+  }
+
+  getReachableSymbols() {
+    let reachableSymbols = [this.initialSymbol()];
+    let oldSize = reachableSymbols.length;
+    let newSize = 0;
+    while (oldSize != newSize) {
+      for (let symbol of reachableSymbols) {
+        if (this.Vn.includes(symbol)) {
+          for (let production of this.P[symbol]) {
+            production = production.replace(/\s/g, '');
+            let nonTerminals = this.getNonTerminalsFromProduction(production);
+            let terminals = this.getTerminalsFromProduction(production);
+            for (let nonTerminal of nonTerminals)
+              if (!reachableSymbols.includes(nonTerminal))
+                reachableSymbols.push(nonTerminal);
+
+            for (let terminal of terminals)
+              if (!reachableSymbols.includes(terminal))
+                reachableSymbols.push(terminal);
+          }
+        }
+      }
+      oldSize = newSize;
+      newSize = reachableSymbols.length;
+    }
+    return reachableSymbols;
+  }
 
   getNonTerminalsFromProduction(p) {
     let nonTerminals = [];
