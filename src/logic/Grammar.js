@@ -202,7 +202,9 @@ export default class Grammar {
    * @returns {boolean}
    */
   hasUnreachableSymbols() {
-    return this.getReachableSymbols().length === (this.Vn.length + this.Vt.length)
+    return (
+      this.getReachableSymbols().length !== this.Vn.length + this.Vt.length
+    );
   }
 
   /**
@@ -222,17 +224,16 @@ export default class Grammar {
 
   removeInfertileSymbols() {
     let fertileSymbols = this.getFertileSymbols();
-    let infertileSymbols = [];
+    let infertileSymbols = this.getInfertileSymbols(fertileSymbols);
     let newProductions = [];
     let newVn = [];
+    let newVt = [];
     let productionIncludesInfertile = false;
-    for (let symbol of this.Vn)
-      if (!fertileSymbols.includes(symbol))
-        infertileSymbols.push(symbol);
 
     for (let nonTerminal of this.Vn) {
       for (let production of this.P[nonTerminal]) {
         let nonTerminals = this.getNonTerminalsFromProduction(production);
+        let terminals = this.getTerminalsFromProduction(production);
         for (let nonTerminal_ of nonTerminals) {
           if (infertileSymbols.includes(nonTerminal_))
             productionIncludesInfertile = true;
@@ -240,21 +241,57 @@ export default class Grammar {
         if (!productionIncludesInfertile) {
           if (newProductions[nonTerminal] === undefined)
             newProductions[nonTerminal] = [];
-          newVn.push(nonTerminal)
+          newVn.push(nonTerminal);
           newProductions[nonTerminal].push(production);
+          for (let terminal of terminals) newVt.push(terminal);
         }
         productionIncludesInfertile = false;
       }
     }
-    this.Vn = R.uniq(newVn);
+
     this.P = newProductions;
+    this.Vt = R.uniq(newVt);
+    this.Vn = R.uniq(newVn);
   }
 
   removeUnreachableSymbols() {
+    let reachableSymbols = this.getReachableSymbols();
+    let unreachableSymbols = this.getUnreachableSymbols(reachableSymbols);
+    let newProductions = [];
+    let newVn = [];
+    let newVt = [];
+    let productionIncludesUnreachable = false;
 
+    for (let nonTerminal of reachableSymbols) {
+      if (this.Vn.includes(nonTerminal)) {
+        for (let production of this.P[nonTerminal]) {
+          let production_ = production.replace(/\s/g, '');
+          let nonTerminals = this.getNonTerminalsFromProduction(production_);
+          let terminals = this.getTerminalsFromProduction(production_);
+          for (let nonTerminal_ of nonTerminals)
+            if (unreachableSymbols.includes(nonTerminal_))
+              productionIncludesUnreachable = true;
+
+          for (let terminal of terminals)
+            if (unreachableSymbols.includes(terminal))
+              productionIncludesUnreachable = true;
+
+          if (!productionIncludesUnreachable) {
+            if (newProductions[nonTerminal] === undefined)
+              newProductions[nonTerminal] = [];
+            newProductions[nonTerminal].push(production);
+            newVn.push(nonTerminal);
+            for (let terminal of terminals) newVt.push(terminal);
+          }
+          productionIncludesUnreachable = false;
+        }
+      }
+    }
+
+    this.P = newProductions;
+    this.Vn = R.uniq(newVn);
+    this.Vt = R.uniq(newVt);
   }
-
-
 
   /**
    * Cycles in the form of A -> B | B -> A or A -> A
@@ -292,25 +329,39 @@ export default class Grammar {
     let fertileSymbols = [];
     let oldSize = fertileSymbols.length;
     let newSize = 1;
+    let allNonTerminalFertile = true;
     while (oldSize != newSize) {
       for (let nonTerminal of this.Vn) {
         for (let production of this.P[nonTerminal]) {
-          production = production.replace(/\s/g, '');
-          if (this.productionWithOnlyTerminals(production))
+          let production_ = production.replace(/\s/g, '');
+          if (this.productionWithOnlyTerminals(production_))
             if (!fertileSymbols.includes(nonTerminal))
               fertileSymbols.push(nonTerminal);
 
-          let nonTerminals = this.getNonTerminalsFromProduction(production);
-          for (let nonTerminal_ of nonTerminals)
-            if (fertileSymbols.includes(nonTerminal_))
-              if (!fertileSymbols.includes(nonTerminal))
-                fertileSymbols.push(nonTerminal);
+          let nonTerminals = this.getNonTerminalsFromProduction(production_);
+          for (let nonTerminal_ of nonTerminals) {
+            if (!fertileSymbols.includes(nonTerminal_))
+              allNonTerminalFertile = false;
+          }
+
+          if (allNonTerminalFertile)
+            if (!fertileSymbols.includes(nonTerminal))
+              fertileSymbols.push(nonTerminal);
+          allNonTerminalFertile = true;
         }
       }
       oldSize = newSize;
       newSize = fertileSymbols.length;
     }
     return fertileSymbols;
+  }
+
+  getInfertileSymbols(fertileSymbols) {
+    let infertileSymbols = [];
+    for (let symbol of this.Vn)
+      if (!fertileSymbols.includes(symbol)) infertileSymbols.push(symbol);
+
+    return infertileSymbols;
   }
 
   getReachableSymbols() {
@@ -340,11 +391,21 @@ export default class Grammar {
     return reachableSymbols;
   }
 
+  getUnreachableSymbols(reachableSymbols) {
+    let unreachableSymbols = [];
+    for (let symbol of this.Vn)
+      if (!reachableSymbols.includes(symbol)) unreachableSymbols.push(symbol);
+
+    for (let symbol of this.Vt)
+      if (!reachableSymbols.includes(symbol)) unreachableSymbols.push(symbol);
+
+    return unreachableSymbols;
+  }
+
   getNonTerminalsFromProduction(p) {
     let nonTerminals = [];
     for (let char of p) {
-      if (char !== '&' && char ===  char.toUpperCase())
-        nonTerminals.push(char)
+      if (char !== '&' && char === char.toUpperCase()) nonTerminals.push(char);
     }
     return nonTerminals;
   }
@@ -352,16 +413,14 @@ export default class Grammar {
   getTerminalsFromProduction(p) {
     let terminals = [];
     for (let char of p) {
-      if (char === char.toLowerCase())
-        terminals.push(char);
+      if (char != ' ' && char === char.toLowerCase()) terminals.push(char);
     }
     return terminals;
   }
 
   productionWithOnlyTerminals(p) {
     for (let char of p) {
-      if (char !== char.toLowerCase())
-        return false;
+      if (char !== char.toLowerCase()) return false;
     }
     return true;
   }
