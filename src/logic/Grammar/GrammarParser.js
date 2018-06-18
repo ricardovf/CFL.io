@@ -88,12 +88,10 @@ export default class GrammarParser {
 
       // Extract productions in the form a b C
       productions.forEach(production => {
-        const productionSymbols = R.uniq(
-          production
-            .trim()
-            .split(' ')
-            .map(s => s.trim())
-        );
+        const productionSymbols = production
+          .trim()
+          .split(' ')
+          .map(s => s.trim());
 
         // If symbols include & it is not the only production, we abort
         if (

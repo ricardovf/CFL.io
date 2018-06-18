@@ -273,6 +273,29 @@ describe('GrammarParser', () => {
         expect(rules.F).toContain('id');
         expect(rules.F.length).toBe(2);
       });
+
+      it('should accept productions that have repeated symbols', () => {
+        parser
+          .setInput(
+            `S -> a S | A
+          A -> b A | b
+          B -> c B c | c c | S | C
+          C -> d C | d`
+          )
+          .run();
+
+        const rules = parser.rules();
+
+        expect(parser.terminals()).toEqual(['a', 'b', 'c', 'd'].sort());
+
+        expect(parser.nonTerminals()).toEqual(['A', 'B', 'C', 'S']);
+        expect(parser.initialSymbol()).toEqual('S');
+
+        expect(rules.S).toEqual(['a S', 'A'].sort());
+        expect(rules.A).toEqual(['b A', 'b'].sort());
+        expect(rules.B).toEqual(['c B c', 'c c', 'S', 'C'].sort());
+        expect(rules.C).toEqual(['d C', 'd'].sort());
+      });
     });
   });
 });
