@@ -153,11 +153,17 @@ export default class Grammar {
     return true;
   }
 
+  hasEpsilonTransitions() {
+    return !this.isEpsilonFree();
+  }
+
   /**
    * @todo
    * @returns {boolean}
    */
   isEpsilonFree() {
+    if (!this.isValid()) return false;
+
     for (let nonTerminal of this.Vn) {
       for (let production_ of this.P[nonTerminal]) {
         if (production_ === '&' && nonTerminal !== this.initialSymbol()) {
@@ -180,6 +186,8 @@ export default class Grammar {
    * @returns {boolean}
    */
   hasSimpleProductions() {
+    if (!this.isValid()) return false;
+
     for (let nonTerminal of this.Vn) {
       for (let production of this.P[nonTerminal]) {
         if (production.length === 1 && this.Vn.indexOf(production) > -1)
@@ -194,7 +202,7 @@ export default class Grammar {
    * @returns {boolean}
    */
   hasInfertileSymbols() {
-    return this.getFertileSymbols().length !== this.Vn.length;
+    return this.isValid() && this.getFertileSymbols().length !== this.Vn.length;
   }
 
   /**
@@ -309,6 +317,7 @@ export default class Grammar {
    */
   isOwn() {
     return (
+      this.isValid() &&
       !this.hasEpsilonTransitions() &&
       !this.hasCycle() &&
       !this.hasUselessSymbols()
@@ -327,6 +336,9 @@ export default class Grammar {
 
   getFertileSymbols() {
     let fertileSymbols = [];
+
+    if (!this.isValid()) return fertileSymbols;
+
     let oldSize = fertileSymbols.length;
     let newSize = 1;
     let allNonTerminalFertile = true;
