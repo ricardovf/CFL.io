@@ -12,62 +12,99 @@ export const EMPTY = 'Vazia';
 
 export default class Grammar {
   constructor(Vn, Vt, P, S) {
+    if (Array.isArray(P) || P === null) {
+      throw new Error(
+        `P must be an object containing all the productions of the Grammar`
+      );
+    }
+
     this.Vn = !Vn || !Array.isArray(Vn) ? [] : Vn;
     this.Vt = !Vt || !Array.isArray(Vt) ? [] : Vt;
     this.P = P;
     this.S = S;
   }
 
+  /**
+   * @return {Array}
+   */
   terminals() {
     return this.Vt;
   }
 
+  /**
+   * @return {Array}
+   */
   nonTerminals() {
     return this.Vn;
   }
 
+  /**
+   * @return {Object}
+   */
   rules() {
     return this.P;
   }
 
+  /**
+   * @return {String}
+   */
   initialSymbol() {
     return this.S;
   }
 
+  /**
+   * @return {boolean}
+   */
   initialSymbolDerivesEpsilon() {
-    for (let production of this.P[this.S]) {
-      if (production === '&') return true;
-    }
-    return false;
-  }
-
-  nonTerminalDerivesInitialSymbol() {
-    for (let nonTerminal of this.Vn) {
-      for (let production of this.P[nonTerminal]) {
-        if (production.includes(this.S)) return true;
+    if (this.P[this.S]) {
+      for (let production of this.P[this.S]) {
+        if (production === '&') return true;
       }
     }
     return false;
   }
 
   /**
-   * @todo implement
+   * @return {boolean}
+   */
+  nonTerminalDerivesInitialSymbol() {
+    if (Array.isArray(this.Vn)) {
+      for (let nonTerminal of this.Vn) {
+        if (Array.isArray(this.P[nonTerminal])) {
+          for (let production of this.P[nonTerminal]) {
+            if (production.includes(this.S)) return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  /**
    * @throws
    * @private
    * @return {Boolean}
    */
   _validate() {
+    if (!Array.isArray(this.Vn))
+      throw new Error(`Non terminals Vn must be an array`);
+
+    if (!Array.isArray(this.Vt))
+      throw new Error(`Terminals Vt must be an array`);
+
+    if (Array.isArray(this.P))
+      throw new Error(`Productions must be an object, not an array!`);
+
     if (
-      !Array.isArray(this.Vn) ||
-      (this.Vn.length > 0 &&
-        R.filter(SymbolValidator.isValidNonTerminal, this.Vn).length === 0)
+      this.Vn.length > 0 &&
+      R.filter(SymbolValidator.isValidNonTerminal, this.Vn).length === 0
     )
       throw new Error(`Invalid non terminal detected: ${this.Vn.join(', ')}`);
 
     if (
-      !Array.isArray(this.Vt) ||
-      (this.Vt.length > 0 &&
-        R.filter(SymbolValidator.isValidTerminal, this.Vt).length === 0)
+      this.Vt.length > 0 &&
+      R.filter(SymbolValidator.isValidTerminal, this.Vt).length === 0
     )
       throw new Error(`Invalid terminal detected: ${this.Vt.join(', ')}`);
 
@@ -84,31 +121,6 @@ export default class Grammar {
 
     if (this.P[this.S] === undefined)
       throw new Error(`There should be an ${this.S} -> x | xY | & production`);
-
-    // Restrictions on epsilon no longer apply
-    // let hasEpsilonOnInitialNonTerminal = false;
-    //
-    // R.forEachObjIndexed((productions, producer) => {
-    //   if (producer !== this.S) {
-    //     if (productions.includes(EPSILON))
-    //       throw new Error(
-    //         `There should not be a production of type ${producer} -> & (epsilon)`
-    //       );
-    //   } else if (productions.includes(EPSILON)) {
-    //     hasEpsilonOnInitialNonTerminal = true;
-    //   }
-    // }, this.P);
-    //
-    // if (hasEpsilonOnInitialNonTerminal) {
-    //   R.forEachObjIndexed((productions, producer) => {
-    //     R.forEach(production => {
-    //       if (production.length === 2 && production.charAt(1) === this.S)
-    //         throw new Error(
-    //           `There should not be a production of type ${producer} -> x${producer} when there is & (epsilon)`
-    //         );
-    //     }, productions);
-    //   }, this.P);
-    // }
 
     return true;
   }
@@ -146,7 +158,6 @@ export default class Grammar {
     try {
       this._validate();
     } catch (e) {
-      // console.log(e);
       return false;
     }
 
@@ -233,7 +244,7 @@ export default class Grammar {
   removeInfertileSymbols() {
     let fertileSymbols = this.getFertileSymbols();
     let infertileSymbols = this.getInfertileSymbols(fertileSymbols);
-    let newProductions = [];
+    let newProductions = {};
     let newVn = [];
     let newVt = [];
     let productionIncludesInfertile = false;
@@ -265,7 +276,7 @@ export default class Grammar {
   removeUnreachableSymbols() {
     let reachableSymbols = this.getReachableSymbols();
     let unreachableSymbols = this.getUnreachableSymbols(reachableSymbols);
-    let newProductions = [];
+    let newProductions = {};
     let newVn = [];
     let newVt = [];
     let productionIncludesUnreachable = false;
@@ -334,6 +345,9 @@ export default class Grammar {
 
   getFollow() {}
 
+  /**
+   * @return {Array}
+   */
   getFertileSymbols() {
     let fertileSymbols = [];
 
@@ -342,24 +356,26 @@ export default class Grammar {
     let oldSize = fertileSymbols.length;
     let newSize = 1;
     let allNonTerminalFertile = true;
-    while (oldSize != newSize) {
+    while (oldSize !== newSize) {
       for (let nonTerminal of this.Vn) {
-        for (let production of this.P[nonTerminal]) {
-          let production_ = production.replace(/\s/g, '');
-          if (this.productionWithOnlyTerminals(production_))
-            if (!fertileSymbols.includes(nonTerminal))
-              fertileSymbols.push(nonTerminal);
+        if (Array.isArray(this.P[nonTerminal])) {
+          for (let production of this.P[nonTerminal]) {
+            let production_ = production.replace(/\s/g, '');
+            if (this.productionWithOnlyTerminals(production_))
+              if (!fertileSymbols.includes(nonTerminal))
+                fertileSymbols.push(nonTerminal);
 
-          let nonTerminals = this.getNonTerminalsFromProduction(production_);
-          for (let nonTerminal_ of nonTerminals) {
-            if (!fertileSymbols.includes(nonTerminal_))
-              allNonTerminalFertile = false;
+            let nonTerminals = this.getNonTerminalsFromProduction(production_);
+            for (let nonTerminal_ of nonTerminals) {
+              if (!fertileSymbols.includes(nonTerminal_))
+                allNonTerminalFertile = false;
+            }
+
+            if (allNonTerminalFertile)
+              if (!fertileSymbols.includes(nonTerminal))
+                fertileSymbols.push(nonTerminal);
+            allNonTerminalFertile = true;
           }
-
-          if (allNonTerminalFertile)
-            if (!fertileSymbols.includes(nonTerminal))
-              fertileSymbols.push(nonTerminal);
-          allNonTerminalFertile = true;
         }
       }
       oldSize = newSize;
@@ -368,32 +384,45 @@ export default class Grammar {
     return fertileSymbols;
   }
 
+  /**
+   * @param fertileSymbols
+   * @return {Array}
+   */
   getInfertileSymbols(fertileSymbols) {
     let infertileSymbols = [];
-    for (let symbol of this.Vn)
-      if (!fertileSymbols.includes(symbol)) infertileSymbols.push(symbol);
+    if (Array.isArray(this.Vn)) {
+      for (let symbol of this.Vn)
+        if (!fertileSymbols.includes(symbol)) infertileSymbols.push(symbol);
+    }
 
     return infertileSymbols;
   }
 
+  /**
+   * @return {Array}
+   */
   getReachableSymbols() {
+    if (!this.isValid()) return [];
+
     let reachableSymbols = [this.initialSymbol()];
     let oldSize = reachableSymbols.length;
     let newSize = 0;
-    while (oldSize != newSize) {
+    while (oldSize !== newSize) {
       for (let symbol of reachableSymbols) {
         if (this.Vn.includes(symbol)) {
-          for (let production of this.P[symbol]) {
-            production = production.replace(/\s/g, '');
-            let nonTerminals = this.getNonTerminalsFromProduction(production);
-            let terminals = this.getTerminalsFromProduction(production);
-            for (let nonTerminal of nonTerminals)
-              if (!reachableSymbols.includes(nonTerminal))
-                reachableSymbols.push(nonTerminal);
+          if (Array.isArray(this.P[symbol])) {
+            for (let production of this.P[symbol]) {
+              production = production.replace(/\s/g, '');
+              let nonTerminals = this.getNonTerminalsFromProduction(production);
+              let terminals = this.getTerminalsFromProduction(production);
+              for (let nonTerminal of nonTerminals)
+                if (!reachableSymbols.includes(nonTerminal))
+                  reachableSymbols.push(nonTerminal);
 
-            for (let terminal of terminals)
-              if (!reachableSymbols.includes(terminal))
-                reachableSymbols.push(terminal);
+              for (let terminal of terminals)
+                if (!reachableSymbols.includes(terminal))
+                  reachableSymbols.push(terminal);
+            }
           }
         }
       }
@@ -403,13 +432,22 @@ export default class Grammar {
     return reachableSymbols;
   }
 
+  /**
+   * @param reachableSymbols
+   * @return {Array}
+   */
   getUnreachableSymbols(reachableSymbols) {
     let unreachableSymbols = [];
-    for (let symbol of this.Vn)
-      if (!reachableSymbols.includes(symbol)) unreachableSymbols.push(symbol);
 
-    for (let symbol of this.Vt)
-      if (!reachableSymbols.includes(symbol)) unreachableSymbols.push(symbol);
+    if (Array.isArray(this.Vn)) {
+      for (let symbol of this.Vn)
+        if (!reachableSymbols.includes(symbol)) unreachableSymbols.push(symbol);
+    }
+
+    if (Array.isArray(this.Vt)) {
+      for (let symbol of this.Vt)
+        if (!reachableSymbols.includes(symbol)) unreachableSymbols.push(symbol);
+    }
 
     return unreachableSymbols;
   }
@@ -510,7 +548,7 @@ export default class Grammar {
    * @returns {Grammar}
    */
   static makeEmptyGrammar() {
-    return new Grammar([], [], [], null);
+    return new Grammar([], [], {}, null);
   }
 
   /**
@@ -519,8 +557,6 @@ export default class Grammar {
    */
   static fromPlainObject(object) {
     try {
-      // if (typeof object === 'string') return Grammar.fromText(object);
-
       return new Grammar(object.Vn, object.Vt, object.P, object.S);
     } catch (e) {
       return null;
@@ -534,7 +570,7 @@ export default class Grammar {
     return {
       Vn: [...this.Vn],
       Vt: [...this.Vt],
-      P: this.P,
+      P: R.clone(this.P),
       S: [...this.S],
     };
   }

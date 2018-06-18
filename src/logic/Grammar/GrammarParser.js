@@ -11,10 +11,17 @@ export default class GrammarParser {
     this.input = input;
   }
 
+  /**
+   * @param input
+   * @return {boolean}
+   */
   changed(input) {
     return input !== this._originalInput;
   }
 
+  /**
+   * @return {String}
+   */
   get input() {
     return this._input;
   }
@@ -44,6 +51,10 @@ export default class GrammarParser {
     this.S = null;
   }
 
+  /**
+   * @param input
+   * @return {GrammarParser}
+   */
   run(input = undefined) {
     if (input !== undefined) {
       this.input = input;
@@ -62,7 +73,7 @@ export default class GrammarParser {
    */
   _extractElements() {
     const lines = this._input.split('\n');
-    let P = [],
+    let P = {},
       S = undefined,
       validLines = 0;
 
@@ -154,24 +165,39 @@ export default class GrammarParser {
     return R.union(nonTerminalsOnLeft, nonTerminalsOnRight).sort();
   }
 
+  /**
+   * @return {String}
+   */
   trim() {
     this._input = removeDoubleSpaces(multiTrim(this._input, false).trim());
 
     return this._input;
   }
 
+  /**
+   * @return {Array}
+   */
   terminals() {
     return this.Vt;
   }
 
+  /**
+   * @return {Array}
+   */
   nonTerminals() {
     return this.Vn;
   }
 
+  /**
+   * @return {{}}
+   */
   rules() {
     return this.P;
   }
 
+  /**
+   * @return {null|String}
+   */
   initialSymbol() {
     return this.S;
   }
