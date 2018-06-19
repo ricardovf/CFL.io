@@ -385,9 +385,15 @@ export default class Grammar {
         this.P[symbol].splice(this.P[symbol].indexOf('&'), 1);
 
     if (this.nonTerminalDerivesInitialSymbol() && this.initialSymbolDerivesEpsilon()) {
-      this.P[this.S].splice(this.P[this.S].indexOf('&'), 1);
+      let newInitialSymbol;
       let oldInitialSymbol = this.S;
-      this.S = 'Z';
+      let index = 0;
+      do {
+        newInitialSymbol = 'S' + index.toString();
+        ++index;
+      } while (this.Vn.includes(newInitialSymbol))
+      this.P[this.S].splice(this.P[this.S].indexOf('&'), 1);
+      this.S = newInitialSymbol;
       this.P[this.S] = [oldInitialSymbol, '&'];
       this.Vn.push(this.S);
     }
