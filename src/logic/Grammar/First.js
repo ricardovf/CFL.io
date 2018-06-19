@@ -63,8 +63,38 @@ export function first(grammar, input, _calculatedFirsts = {}) {
       }
     }
 
+    // If we have more stuff after the non terminal, like 'Cc', we must consider it an remove epsilon
+    if (
+      input !== maybeNonTerminal &&
+      _calculatedFirsts[maybeNonTerminal].includes(EPSILON)
+    ) {
+      let tokens = grammar.tokenizeString(input);
+
+      // If the token is invalid, we return an empty first
+      if (tokens.length === 0) return [];
+
+      // Remove the first (the current non terminal) token
+      tokens.splice(0, 1);
+
+      if (R.intersection(tokens, grammar.Vt).length > 0) {
+        // if we find a non terminal, we remove epsilon
+        _calculatedFirsts[maybeNonTerminal] = R.without(
+          [EPSILON],
+          _calculatedFirsts[maybeNonTerminal]
+        );
+      }
+    }
+
     return _calculatedFirsts[maybeNonTerminal].sort();
   }
 
   return [];
 }
+
+/**
+ * @param grammar
+ * @param input
+ * @param _calculatedFirsts
+ * @return {*}
+ */
+export function firstNT(grammar, input, _calculatedFirsts = {}) {}

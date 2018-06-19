@@ -56,7 +56,12 @@ class FirstFollowTable extends React.Component {
                           .sort()
                           .join(', ')}
                       </TableCell>
-                      <TableCell padding="dense">$, b, &</TableCell>
+                      <TableCell padding="dense">
+                        {grammar
+                          .follow(nT)
+                          .sort()
+                          .join(', ')}
+                      </TableCell>
                       <TableCell padding="dense">a, b</TableCell>
                     </TableRow>
                   ))}

@@ -1,7 +1,9 @@
 import GrammarParser from './Grammar/GrammarParser';
 import * as R from 'ramda';
 import SymbolValidator, { EPSILON } from './SymbolValidator';
-import { first } from './Grammar/First';
+import { first, firstNT } from './Grammar/First';
+import { follow } from './Grammar/Follow';
+import { findMatchOfFromStartOfString, multiTrim } from './helpers';
 
 const parser = new GrammarParser();
 
@@ -77,6 +79,26 @@ export default class Grammar {
    */
   first(input) {
     return first(this, input);
+  }
+
+  /**
+   * Returns the first-NT of a input
+   *
+   * @param input
+   * @return {[]}
+   */
+  firstNT(input) {
+    return firstNT(this, input);
+  }
+
+  /**
+   * Returns the follow of a input
+   *
+   * @param input
+   * @return {[]}
+   */
+  follow(input) {
+    return follow(this, input);
   }
 
   /**
@@ -687,6 +709,45 @@ export default class Grammar {
   //   visitedStates.delete(state);
   //   return false;
   // }
+
+  /**
+   * Converts a string containing terminals and non terminals into tokens
+   * @param input
+   * @return {Array}
+   */
+  tokenizeString(input) {
+    if (!this.isValid())
+      throw new Error('Only a valid grammar can tokenize strings');
+
+    let tokens = [];
+
+    input = multiTrim(input, true, false);
+
+    do {
+      let recognized = false;
+
+      if (input.length) {
+        const maybeTerminal = findMatchOfFromStartOfString(input, this.Vt);
+        const maybeNonTerminal = findMatchOfFromStartOfString(input, this.Vn);
+        if (maybeTerminal) {
+          tokens.push(maybeTerminal);
+          input = input.slice(maybeTerminal.length);
+          recognized = true;
+        } else if (maybeNonTerminal) {
+          tokens.push(maybeNonTerminal);
+          input = input.slice(maybeNonTerminal.length);
+          recognized = true;
+        } else {
+          // Invalid char found, return empty tokens
+          return [];
+        }
+      }
+
+      if (!recognized) break;
+    } while (true);
+
+    return tokens;
+  }
 
   /**
    * @returns {Grammar}

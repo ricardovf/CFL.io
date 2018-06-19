@@ -1,5 +1,4 @@
 import Grammar from '../Grammar';
-import { ACCEPT_STATE, EPSILON } from '../SymbolValidator';
 
 describe('First', () => {
   it('should return empty when in a invalid grammar', () => {
@@ -24,6 +23,8 @@ describe('First', () => {
     expect(grammar.first('')).toEqual([]);
 
     expect(grammar.first('abcd')).toEqual(['a']);
+    expect(grammar.first('Cd')).toEqual(['c']);
+    expect(grammar.first('CAd')).toEqual(['c']);
 
     expect(grammar.first('S')).toEqual(['a', 'b', 'c', 'd']);
     expect(grammar.first('A')).toEqual(['&', 'a']);
