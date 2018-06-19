@@ -1,6 +1,7 @@
 import GrammarParser from './Grammar/GrammarParser';
 import * as R from 'ramda';
 import SymbolValidator, { EPSILON } from './SymbolValidator';
+import { first } from './Grammar/First';
 
 const parser = new GrammarParser();
 
@@ -50,6 +51,26 @@ export default class Grammar {
    */
   initialSymbol() {
     return this.S;
+  }
+
+  /**
+   * Returns the first of a input
+   *
+   * @param input
+   * @return {[]}
+   */
+  first(input) {
+    return first(this, input);
+  }
+
+  /**
+   * Returns an object with all the non terminals as keys and its first as value
+   * @return {Object}
+   */
+  firstsOfNonTerminals() {
+    return Array.isArray(this.Vn)
+      ? R.zipObj(this.Vn, R.map(R.curry(first, this), this.Vn))
+      : {};
   }
 
   /**

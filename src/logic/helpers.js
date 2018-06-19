@@ -1,3 +1,5 @@
+import * as R from 'ramda';
+
 export function multiTrim(input, noSpaces = true, noLines = false) {
   return input
     .trim()
@@ -22,4 +24,16 @@ export function multiTrimNoLines(input) {
 
 export function removeDoubleSpaces(input) {
   return input.replace(/\s\s+/g, ' ');
+}
+
+/**
+ * Get the match of the maximum length from symbols that match the beginning of the input
+ *
+ * @param input
+ * @param symbols
+ */
+export function findMatchOfFromStartOfString(input, symbols) {
+  return R.last(
+    R.sortBy(R.length, R.filter(t => input.indexOf(t) === 0, symbols))
+  );
 }
