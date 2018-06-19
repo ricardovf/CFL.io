@@ -3,7 +3,6 @@ import * as R from 'ramda';
 import { findMatchOfFromStartOfString } from '../helpers';
 
 /**
- * @todo deal with recursion
  * @param grammar
  * @param input
  * @param _calculatedFirsts

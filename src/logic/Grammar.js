@@ -40,6 +40,22 @@ export default class Grammar {
   }
 
   /**
+   * Return the non terminals sorted and with the initial symbol as first item of the array
+   *
+   * @return {Array}
+   */
+  nonTerminalsFirstSymbolFirst() {
+    let Vn = this.Vn;
+
+    if (Array.isArray(Vn) && this.S && Vn.includes(this.S)) {
+      Vn = R.without([this.S], Vn.sort());
+      Vn.unshift(this.S);
+    }
+
+    return Vn;
+  }
+
+  /**
    * @return {Object}
    */
   rules() {
@@ -197,15 +213,17 @@ export default class Grammar {
     if (!this.isValid()) return false;
 
     for (let nonTerminal of this.Vn) {
-      for (let production_ of this.P[nonTerminal]) {
-        if (production_ === '&' && nonTerminal !== this.initialSymbol()) {
-          return false;
-        } else {
-          if (
-            this.initialSymbolDerivesEpsilon() &&
-            this.nonTerminalDerivesInitialSymbol()
-          ) {
+      if (Array.isArray(this.P[nonTerminal])) {
+        for (let production_ of this.P[nonTerminal]) {
+          if (production_ === '&' && nonTerminal !== this.initialSymbol()) {
             return false;
+          } else {
+            if (
+              this.initialSymbolDerivesEpsilon() &&
+              this.nonTerminalDerivesInitialSymbol()
+            ) {
+              return false;
+            }
           }
         }
       }
@@ -221,9 +239,11 @@ export default class Grammar {
     if (!this.isValid()) return false;
 
     for (let nonTerminal of this.Vn) {
-      for (let production of this.P[nonTerminal]) {
-        if (production.length === 1 && this.Vn.indexOf(production) > -1)
-          return true;
+      if (Array.isArray(this.P[nonTerminal])) {
+        for (let production of this.P[nonTerminal]) {
+          if (production.length === 1 && this.Vn.indexOf(production) > -1)
+            return true;
+        }
       }
     }
     return false;
@@ -394,7 +414,10 @@ export default class Grammar {
                 this.P[symbol].push(newProduction);
             }
           }
-          if (this.P[symbol].includes('&') && !epsilonProducers.includes(symbol))
+          if (
+            this.P[symbol].includes('&') &&
+            !epsilonProducers.includes(symbol)
+          )
             epsilonProducers.push(symbol);
         }
       }
@@ -405,14 +428,17 @@ export default class Grammar {
       if (symbol !== this.initialSymbol())
         this.P[symbol].splice(this.P[symbol].indexOf('&'), 1);
 
-    if (this.nonTerminalDerivesInitialSymbol() && this.initialSymbolDerivesEpsilon()) {
+    if (
+      this.nonTerminalDerivesInitialSymbol() &&
+      this.initialSymbolDerivesEpsilon()
+    ) {
       let newInitialSymbol;
       let oldInitialSymbol = this.S;
       let index = 0;
       do {
         newInitialSymbol = 'S' + index.toString();
         ++index;
-      } while (this.Vn.includes(newInitialSymbol))
+      } while (this.Vn.includes(newInitialSymbol));
       this.P[this.S].splice(this.P[this.S].indexOf('&'), 1);
       this.S = newInitialSymbol;
       this.P[this.S] = [oldInitialSymbol, '&'];
@@ -608,9 +634,7 @@ export default class Grammar {
 
   getNumberOfProductions() {
     let i = 0;
-    for (let symbol of this.Vn)
-      for (let production of this.P[symbol])
-        ++i;
+    for (let symbol of this.Vn) for (let production of this.P[symbol]) ++i;
     return i;
   }
 
@@ -717,7 +741,7 @@ export default class Grammar {
       Vn: [...this.Vn],
       Vt: [...this.Vt],
       P: R.clone(this.P),
-      S: [...this.S],
+      S: this.S,
     };
   }
 }
