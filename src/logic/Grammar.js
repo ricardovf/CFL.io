@@ -312,6 +312,46 @@ export default class Grammar {
     this.Vt = R.uniq(newVt);
   }
 
+  removeSimpleProductions() {
+    let simpleProductions = [];
+    let newProductions = [];
+
+    for (let nonTerminal of this.Vn) {
+      if (simpleProductions[nonTerminal] === undefined)
+        simpleProductions[nonTerminal] = [];
+      if (newProductions[nonTerminal] === undefined)
+        newProductions[nonTerminal] = [];
+    }
+
+    for (let nonTerminal of this.Vn) {
+      for (let production of this.P[nonTerminal])
+        if (production.length === 1 && this.Vn.indexOf(production) > -1)
+          simpleProductions[nonTerminal].push(production);
+    }
+
+    for (let symbol of this.Vn)
+      for (let simpleProduction of simpleProductions[symbol])
+        for (let indirectProduction of simpleProductions[simpleProduction])
+          if (!simpleProductions[symbol].includes(indirectProduction))
+            simpleProductions[symbol].push(indirectProduction);
+
+    for (let symbol of this.Vn) {
+      for (let simpleProduction of simpleProductions[symbol]) {
+        let nonSimpleProductions = this.getNonSimpleProductions(
+          simpleProduction
+        );
+        for (let nonSimpleProduction of nonSimpleProductions)
+          if (!newProductions[symbol].includes(nonSimpleProduction))
+            newProductions[symbol].push(nonSimpleProduction);
+      }
+      let nonSimpleProductions_ = this.getNonSimpleProductions(symbol);
+      for (let nonSimpleProduction of nonSimpleProductions_)
+        if (!newProductions[symbol].includes(nonSimpleProduction))
+          newProductions[symbol].push(nonSimpleProduction);
+    }
+    this.P = newProductions;
+  }
+
   /**
    * Cycles in the form of A -> B | B -> A or A -> A
    * @todo
@@ -455,7 +495,7 @@ export default class Grammar {
   getNonTerminalsFromProduction(p) {
     let nonTerminals = [];
     for (let char of p) {
-      if (char !== '&' && char === char.toUpperCase()) nonTerminals.push(char);
+      if (this.Vn.includes(char)) nonTerminals.push(char);
     }
     return nonTerminals;
   }
@@ -463,14 +503,24 @@ export default class Grammar {
   getTerminalsFromProduction(p) {
     let terminals = [];
     for (let char of p) {
-      if (char != ' ' && char === char.toLowerCase()) terminals.push(char);
+      if (this.Vt.includes(char)) terminals.push(char);
     }
     return terminals;
   }
 
+  getNonSimpleProductions(symbol) {
+    let nonSimpleProductions = [];
+
+    for (let production of this.P[symbol]) {
+      if (production.length > 1 || this.Vt.includes(production))
+        nonSimpleProductions.push(production);
+    }
+    return nonSimpleProductions;
+  }
+
   productionWithOnlyTerminals(p) {
     for (let char of p) {
-      if (char !== char.toLowerCase()) return false;
+      if (this.Vn.includes(char)) return false;
     }
     return true;
   }
