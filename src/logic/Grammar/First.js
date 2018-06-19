@@ -90,11 +90,3 @@ export function first(grammar, input, _calculatedFirsts = {}) {
 
   return [];
 }
-
-/**
- * @param grammar
- * @param input
- * @param _calculatedFirsts
- * @return {*}
- */
-export function firstNT(grammar, input, _calculatedFirsts = {}) {}

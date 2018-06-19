@@ -1,7 +1,8 @@
 import GrammarParser from './Grammar/GrammarParser';
 import * as R from 'ramda';
 import SymbolValidator, { EPSILON } from './SymbolValidator';
-import { first, firstNT } from './Grammar/First';
+import { first } from './Grammar/First';
+import { firstNT } from './Grammar/FirstNT';
 import { follow } from './Grammar/Follow';
 import { findMatchOfFromStartOfString, multiTrim } from './helpers';
 
