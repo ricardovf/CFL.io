@@ -37,3 +37,15 @@ export function findMatchOfFromStartOfString(input, symbols) {
     R.sortBy(R.length, R.filter(t => input.indexOf(t) === 0, symbols))
   );
 }
+
+export function makeNewUniqueNonTerminalName(Vn = [], currentName = 'S') {
+  let index = 0;
+  let nextName = `${currentName}${index}`;
+
+  while (true) {
+    if (!Vn.includes(nextName)) {
+      return nextName;
+    }
+    nextName = `${currentName}${++index}`;
+  }
+}
