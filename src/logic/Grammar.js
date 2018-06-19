@@ -314,7 +314,7 @@ export default class Grammar {
 
   removeSimpleProductions() {
     let simpleProductions = [];
-    let newProductions = [];
+    let newProductions = {};
 
     for (let nonTerminal of this.Vn) {
       if (simpleProductions[nonTerminal] === undefined)
@@ -350,6 +350,47 @@ export default class Grammar {
           newProductions[symbol].push(nonSimpleProduction);
     }
     this.P = newProductions;
+  }
+
+  toEpsilonFree() {
+    this.removeUselessSymbols();
+    let epsilonProducers = this.getEpsilonProducers();
+    let oldNumProductions = this.getNumberOfProductions();
+    let newProductions = 0;
+    let newProduction;
+
+    while (oldNumProductions !== newProductions) {
+      for (let symbol of this.Vn) {
+        for (let production of this.P[symbol]) {
+          for (let epsilonProducer of epsilonProducers) {
+            if (production.includes(epsilonProducer)) {
+              newProduction = production
+                .replace(epsilonProducer, '')
+                .replace(/\s+/g, ' ')
+                .replace(/^\s|\s$/g, '');
+              if (newProduction === '') newProduction = '&';
+              if (!this.P[symbol].includes(newProduction))
+                this.P[symbol].push(newProduction);
+            }
+          }
+          if (this.P[symbol].includes('&') && !epsilonProducers.includes(symbol))
+            epsilonProducers.push(symbol);
+        }
+      }
+      oldNumProductions = newProductions;
+      newProductions = this.getNumberOfProductions();
+    }
+    for (let symbol of this.Vn)
+      if (symbol !== this.initialSymbol())
+        this.P[symbol].splice(this.P[symbol].indexOf('&'), 1);
+
+    if (this.nonTerminalDerivesInitialSymbol() && this.initialSymbolDerivesEpsilon()) {
+      this.P[this.S].splice(this.P[this.S].indexOf('&'), 1);
+      let oldInitialSymbol = this.S;
+      this.S = 'Z';
+      this.P[this.S] = [oldInitialSymbol, '&'];
+      this.Vn.push(this.S);
+    }
   }
 
   /**
@@ -516,6 +557,34 @@ export default class Grammar {
         nonSimpleProductions.push(production);
     }
     return nonSimpleProductions;
+  }
+
+  getEpsilonProducers() {
+    let epsilonProducers = [];
+    let oldSize = epsilonProducers.length;
+    let newSize = 1;
+
+    while (oldSize !== newSize) {
+      for (let symbol of this.Vn)
+        for (let production of this.P[symbol])
+          if (
+            (production === '&' || epsilonProducers.includes(production)) &&
+            !epsilonProducers.includes(symbol)
+          )
+            epsilonProducers.push(symbol);
+
+      oldSize = newSize;
+      newSize = epsilonProducers.length;
+    }
+    return epsilonProducers;
+  }
+
+  getNumberOfProductions() {
+    let i = 0;
+    for (let symbol of this.Vn)
+      for (let production of this.P[symbol])
+        ++i;
+    return i;
   }
 
   productionWithOnlyTerminals(p) {
