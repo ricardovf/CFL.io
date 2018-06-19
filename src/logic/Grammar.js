@@ -5,6 +5,7 @@ import { first } from './Grammar/First';
 import { firstNT } from './Grammar/FirstNT';
 import { follow } from './Grammar/Follow';
 import { findMatchOfFromStartOfString, multiTrim } from './helpers';
+import { getLeftRecursions } from './Grammar/LeftRecursion';
 
 const parser = new GrammarParser();
 
@@ -676,12 +677,18 @@ export default class Grammar {
     return false;
   }
 
+  /**
+   * @return {boolean}
+   */
   hasLeftRecursion() {
-    return true;
+    return !R.isEmpty(this.getLeftRecursions());
   }
 
+  /**
+   * @return {Object}
+   */
   getLeftRecursions() {
-    return [{ A: 'direct' }, { B: 'indirect' }];
+    return getLeftRecursions(this);
   }
 
   // /**

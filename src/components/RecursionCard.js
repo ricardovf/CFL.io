@@ -10,6 +10,8 @@ import Table, {
   TableRow,
 } from 'material-ui/Table';
 import Grammar from '../logic/Grammar';
+import { DIRECT, INDIRECT } from '../logic/Grammar/LeftRecursion';
+import * as R from 'ramda';
 
 const styles = () => ({
   card: {
@@ -30,9 +32,10 @@ class RecursionCard extends React.Component {
     if (!language || !language.valid) return null;
     const grammar = Grammar.fromPlainObject(language.grammar);
 
-    const hasLanguage = language !== undefined;
+    const hasRecursions = grammar.hasLeftRecursion();
+    const recursions = grammar.getLeftRecursions();
 
-    const table = (
+    const table = hasRecursions && (
       <Table>
         <TableHead>
           <TableRow>
@@ -41,14 +44,23 @@ class RecursionCard extends React.Component {
           </TableRow>
         </TableHead>
         <TableBody>
-          <TableRow hover={true}>
-            <TableCell padding="dense">S</TableCell>
-            <TableCell padding="dense">Direta</TableCell>
-          </TableRow>
-          <TableRow hover={true}>
-            <TableCell padding="dense">B</TableCell>
-            <TableCell padding="dense">Indireta</TableCell>
-          </TableRow>
+          {R.keys(recursions).map(nT => (
+            <TableRow key={nT} hover={true}>
+              <TableCell padding="dense">{nT}</TableCell>
+              <TableCell padding="dense">
+                {recursions[nT][DIRECT] ? (
+                  <div>Direta ({recursions[nT][DIRECT].join(', ')})</div>
+                ) : (
+                  ''
+                )}
+                {recursions[nT][INDIRECT] ? (
+                  <div>Indireta ({recursions[nT][INDIRECT].join(', ')})</div>
+                ) : (
+                  ''
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
     );
@@ -59,7 +71,7 @@ class RecursionCard extends React.Component {
           <Typography gutterBottom variant="headline" component="h2">
             Recursão à esquerda
           </Typography>
-          {hasLanguage && (
+          {hasRecursions && (
             <div className={classes.container}>
               {table}{' '}
               <Button color="primary" size="small" className={classes.button}>
@@ -68,11 +80,13 @@ class RecursionCard extends React.Component {
             </div>
           )}
 
-          <div>
-            <strong style={{ color: 'green' }}>
-              A gramática não possuí recursão à esquerda
-            </strong>.
-          </div>
+          {!hasRecursions && (
+            <div>
+              <strong style={{ color: 'green' }}>
+                A gramática não possuí recursão à esquerda
+              </strong>.
+            </div>
+          )}
         </CardContent>
       </Card>
     );
