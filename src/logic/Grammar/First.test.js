@@ -83,4 +83,15 @@ describe('First', () => {
     expect(grammar.first('T0')).toEqual(['*', '&'].sort());
     expect(grammar.first('F')).toEqual(['(', 'id'].sort());
   });
+
+  it('should return the correct first on simple expression with epsilon', () => {
+    const grammar = Grammar.fromText(
+      `S -> A B | B C
+       A -> a A | &
+       B -> b B | d
+       C -> c C | c`
+    );
+    expect(grammar.isValid()).toBeTruthy();
+    expect(grammar.first('AB')).toEqual(['a', 'b', 'd']);
+  });
 });

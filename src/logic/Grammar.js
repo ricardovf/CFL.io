@@ -303,7 +303,7 @@ export default class Grammar {
     return this.hasInfertileSymbols() || this.hasUnreachableSymbols();
   }
 
-  removeUselessSymbols(steps=[]) {
+  removeUselessSymbols(steps = []) {
     if (this.hasUselessSymbols()) {
       this.removeInfertileSymbols(steps);
       this.removeUnreachableSymbols(steps);
@@ -316,7 +316,7 @@ export default class Grammar {
     return steps;
   }
 
-  removeInfertileSymbols(steps=[]) {
+  removeInfertileSymbols(steps = []) {
     let fertileSymbols = this.getFertileSymbols();
     let infertileSymbols = this.getInfertileSymbols(fertileSymbols);
     let newProductions = {};
@@ -360,7 +360,7 @@ export default class Grammar {
     return steps;
   }
 
-  removeUnreachableSymbols(steps=[]) {
+  removeUnreachableSymbols(steps = []) {
     let reachableSymbols = this.getReachableSymbols();
     let unreachableSymbols = this.getUnreachableSymbols(reachableSymbols);
     let newProductions = {};
@@ -411,7 +411,7 @@ export default class Grammar {
     return steps;
   }
 
-  removeSimpleProductions(steps=[]) {
+  removeSimpleProductions(steps = []) {
     let simpleProductions = this.getSimpleProductions();
     let newProductions = {};
     let step = this.clone();
@@ -454,7 +454,7 @@ export default class Grammar {
     return steps;
   }
 
-  toEpsilonFree(steps=[]) {
+  toEpsilonFree(steps = []) {
     this.removeUselessSymbols();
     let epsilonProducers = this.getEpsilonProducers();
     let oldNumProductions = this.getNumberOfProductions();
@@ -538,24 +538,21 @@ export default class Grammar {
 
     for (let production of this.P[this.S])
       for (let symbol of production)
-        if (this.Vn.includes(symbol))
-          return this.hasCycle_(visited, symbol);
+        if (this.Vn.includes(symbol)) return this.hasCycle_(visited, symbol);
 
     return false;
   }
 
   hasCycle_(visited, symbol) {
-    if (visited.includes(symbol))
-      return true;
+    if (visited.includes(symbol)) return true;
 
     visited.push(symbol);
     for (let production of this.P[symbol]) {
       for (let symbol_ of production)
-      if (!visited.includes(symbol_) && this.Vn.includes(symbol_)) {
-        visited.push(symbol_);
-        if (this.hasCycle(visited, symbol_))
-          return true;
-      }
+        if (!visited.includes(symbol_) && this.Vn.includes(symbol_)) {
+          visited.push(symbol_);
+          if (this.hasCycle(visited, symbol_)) return true;
+        }
     }
     visited.splice(visited.indexOf(symbol));
     return false;
@@ -578,10 +575,8 @@ export default class Grammar {
   getLanguageFinitude() {
     let fertileSymbols = this.getFertileSymbols();
     if (fertileSymbols.includes(this.S)) {
-      if (this.hasCycle())
-        return INFINITE;
-      else
-        return FINITE;
+      if (this.hasCycle()) return INFINITE;
+      else return FINITE;
     } else {
       return EMPTY;
     }

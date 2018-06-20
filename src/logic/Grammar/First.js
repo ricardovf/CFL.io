@@ -82,6 +82,22 @@ export function first(grammar, input, _calculatedFirsts = {}) {
           [EPSILON],
           _calculatedFirsts[maybeNonTerminal]
         );
+      } else if (_calculatedFirsts[maybeNonTerminal].includes(EPSILON)) {
+        for (let t of tokens) {
+          let tFirst = first(grammar, t, _calculatedFirsts);
+          _calculatedFirsts[maybeNonTerminal] = R.union(
+            _calculatedFirsts[maybeNonTerminal],
+            tFirst
+          );
+
+          if (!tFirst.includes(EPSILON)) {
+            _calculatedFirsts[maybeNonTerminal] = R.without(
+              [EPSILON],
+              _calculatedFirsts[maybeNonTerminal]
+            );
+            break;
+          }
+        }
       }
     }
 

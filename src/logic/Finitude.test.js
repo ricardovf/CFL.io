@@ -10,13 +10,17 @@ describe('Grammar', () => {
     });
 
     it('should return a finite language', () => {
-      const grammar = Grammar.fromText(`A -> B C E \nB -> b | d d | &\nC -> c\n E -> e B`);
+      const grammar = Grammar.fromText(
+        `A -> B C E \nB -> b | d d | &\nC -> c\n E -> e B`
+      );
       expect(grammar.getLanguageFinitude()).toBe(FINITE);
     });
 
     it('should return a inifnite language (list example)', () => {
-      const grammar = Grammar.fromText(`A -> B C \nC -> + B C | &\nB -> D E\nE -> * D E | &\nD -> ( A ) | i`);
+      const grammar = Grammar.fromText(
+        `A -> B C \nC -> + B C | &\nB -> D E\nE -> * D E | &\nD -> ( A ) | i`
+      );
       expect(grammar.getLanguageFinitude()).toBe(INFINITE);
     });
-  })
+  });
 });
