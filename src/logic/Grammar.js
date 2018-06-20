@@ -303,17 +303,24 @@ export default class Grammar {
     return this.hasInfertileSymbols() || this.hasUnreachableSymbols();
   }
 
-  removeUselessSymbols() {
+  removeUselessSymbols(steps=[]) {
     if (this.hasUselessSymbols()) {
-      this.removeInfertileSymbols();
-      this.removeUnreachableSymbols();
+      this.removeInfertileSymbols(steps);
+      this.removeUnreachableSymbols(steps);
     }
   }
 
-  removeInfertileSymbols() {
+  removeUselessSymbolsWithSteps() {
+    let steps = [];
+    this.removeUselessSymbols(steps);
+    return steps;
+  }
+
+  removeInfertileSymbols(steps=[]) {
     let fertileSymbols = this.getFertileSymbols();
     let infertileSymbols = this.getInfertileSymbols(fertileSymbols);
     let newProductions = {};
+    let step = this.clone();
     let newVn = [];
     let newVt = [];
     let productionIncludesInfertile = false;
@@ -335,6 +342,11 @@ export default class Grammar {
         }
         productionIncludesInfertile = false;
       }
+      step.P = newProductions;
+      step.Vt = newVt;
+      step.Vn = newVn;
+      steps.push(step);
+      step = this.clone();
     }
 
     this.P = newProductions;
@@ -342,10 +354,17 @@ export default class Grammar {
     this.Vn = R.uniq(newVn);
   }
 
-  removeUnreachableSymbols() {
+  removeInfertileSymbolsWithSteps() {
+    let steps = [];
+    this.removeInfertileSymbols(steps);
+    return steps;
+  }
+
+  removeUnreachableSymbols(steps=[]) {
     let reachableSymbols = this.getReachableSymbols();
     let unreachableSymbols = this.getUnreachableSymbols(reachableSymbols);
     let newProductions = {};
+    let step = this.clone();
     let newVn = [];
     let newVt = [];
     let productionIncludesUnreachable = false;
@@ -374,6 +393,11 @@ export default class Grammar {
           productionIncludesUnreachable = false;
         }
       }
+      step.P = newProductions;
+      step.Vt = newVt;
+      step.Vn = newVn;
+      steps.push(step);
+      step = this.clone();
     }
 
     this.P = newProductions;
@@ -381,9 +405,16 @@ export default class Grammar {
     this.Vt = R.uniq(newVt);
   }
 
-  removeSimpleProductions() {
+  removeUnreachableSymbolsWithSteps() {
+    let steps = [];
+    this.removeUnreachableSymbols(steps);
+    return steps;
+  }
+
+  removeSimpleProductions(steps=[]) {
     let simpleProductions = this.getSimpleProductions();
     let newProductions = {};
+    let step = this.clone();
 
     for (let nonTerminal of this.Vn) {
       if (newProductions[nonTerminal] === undefined)
@@ -405,18 +436,29 @@ export default class Grammar {
           if (!newProductions[symbol].includes(nonSimpleProduction))
             newProductions[symbol].push(nonSimpleProduction);
       }
+
       let nonSimpleProductions_ = this.getNonSimpleProductions(symbol);
       for (let nonSimpleProduction of nonSimpleProductions_)
         if (!newProductions[symbol].includes(nonSimpleProduction))
           newProductions[symbol].push(nonSimpleProduction);
+      step.P = newProductions;
+      steps.push(step);
+      step = this.clone();
     }
     this.P = newProductions;
   }
 
-  toEpsilonFree() {
+  removeSimpleProductionsWithSteps() {
+    let steps = [];
+    this.removeSimpleProductions(steps);
+    return steps;
+  }
+
+  toEpsilonFree(steps=[]) {
     this.removeUselessSymbols();
     let epsilonProducers = this.getEpsilonProducers();
     let oldNumProductions = this.getNumberOfProductions();
+    let step = this.clone();
     let newProductions = 0;
     let newProduction;
 
@@ -441,6 +483,9 @@ export default class Grammar {
             epsilonProducers.push(symbol);
         }
       }
+      step.P = this.P;
+      steps.push(step);
+      step = this.clone();
       oldNumProductions = newProductions;
       newProductions = this.getNumberOfProductions();
     }
@@ -448,6 +493,9 @@ export default class Grammar {
       if (symbol !== this.initialSymbol())
         this.P[symbol].splice(this.P[symbol].indexOf('&'), 1);
 
+    step.P = this.P;
+    steps.push(step);
+    step = this.clone();
     if (
       this.nonTerminalDerivesInitialSymbol() &&
       this.initialSymbolDerivesEpsilon()
@@ -464,6 +512,20 @@ export default class Grammar {
       this.P[this.S] = [oldInitialSymbol, '&'];
       this.Vn.push(this.S);
     }
+    step.P = this.P;
+    steps.push(step);
+  }
+
+  toOwn() {
+    this.removeUselessSymbols();
+    this.toEpsilonFree();
+  }
+
+  toOwnWithSteps() {
+    let steps = [];
+    this.removeUselessSymbols(steps);
+    this.toEpsilonFree(steps);
+    return steps;
   }
 
   /**
