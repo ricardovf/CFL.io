@@ -1,5 +1,7 @@
 import SymbolValidator, { EPSILON } from '../SymbolValidator';
 import { first } from './First';
+import * as R from 'ramda';
+import { makeNewUniqueNonTerminalName } from '../helpers';
 
 export const DIRECT = 'direct';
 export const INDIRECT = 'indirect';
@@ -7,8 +9,48 @@ export const INDIRECT = 'indirect';
 /**
  * @param grammar {Grammar}
  */
-export function eliminateLeftRecursion(grammar) {
+export function removeLeftRecursion(grammar) {
   // eliminate direct and indirect
+  const recursions = getLeftRecursions(grammar);
+
+  if (!R.isEmpty(recursions)) {
+    R.forEachObjIndexed((nTRecursions, nT) => {
+      if (nTRecursions[DIRECT]) {
+        // A -> Aα1 | Aα2 | ... | Aαn | β1 | β2 | ... | βm
+        const newNT = makeNewUniqueNonTerminalName(grammar.Vn, nT);
+        grammar.addNonTerminal(newNT);
+
+        let created = [];
+
+        for (let production of grammar.P[nT]) {
+          if (created.includes(production)) continue;
+
+          if (nTRecursions[DIRECT].includes(production)) {
+            // A’ -> α1A’ | α2A’ | ... | αnA’ | ε
+            grammar.P[newNT] = grammar.P[newNT] || [];
+            grammar.P[newNT].push(
+              `${production.slice(nT.length)} ${newNT}`.trim()
+            );
+            grammar.P[newNT].push(EPSILON);
+          } else {
+            // A -> β1A' | β2A' | ... | βmA’
+            grammar.P[nT].push(`${production} ${newNT}`.trim());
+            created.push(`${production} ${newNT}`.trim());
+          }
+
+          grammar.P[nT] = R.without([production], grammar.P[nT]);
+        }
+
+        grammar.P[nT] = R.without(nTRecursions[DIRECT], grammar.P[nT]);
+
+        if (grammar.P[nT] && grammar.P[nT].length === 0)
+          grammar.P[nT] = [newNT];
+
+        grammar.P[nT] = R.uniq(grammar.P[nT]).sort();
+        grammar.P[newNT] = R.uniq(grammar.P[newNT]).sort();
+      }
+    }, recursions);
+  }
 }
 
 /**

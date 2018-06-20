@@ -6,7 +6,7 @@ import { firstNT } from './Grammar/FirstNT';
 import { follow } from './Grammar/Follow';
 import { findMatchOfFromStartOfString, multiTrim } from './helpers';
 import {
-  eliminateLeftRecursion,
+  removeLeftRecursion,
   getLeftRecursions,
 } from './Grammar/LeftRecursion';
 import { canBeFactored, getFactors, isFactored } from './Grammar/Factor';
@@ -547,12 +547,14 @@ export default class Grammar {
     if (visited.includes(symbol)) return true;
 
     visited.push(symbol);
-    for (let production of this.P[symbol]) {
-      for (let symbol_ of production)
-        if (!visited.includes(symbol_) && this.Vn.includes(symbol_)) {
-          visited.push(symbol_);
-          if (this.hasCycle(visited, symbol_)) return true;
-        }
+    if (this.P[symbol]) {
+      for (let production of this.P[symbol]) {
+        for (let symbol_ of production)
+          if (!visited.includes(symbol_) && this.Vn.includes(symbol_)) {
+            visited.push(symbol_);
+            if (this.hasCycle_(visited, symbol_)) return true;
+          }
+      }
     }
     visited.splice(visited.indexOf(symbol));
     return false;
@@ -815,8 +817,8 @@ export default class Grammar {
     return getLeftRecursions(this);
   }
 
-  eliminateLeftRecursion() {
-    eliminateLeftRecursion(this);
+  removeLeftRecursion() {
+    removeLeftRecursion(this);
   }
 
   /**
@@ -868,6 +870,19 @@ export default class Grammar {
       [...R.clone(this.P)],
       this.S
     );
+  }
+
+  /**
+   * @param nT
+   * @return {Grammar}
+   */
+  addNonTerminal(nT) {
+    if (!this.Vn.includes(nT)) {
+      this.Vn.push(nT);
+      this.Vn = this.Vn.sort();
+    }
+
+    return this;
   }
 
   /**
