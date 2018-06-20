@@ -5,7 +5,11 @@ import { first } from './Grammar/First';
 import { firstNT } from './Grammar/FirstNT';
 import { follow } from './Grammar/Follow';
 import { findMatchOfFromStartOfString, multiTrim } from './helpers';
-import { getLeftRecursions } from './Grammar/LeftRecursion';
+import {
+  eliminateLeftRecursion,
+  getLeftRecursions,
+} from './Grammar/LeftRecursion';
+import { canBeFactored, getFactors, isFactored } from './Grammar/Factor';
 
 const parser = new GrammarParser();
 
@@ -669,12 +673,26 @@ export default class Grammar {
     return true;
   }
 
-  isFactorable(steps) {
-    return true;
+  /**
+   * @param steps
+   * @return {boolean}
+   */
+  canBeFactored(steps) {
+    return canBeFactored(this, steps);
   }
 
+  /**
+   * @return {boolean}
+   */
   isFactored() {
-    return false;
+    return isFactored(this);
+  }
+
+  /**
+   * @return {Object}
+   */
+  getFactors() {
+    return getFactors(this);
   }
 
   /**
@@ -691,32 +709,9 @@ export default class Grammar {
     return getLeftRecursions(this);
   }
 
-  // /**
-  //  * Check if the automata has cycle in the graph
-  //  *
-  //  * @param state
-  //  * @param visitedStates
-  //  * @returns {boolean}
-  //  */
-  // hasCycle(state, visitedStates = new Set()) {
-  //   if (visitedStates.has(state)) {
-  //     return true;
-  //   } else {
-  //     visitedStates.add(state);
-  //     let paths = R.filter(R.whereEq({ from: state }))(this.transitions);
-  //     let neighbours = R.pluck('to')(paths);
-  //     // Will iterate through all neighbours from the current state searching for cycle
-  //     for (let neighbour of neighbours) {
-  //       if (neighbour !== state) {
-  //         return this.hasCycle(state, visitedStates);
-  //       } else {
-  //         return true;
-  //       }
-  //     }
-  //   }
-  //   visitedStates.delete(state);
-  //   return false;
-  // }
+  eliminateLeftRecursion() {
+    eliminateLeftRecursion(this);
+  }
 
   /**
    * Converts a string containing terminals and non terminals into tokens
@@ -769,6 +764,10 @@ export default class Grammar {
     );
   }
 
+  /**
+   * @param text
+   * @returns {Grammar}
+   */
   static fromText(text) {
     if (parser.changed(text)) {
       parser.run(text);

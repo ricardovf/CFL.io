@@ -5,6 +5,13 @@ export const DIRECT = 'direct';
 export const INDIRECT = 'indirect';
 
 /**
+ * @param grammar {Grammar}
+ */
+export function eliminateLeftRecursion(grammar) {
+  // eliminate direct and indirect
+}
+
+/**
  * Returns the recursions for all non terminals in the form:
  *
  * { A: {

@@ -61,27 +61,7 @@ class FactorizationCard extends React.Component {
 
     if (!language || !language.valid) return null;
     const grammar = Grammar.fromPlainObject(language.grammar);
-
-    const table = (
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell padding="dense">Símbolo (Vn)</TableCell>
-            <TableCell padding="dense">Fatorado</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          <TableRow hover={true}>
-            <TableCell padding="dense">S</TableCell>
-            <TableCell padding="dense">Sim</TableCell>
-          </TableRow>
-          <TableRow hover={true}>
-            <TableCell padding="dense">B</TableCell>
-            <TableCell padding="dense">Não</TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-    );
+    const isFactored = grammar.isFactored();
 
     return (
       <Card className={classes.card}>
@@ -89,22 +69,26 @@ class FactorizationCard extends React.Component {
           <Typography gutterBottom variant="headline" component="h2">
             Fatoração
           </Typography>
-          <div>
-            Em até <Input type="number" value={100} /> passos a gramática{' '}
-            <strong style={{ color: 'green' }}>é fatorável</strong>.{' '}
-            <Button color="primary" size="small">
-              Fatorar
-            </Button>
-          </div>
-          <div>
-            Em até <Input type="number" value={10} /> passos a gramática{' '}
-            <strong style={{ color: 'red' }}>não é fatorável</strong>.
-          </div>
-          <div>
-            <strong style={{ color: 'green' }}>
-              A gramática está fatorada
-            </strong>.
-          </div>
+          {!isFactored && (
+            <div>
+              Em até <Input type="number" value={100} /> passos a gramática{' '}
+              <strong style={{ color: 'green' }}>é fatorável</strong>.{' '}
+              <Button color="primary" size="small">
+                Fatorar
+              </Button>
+              <div>
+                Em até <Input type="number" value={10} /> passos a gramática{' '}
+                <strong style={{ color: 'red' }}>não é fatorável</strong>.
+              </div>
+            </div>
+          )}
+          {isFactored && (
+            <div>
+              <strong style={{ color: 'green' }}>
+                A gramática está fatorada.
+              </strong>
+            </div>
+          )}
         </CardContent>
       </Card>
     );
