@@ -313,20 +313,12 @@ export default class Grammar {
   }
 
   removeSimpleProductions() {
-    let simpleProductions = [];
+    let simpleProductions = this.getSimpleProductions();
     let newProductions = {};
 
     for (let nonTerminal of this.Vn) {
-      if (simpleProductions[nonTerminal] === undefined)
-        simpleProductions[nonTerminal] = [];
       if (newProductions[nonTerminal] === undefined)
         newProductions[nonTerminal] = [];
-    }
-
-    for (let nonTerminal of this.Vn) {
-      for (let production of this.P[nonTerminal])
-        if (production.length === 1 && this.Vn.indexOf(production) > -1)
-          simpleProductions[nonTerminal].push(production);
     }
 
     for (let symbol of this.Vn)
@@ -404,7 +396,31 @@ export default class Grammar {
    * @todo
    * @returns {boolean}
    */
-  hasCycle() {
+  hasCycle(visited = []) {
+    visited.push(this.S);
+
+    for (let production of this.P[this.S])
+      for (let symbol of production)
+        if (this.Vn.includes(symbol))
+          return this.hasCycle_(visited, symbol);
+
+    return false;
+  }
+
+  hasCycle_(visited, symbol) {
+    if (visited.includes(symbol))
+      return true;
+
+    visited.push(symbol);
+    for (let production of this.P[symbol]) {
+      for (let symbol_ of production)
+      if (!visited.includes(symbol_) && this.Vn.includes(symbol_)) {
+        visited.push(symbol_);
+        if (this.hasCycle(visited, symbol_))
+          return true;
+      }
+    }
+    visited.splice(visited.indexOf(symbol));
     return false;
   }
 
@@ -423,7 +439,15 @@ export default class Grammar {
   }
 
   getLanguageFinitude() {
-    return INFINITE;
+    let fertileSymbols = this.getFertileSymbols();
+    if (fertileSymbols.includes(this.S)) {
+      if (this.hasCycle())
+        return INFINITE;
+      else
+        return FINITE;
+    } else {
+      return EMPTY;
+    }
   }
 
   getFirst() {}
@@ -553,6 +577,31 @@ export default class Grammar {
       if (this.Vt.includes(char)) terminals.push(char);
     }
     return terminals;
+  }
+
+  getSimpleProductions() {
+    let simpleProductions = [];
+
+    for (let nonTerminal of this.Vn)
+      if (simpleProductions[nonTerminal] === undefined)
+        simpleProductions[nonTerminal] = [];
+
+    for (let nonTerminal of this.Vn)
+      for (let production of this.P[nonTerminal])
+        if (production.length === 1 && this.Vn.indexOf(production) > -1)
+          simpleProductions[nonTerminal].push(production);
+
+    return simpleProductions;
+  }
+
+  getSimpleProductionsFromSymbol(symbol) {
+    let simpleProductions = [];
+
+    for (let production of this.P[symbol])
+      if (production.length === 1 && this.Vn.indexOf(production) > -1)
+        simpleProductions.push(production);
+
+    return simpleProductions;
   }
 
   getNonSimpleProductions(symbol) {

@@ -28,7 +28,5 @@ describe('Grammar', () => {
       grammar.removeSimpleProductions();
       expect(grammar.hasSimpleProductions()).toBeFalsy();
     });
-
-    it;
   });
 });
