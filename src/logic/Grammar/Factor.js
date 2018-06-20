@@ -107,52 +107,6 @@ export function getFactors(grammar) {
   return _removeFactorsWithSingleProduction(factors);
 }
 
-/**
- * Checks if B and derive A with A on the left
- * @param grammar
- * @param B
- * @param A
- * @param checked
- * @return {boolean}
- * @private
- */
-function _canDeriveAsFirst(grammar, B, A, checked = []) {
-  if (!grammar.isValid()) return false;
-
-  if (checked.includes(B + '->' + A)) return false;
-
-  checked[B + '->' + A] = true;
-
-  if (B === A) return true;
-
-  if (grammar.P[B]) {
-    for (let production of grammar.P[B]) {
-      let y = production.split(' ');
-
-      for (let i = 0; i < y.length; i++) {
-        let Y = y[i];
-
-        // Check for direct recursion
-        if (i === 0 && Y === A) {
-          return true;
-        }
-
-        // If symbol is not a non terminal, lets break, as can not have an indirect recursion
-        if (!SymbolValidator.isValidNonTerminal(Y)) break;
-
-        // If first(Y) does not contain &
-        if (!first(grammar, Y).includes(EPSILON)) break;
-
-        let Beta = i + 1 < y.length ? y.slice(i + 1).join() : undefined;
-
-        if (Beta && _canDeriveAsFirst(grammar, Beta, A, checked)) return true;
-      }
-    }
-  }
-
-  return false;
-}
-
 function _removeFactorsWithSingleProduction(factors) {
   let finalFactors = {};
   R.forEachObjIndexed((AFactors, A) => {

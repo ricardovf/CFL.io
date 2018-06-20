@@ -11,6 +11,7 @@ import Table, {
   TableRow,
 } from 'material-ui/Table';
 import * as R from 'ramda';
+import { DIRECT, INDIRECT } from '../logic/Grammar/Factor';
 
 const styles = () => ({
   card: {
@@ -62,6 +63,13 @@ class FactorizationCard extends React.Component {
     if (!language || !language.valid) return null;
     const grammar = Grammar.fromPlainObject(language.grammar);
     const isFactored = grammar.isFactored();
+    const factors = grammar.getFactors();
+    const nonTerminals = R.intersection(
+      grammar.nonTerminalsFirstSymbolFirst(),
+      R.keys(factors)
+    );
+
+    console.log(nonTerminals, factors);
 
     return (
       <Card className={classes.card}>
@@ -80,6 +88,54 @@ class FactorizationCard extends React.Component {
                 Em até <Input type="number" value={10} /> passos a gramática{' '}
                 <strong style={{ color: 'red' }}>não é fatorável</strong>.
               </div>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell padding="dense">Símbolo</TableCell>
+                    <TableCell padding="dense">Direta</TableCell>
+                    <TableCell padding="dense">Indireta</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {nonTerminals.map(nT => (
+                    <TableRow key={nT} hover={true}>
+                      <TableCell padding="dense">{nT}</TableCell>
+                      <TableCell
+                        padding="dense"
+                        dangerouslySetInnerHTML={{
+                          __html: factors[nT][DIRECT]
+                            ? R.values(
+                                R.mapObjIndexed(
+                                  (p, s) =>
+                                    `<strong>${s}</strong>: ${p
+                                      .sort()
+                                      .join(', ')}`,
+                                  factors[nT][DIRECT]
+                                )
+                              ).join('<br />')
+                            : '–',
+                        }}
+                      />
+                      <TableCell
+                        padding="dense"
+                        dangerouslySetInnerHTML={{
+                          __html: factors[nT][INDIRECT]
+                            ? R.values(
+                                R.mapObjIndexed(
+                                  (p, s) =>
+                                    `<strong>${s}</strong>: ${p
+                                      .sort()
+                                      .join(', ')}`,
+                                  factors[nT][INDIRECT]
+                                )
+                              ).join('<br />')
+                            : '–',
+                        }}
+                      />
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           )}
           {isFactored && (
