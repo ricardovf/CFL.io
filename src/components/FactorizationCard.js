@@ -123,9 +123,9 @@ class FactorizationCard extends React.Component {
                             ? R.values(
                                 R.mapObjIndexed(
                                   (p, s) =>
-                                    `<strong>${s}</strong>: ${p
-                                      .sort()
-                                      .join(', ')}`,
+                                    `<strong>${
+                                      s === '' ? R.head(p)[0] : s
+                                    }</strong>: ${p.sort().join(', ')}`,
                                   factors[nT][INDIRECT]
                                 )
                               ).join('<br />')
