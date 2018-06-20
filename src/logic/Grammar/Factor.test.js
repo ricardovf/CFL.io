@@ -31,4 +31,23 @@ describe('Factor', () => {
     // Expect that it can be factored in 1 step, because its direct
     // expect(grammar.canBeFactored(1)).toBeTruthy();
   });
+
+  it('should return the correct status of indirect factorization on simple grammar 1', () => {
+    const grammar = Grammar.fromText(
+      `S -> A | a S
+       A -> & | a A c`
+    );
+    expect(grammar.isValid()).toBeTruthy();
+    expect(grammar.isFactored()).toBeFalsy();
+    expect(grammar.getFactors()).toEqual({
+      S: {
+        indirect: {
+          a: ['a S', 'A'],
+        },
+      },
+    });
+
+    // Expect that it can be factored in 1 step, because its direct
+    // expect(grammar.canBeFactored(1)).toBeTruthy();
+  });
 });
