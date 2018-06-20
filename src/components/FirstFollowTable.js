@@ -26,6 +26,7 @@ class FirstFollowTable extends React.Component {
 
     if (!language || !language.valid) return null;
     const grammar = Grammar.fromPlainObject(language.grammar);
+    const nonTerminals = grammar.nonTerminalsFirstSymbolFirst();
 
     return (
       <Card className={classes.card}>
@@ -46,18 +47,29 @@ class FirstFollowTable extends React.Component {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  <TableRow hover={true}>
-                    <TableCell padding="dense">S</TableCell>
-                    <TableCell padding="dense">a, b, c</TableCell>
-                    <TableCell padding="dense">$, b, &</TableCell>
-                    <TableCell padding="dense">a, b</TableCell>
-                  </TableRow>
-                  <TableRow hover={true}>
-                    <TableCell padding="dense">B</TableCell>
-                    <TableCell padding="dense">a, b, c</TableCell>
-                    <TableCell padding="dense">b</TableCell>
-                    <TableCell padding="dense">a</TableCell>
-                  </TableRow>
+                  {nonTerminals.map(nT => (
+                    <TableRow key={nT} hover={true}>
+                      <TableCell padding="dense">{nT}</TableCell>
+                      <TableCell padding="dense">
+                        {grammar
+                          .first(nT)
+                          .sort()
+                          .join(', ')}
+                      </TableCell>
+                      <TableCell padding="dense">
+                        {grammar
+                          .follow(nT)
+                          .sort()
+                          .join(', ')}
+                      </TableCell>
+                      <TableCell padding="dense">
+                        {grammar
+                          .firstNT(nT)
+                          .sort()
+                          .join(', ')}
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </div>

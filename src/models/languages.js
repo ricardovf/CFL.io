@@ -196,5 +196,18 @@ export default {
       250,
       { maxWait: 1000 }
     ),
+
+    renameLanguage: _.debounce(({ id, name }, rootState) => {
+      let language = find(propEq('id', id))(rootState.languages);
+
+      if (language && typeof name === 'string' && name.trim().length > 0) {
+        language = {
+          ...language,
+          name: name.trim(),
+        };
+
+        dispatch.languages._updateLanguage({ id, language });
+      }
+    }, 250),
   },
 };

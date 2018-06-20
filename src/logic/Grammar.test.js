@@ -116,4 +116,25 @@ describe('Grammar', () => {
       });
     });
   });
+
+  describe('Tokenize', () => {
+    it('should return the correct tokens on a simple grammar', () => {
+      const grammar = Grammar.fromText(
+        `S -> A B C
+        A -> a A | &
+        B -> b B | A C d
+        C -> c C | &`
+      );
+      expect(grammar.isValid()).toBeTruthy();
+      expect(grammar.tokenizeString('uwoqdwqopd')).toEqual([]);
+      expect(grammar.tokenizeString('EEE')).toEqual([]);
+      expect(grammar.tokenizeString('')).toEqual([]);
+      expect(grammar.tokenizeString('abcd')).toEqual(['a', 'b', 'c', 'd']);
+      expect(grammar.tokenizeString('Cd')).toEqual(['C', 'd']);
+      expect(grammar.tokenizeString('C')).toEqual(['C']);
+      expect(grammar.tokenizeString('CaB')).toEqual(['C', 'a', 'B']);
+      expect(grammar.tokenizeString('aaB')).toEqual(['a', 'a', 'B']);
+      expect(grammar.tokenizeString('BB')).toEqual(['B', 'B']);
+    });
+  });
 });

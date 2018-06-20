@@ -3,6 +3,7 @@ import * as R from 'ramda';
 export const EPSILON = '&';
 export const SEPARATOR = '|';
 export const DERIVATION = '->';
+export const END = '$';
 
 const NON_TERMINAL_REGEXP = /^[A-Z]+[0-9]*$/;
 const TERMINAL_EXCEPTIONS_REGEXP = /[A-Z|\s]|\->/;

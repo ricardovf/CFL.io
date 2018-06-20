@@ -1,6 +1,15 @@
 import GrammarParser from './Grammar/GrammarParser';
 import * as R from 'ramda';
 import SymbolValidator, { EPSILON } from './SymbolValidator';
+import { first } from './Grammar/First';
+import { firstNT } from './Grammar/FirstNT';
+import { follow } from './Grammar/Follow';
+import { findMatchOfFromStartOfString, multiTrim } from './helpers';
+import {
+  eliminateLeftRecursion,
+  getLeftRecursions,
+} from './Grammar/LeftRecursion';
+import { canBeFactored, getFactors, isFactored } from './Grammar/Factor';
 
 const parser = new GrammarParser();
 
@@ -39,6 +48,22 @@ export default class Grammar {
   }
 
   /**
+   * Return the non terminals sorted and with the initial symbol as first item of the array
+   *
+   * @return {Array}
+   */
+  nonTerminalsFirstSymbolFirst() {
+    let Vn = this.Vn;
+
+    if (Array.isArray(Vn) && this.S && Vn.includes(this.S)) {
+      Vn = R.without([this.S], Vn.sort());
+      Vn.unshift(this.S);
+    }
+
+    return Vn;
+  }
+
+  /**
    * @return {Object}
    */
   rules() {
@@ -50,6 +75,46 @@ export default class Grammar {
    */
   initialSymbol() {
     return this.S;
+  }
+
+  /**
+   * Returns the first of a input
+   *
+   * @param input
+   * @return {[]}
+   */
+  first(input) {
+    return first(this, input);
+  }
+
+  /**
+   * Returns the first-NT of a input
+   *
+   * @param input
+   * @return {[]}
+   */
+  firstNT(input) {
+    return firstNT(this, input);
+  }
+
+  /**
+   * Returns the follow of a input
+   *
+   * @param input
+   * @return {[]}
+   */
+  follow(input) {
+    return follow(this, input);
+  }
+
+  /**
+   * Returns an object with all the non terminals as keys and its first as value
+   * @return {Object}
+   */
+  firstsOfNonTerminals() {
+    return Array.isArray(this.Vn)
+      ? R.zipObj(this.Vn, R.map(R.curry(first, this), this.Vn))
+      : {};
   }
 
   /**
@@ -176,15 +241,17 @@ export default class Grammar {
     if (!this.isValid()) return false;
 
     for (let nonTerminal of this.Vn) {
-      for (let production_ of this.P[nonTerminal]) {
-        if (production_ === '&' && nonTerminal !== this.initialSymbol()) {
-          return false;
-        } else {
-          if (
-            this.initialSymbolDerivesEpsilon() &&
-            this.nonTerminalDerivesInitialSymbol()
-          ) {
+      if (Array.isArray(this.P[nonTerminal])) {
+        for (let production_ of this.P[nonTerminal]) {
+          if (production_ === '&' && nonTerminal !== this.initialSymbol()) {
             return false;
+          } else {
+            if (
+              this.initialSymbolDerivesEpsilon() &&
+              this.nonTerminalDerivesInitialSymbol()
+            ) {
+              return false;
+            }
           }
         }
       }
@@ -200,9 +267,11 @@ export default class Grammar {
     if (!this.isValid()) return false;
 
     for (let nonTerminal of this.Vn) {
-      for (let production of this.P[nonTerminal]) {
-        if (production.length === 1 && this.Vn.indexOf(production) > -1)
-          return true;
+      if (Array.isArray(this.P[nonTerminal])) {
+        for (let production of this.P[nonTerminal]) {
+          if (production.length === 1 && this.Vn.indexOf(production) > -1)
+            return true;
+        }
       }
     }
     return false;
@@ -365,7 +434,10 @@ export default class Grammar {
                 this.P[symbol].push(newProduction);
             }
           }
-          if (this.P[symbol].includes('&') && !epsilonProducers.includes(symbol))
+          if (
+            this.P[symbol].includes('&') &&
+            !epsilonProducers.includes(symbol)
+          )
             epsilonProducers.push(symbol);
         }
       }
@@ -376,14 +448,17 @@ export default class Grammar {
       if (symbol !== this.initialSymbol())
         this.P[symbol].splice(this.P[symbol].indexOf('&'), 1);
 
-    if (this.nonTerminalDerivesInitialSymbol() && this.initialSymbolDerivesEpsilon()) {
+    if (
+      this.nonTerminalDerivesInitialSymbol() &&
+      this.initialSymbolDerivesEpsilon()
+    ) {
       let newInitialSymbol;
       let oldInitialSymbol = this.S;
       let index = 0;
       do {
         newInitialSymbol = 'S' + index.toString();
         ++index;
-      } while (this.Vn.includes(newInitialSymbol))
+      } while (this.Vn.includes(newInitialSymbol));
       this.P[this.S].splice(this.P[this.S].indexOf('&'), 1);
       this.S = newInitialSymbol;
       this.P[this.S] = [oldInitialSymbol, '&'];
@@ -636,9 +711,7 @@ export default class Grammar {
 
   getNumberOfProductions() {
     let i = 0;
-    for (let symbol of this.Vn)
-      for (let production of this.P[symbol])
-        ++i;
+    for (let symbol of this.Vn) for (let production of this.P[symbol]) ++i;
     return i;
   }
 
@@ -649,48 +722,84 @@ export default class Grammar {
     return true;
   }
 
-  isFactorable(steps) {
-    return true;
+  /**
+   * @param steps
+   * @return {boolean}
+   */
+  canBeFactored(steps) {
+    return canBeFactored(this, steps);
   }
 
+  /**
+   * @return {boolean}
+   */
   isFactored() {
-    return false;
+    return isFactored(this);
   }
 
+  /**
+   * @return {Object}
+   */
+  getFactors() {
+    return getFactors(this);
+  }
+
+  /**
+   * @return {boolean}
+   */
   hasLeftRecursion() {
-    return true;
+    return !R.isEmpty(this.getLeftRecursions());
   }
 
+  /**
+   * @return {Object}
+   */
   getLeftRecursions() {
-    return [{ A: 'direct' }, { B: 'indirect' }];
+    return getLeftRecursions(this);
   }
 
-  // /**
-  //  * Check if the automata has cycle in the graph
-  //  *
-  //  * @param state
-  //  * @param visitedStates
-  //  * @returns {boolean}
-  //  */
-  // hasCycle(state, visitedStates = new Set()) {
-  //   if (visitedStates.has(state)) {
-  //     return true;
-  //   } else {
-  //     visitedStates.add(state);
-  //     let paths = R.filter(R.whereEq({ from: state }))(this.transitions);
-  //     let neighbours = R.pluck('to')(paths);
-  //     // Will iterate through all neighbours from the current state searching for cycle
-  //     for (let neighbour of neighbours) {
-  //       if (neighbour !== state) {
-  //         return this.hasCycle(state, visitedStates);
-  //       } else {
-  //         return true;
-  //       }
-  //     }
-  //   }
-  //   visitedStates.delete(state);
-  //   return false;
-  // }
+  eliminateLeftRecursion() {
+    eliminateLeftRecursion(this);
+  }
+
+  /**
+   * Converts a string containing terminals and non terminals into tokens
+   * @param input
+   * @return {Array}
+   */
+  tokenizeString(input) {
+    if (!this.isValid())
+      throw new Error('Only a valid grammar can tokenize strings');
+
+    let tokens = [];
+
+    input = multiTrim(input, true, false);
+
+    do {
+      let recognized = false;
+
+      if (input.length) {
+        const maybeTerminal = findMatchOfFromStartOfString(input, this.Vt);
+        const maybeNonTerminal = findMatchOfFromStartOfString(input, this.Vn);
+        if (maybeTerminal) {
+          tokens.push(maybeTerminal);
+          input = input.slice(maybeTerminal.length);
+          recognized = true;
+        } else if (maybeNonTerminal) {
+          tokens.push(maybeNonTerminal);
+          input = input.slice(maybeNonTerminal.length);
+          recognized = true;
+        } else {
+          // Invalid char found, return empty tokens
+          return [];
+        }
+      }
+
+      if (!recognized) break;
+    } while (true);
+
+    return tokens;
+  }
 
   /**
    * @returns {Grammar}
@@ -704,6 +813,10 @@ export default class Grammar {
     );
   }
 
+  /**
+   * @param text
+   * @returns {Grammar}
+   */
   static fromText(text) {
     if (parser.changed(text)) {
       parser.run(text);
@@ -745,7 +858,7 @@ export default class Grammar {
       Vn: [...this.Vn],
       Vt: [...this.Vt],
       P: R.clone(this.P),
-      S: [...this.S],
+      S: this.S,
     };
   }
 }
