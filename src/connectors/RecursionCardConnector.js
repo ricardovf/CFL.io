@@ -17,10 +17,7 @@ const mapState = state => {
 };
 
 const mapDispatch = dispatch => ({
-  onSentenceAdd: (id, sentence) =>
-    dispatch.languages.addUserSentence({ id, sentence }),
-  onSentenceDelete: (id, sentence) =>
-    dispatch.languages.deleteUserSentence({ id, sentence }),
+  onRemoveLeftRecursion: id => dispatch.languages.removeLeftRecursion({ id }),
 });
 
 export default connect(mapState, mapDispatch)(RecursionCard);

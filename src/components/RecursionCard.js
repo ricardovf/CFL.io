@@ -27,7 +27,7 @@ const styles = () => ({
 
 class RecursionCard extends React.Component {
   render() {
-    const { classes, language } = this.props;
+    const { classes, language, onRemoveLeftRecursion } = this.props;
 
     if (!language || !language.valid) return null;
     const grammar = Grammar.fromPlainObject(language.grammar);
@@ -74,7 +74,12 @@ class RecursionCard extends React.Component {
           {hasRecursions && (
             <div className={classes.container}>
               {table}{' '}
-              <Button color="primary" size="small" className={classes.button}>
+              <Button
+                onClick={event => onRemoveLeftRecursion(language.id)}
+                color="primary"
+                size="small"
+                className={classes.button}
+              >
                 Remover recursão
               </Button>
             </div>
@@ -95,6 +100,7 @@ class RecursionCard extends React.Component {
 
 RecursionCard.propTypes = {
   language: PropTypes.object,
+  onRemoveLeftRecursion: PropTypes.func,
 };
 
 export default withStyles(styles)(RecursionCard);

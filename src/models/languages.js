@@ -151,21 +151,21 @@ export default {
     //   }
     // },
     //
-    // minimize({ id }, rootState) {
-    //   let language = find(propEq('id', id))(rootState.languages);
-    //
-    //   if (language && language.grammar) {
-    //     const fsm = Grammar.fromPlainObject(language.fsm);
-    //     fsm.minimize();
-    //
-    //     language = {
-    //       ...language,
-    //       fsm: fsm.toPlainObject(),
-    //     };
-    //
-    //     dispatch.languages._updateLanguage({ id, language });
-    //   }
-    // },
+    removeLeftRecursion({ id }, rootState) {
+      let language = find(propEq('id', id))(rootState.languages);
+
+      if (language && language.grammar) {
+        const grammar = Grammar.fromPlainObject(language.grammar);
+        grammar.removeLeftRecursion();
+
+        language = {
+          ...language,
+          grammar: grammar.toPlainObject(),
+        };
+
+        dispatch.languages._updateLanguage({ id, language });
+      }
+    },
 
     editGrammar: _.debounce(
       (payload, rootState) => {
