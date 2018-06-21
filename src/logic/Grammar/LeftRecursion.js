@@ -10,46 +10,120 @@ export const INDIRECT = 'indirect';
  * @param grammar {Grammar}
  */
 export function removeLeftRecursion(grammar) {
-  // eliminate direct and indirect
-  const recursions = getLeftRecursions(grammar);
+  let loops = 0;
+  do {
+    const recursions = getLeftRecursions(grammar);
 
-  if (!R.isEmpty(recursions)) {
-    R.forEachObjIndexed((nTRecursions, nT) => {
-      if (nTRecursions[DIRECT]) {
-        // A -> Aα1 | Aα2 | ... | Aαn | β1 | β2 | ... | βm
-        const newNT = makeNewUniqueNonTerminalName(grammar.Vn, nT);
-        grammar.addNonTerminal(newNT);
+    if (!R.isEmpty(recursions)) {
+      if (_haveIndirectLeftRecursions(recursions)) {
+        _removeIndirectLeftRecursions(grammar, recursions);
+      } else {
+        _removeDirectLeftRecursions(grammar, recursions);
+      }
+    } else {
+      // No more recursions!
+      break;
+    }
 
-        let created = [];
+    // temporary
+    if (loops++ > 10) break;
+  } while (true);
+}
 
-        for (let production of grammar.P[nT]) {
-          if (created.includes(production)) continue;
+/**
+ * @param grammar
+ * @param recursions
+ * @private
+ */
+function _removeDirectLeftRecursions(grammar, recursions) {
+  R.forEachObjIndexed((nTRecursions, nT) => {
+    if (nTRecursions[DIRECT]) {
+      // A -> Aα1 | Aα2 | ... | Aαn | β1 | β2 | ... | βm
+      const newNT = makeNewUniqueNonTerminalName(grammar.Vn, nT);
+      grammar.addNonTerminal(newNT);
 
-          if (nTRecursions[DIRECT].includes(production)) {
-            // A’ -> α1A’ | α2A’ | ... | αnA’ | ε
-            grammar.P[newNT] = grammar.P[newNT] || [];
-            grammar.P[newNT].push(
-              `${production.slice(nT.length)} ${newNT}`.trim()
-            );
-            grammar.P[newNT].push(EPSILON);
-          } else {
-            // A -> β1A' | β2A' | ... | βmA’
-            grammar.P[nT].push(`${production} ${newNT}`.trim());
-            created.push(`${production} ${newNT}`.trim());
-          }
+      let created = [];
 
-          grammar.P[nT] = R.without([production], grammar.P[nT]);
+      for (let production of grammar.P[nT]) {
+        if (created.includes(production)) continue;
+
+        if (nTRecursions[DIRECT].includes(production)) {
+          // A’ -> α1A’ | α2A’ | ... | αnA’ | ε
+          grammar.P[newNT] = grammar.P[newNT] || [];
+          grammar.P[newNT].push(
+            `${production.slice(nT.length)} ${newNT}`.trim()
+          );
+          grammar.P[newNT].push(EPSILON);
+        } else {
+          // A -> β1A' | β2A' | ... | βmA’
+          grammar.P[nT].push(`${production} ${newNT}`.trim());
+          created.push(`${production} ${newNT}`.trim());
         }
 
-        grammar.P[nT] = R.without(nTRecursions[DIRECT], grammar.P[nT]);
-
-        if (grammar.P[nT] && grammar.P[nT].length === 0)
-          grammar.P[nT] = [newNT];
-
-        grammar.P[nT] = R.uniq(grammar.P[nT]).sort();
-        grammar.P[newNT] = R.uniq(grammar.P[newNT]).sort();
+        grammar.P[nT] = R.without([production], grammar.P[nT]);
       }
-    }, recursions);
+
+      grammar.P[nT] = R.without(nTRecursions[DIRECT], grammar.P[nT]);
+
+      if (grammar.P[nT] && grammar.P[nT].length === 0) grammar.P[nT] = [newNT];
+
+      grammar.P[nT] = R.uniq(grammar.P[nT]).sort();
+      grammar.P[newNT] = R.uniq(grammar.P[newNT]).sort();
+    }
+  }, recursions);
+}
+
+/**
+ * @param grammar {Grammar}
+ * @param recursions
+ * @private
+ */
+function _removeIndirectLeftRecursions(grammar, recursions) {
+  // Make sure its a own grammar (Gramática Própria)
+  if (!grammar.isOwn()) {
+    grammar.toOwn();
+
+    if (!grammar.isOwn())
+      throw new Error(
+        'Grammar should be own (própria) to be able to remove indirect left recursion, but the step to make it own has failed to do so!'
+      );
+  }
+
+  // 1 – Ordene os não-terminais de G em uma ordem
+  let Vn = grammar.Vn;
+  for (let i = 0; i < Vn.length; i++) {
+    for (let j = 0; j < i - 1; j++) {
+      const Ai = Vn[i];
+      const Aj = Vn[j];
+
+      if (grammar.P[Ai]) {
+        for (let iProduction of grammar.P[Ai]) {
+          let iProductionArray = iProduction.split(' ');
+
+          if (iProductionArray[0] === Aj) {
+            if (grammar.P[Aj]) {
+              for (let jProduction of grammar.P[Aj]) {
+                let newProduction = `${
+                  jProduction === EPSILON ? '' : jProduction
+                } ${iProduction.slice(Ai.length)}`.trim();
+                grammar.P[Ai].push(newProduction);
+              }
+
+              grammar.P[Ai] = R.without([iProduction], grammar.P[Ai]);
+            }
+          }
+        }
+      }
+    }
+
+    // Elimine as rec. esq. Diretas das Ai – produções
+    if (recursions[Vn[i]] && recursions[Vn[i]][DIRECT]) {
+      _removeDirectLeftRecursions(grammar, {
+        [Vn[i]]: {
+          [DIRECT]: recursions[Vn[i]][DIRECT],
+        },
+      });
+    }
   }
 }
 
@@ -154,4 +228,8 @@ function _canDeriveAsFirst(grammar, B, A, checked = []) {
   }
 
   return false;
+}
+
+function _haveIndirectLeftRecursions(recursions) {
+  return R.flatten(R.values(R.map(R.keys, recursions))).includes(INDIRECT);
 }

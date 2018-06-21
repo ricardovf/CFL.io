@@ -412,6 +412,10 @@ export default class Grammar {
   }
 
   removeSimpleProductions(steps = []) {
+    if (this.hasEpsilonTransitions()) {
+      this.toEpsilonFree();
+    }
+
     let simpleProductions = this.getSimpleProductions();
     let newProductions = {};
     let step = this.clone();
@@ -516,16 +520,29 @@ export default class Grammar {
     steps.push(step);
   }
 
-  toOwn() {
-    this.removeUselessSymbols();
-    this.toEpsilonFree();
+  /**
+   * Is 'GLC Própria'?
+   * @returns {boolean}
+   */
+  isOwn() {
+    return (
+      this.isValid() &&
+      !this.hasEpsilonTransitions() &&
+      !this.hasCycle() &&
+      !this.hasUselessSymbols()
+    );
+  }
+
+  toOwn(steps = []) {
+    this.toEpsilonFree(steps);
+
+    if (this.hasCycle()) this.removeSimpleProductions(steps);
+
+    this.removeUselessSymbols(steps);
   }
 
   toOwnWithSteps() {
-    let steps = [];
-    this.removeUselessSymbols(steps);
-    this.toEpsilonFree(steps);
-    return steps;
+    return this.toOwn([]);
   }
 
   /**
@@ -534,11 +551,19 @@ export default class Grammar {
    * @returns {boolean}
    */
   hasCycle(visited = []) {
+    if (!this.isValid()) return false;
+
     visited.push(this.S);
 
-    for (let production of this.P[this.S])
-      for (let symbol of production)
-        if (this.Vn.includes(symbol)) return this.hasCycle_(visited, symbol);
+    if (this.P[this.S]) {
+      for (let production of this.P[this.S]) {
+        for (let symbol of production) {
+          if (this.Vn.includes(symbol)) {
+            return this.hasCycle_(visited, symbol);
+          }
+        }
+      }
+    }
 
     return false;
   }
@@ -560,20 +585,6 @@ export default class Grammar {
     return false;
   }
 
-  /**
-   * Is 'GLC Própria'?
-   * @todo
-   * @returns {boolean}
-   */
-  isOwn() {
-    return (
-      this.isValid() &&
-      !this.hasEpsilonTransitions() &&
-      !this.hasCycle() &&
-      !this.hasUselessSymbols()
-    );
-  }
-
   getLanguageFinitude() {
     let fertileSymbols = this.getFertileSymbols();
     if (fertileSymbols.includes(this.S)) {
@@ -583,12 +594,6 @@ export default class Grammar {
       return EMPTY;
     }
   }
-
-  getFirst() {}
-
-  getFirstNT() {}
-
-  getFollow() {}
 
   /**
    * @return {Array}
