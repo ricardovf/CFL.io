@@ -69,7 +69,10 @@ export function toEpsilonFree(steps = [], grammar) {
     grammar.initialSymbolDerivesEpsilon()
   ) {
     let oldInitialSymbol = grammar.S;
-    const newInitialSymbol = makeNewUniqueNonTerminalName(grammar.Vn, grammar.S);
+    const newInitialSymbol = makeNewUniqueNonTerminalName(
+      grammar.Vn,
+      grammar.S
+    );
     grammar.addNonTerminal(newInitialSymbol);
     grammar.P[grammar.S].splice(grammar.P[grammar.S].indexOf('&'), 1);
     grammar.S = newInitialSymbol;

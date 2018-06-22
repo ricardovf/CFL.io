@@ -106,7 +106,7 @@ class InformationCard extends React.Component {
                   : yesIcon
                 : dontKnowIcon}
             </ListItemIcon>
-            <ListItemText primary="Sem não terminais inalcançáveis" />
+            <ListItemText primary="Sem símbolos inalcançáveis" />
           </ListItem>
         </List>
       </React.Fragment>

@@ -1,7 +1,11 @@
 import GrammarParser from './Grammar/GrammarParser';
 import * as R from 'ramda';
 import SymbolValidator, { EPSILON } from './SymbolValidator';
-import { getEpsilonProducers, toEpsilonFree, isEpsilonFree } from './Grammar/Epsilon';
+import {
+  getEpsilonProducers,
+  toEpsilonFree,
+  isEpsilonFree,
+} from './Grammar/Epsilon';
 import { first } from './Grammar/First';
 import { firstNT } from './Grammar/FirstNT';
 import { follow } from './Grammar/Follow';
@@ -12,7 +16,7 @@ import {
   getSimpleProductions,
   getSimpleProductionsFromSymbol,
   getNonSimpleProductions,
-  hasSimpleProductions
+  hasSimpleProductions,
 } from './Grammar/SimpleProductions';
 import {
   removeInfertileSymbols,
