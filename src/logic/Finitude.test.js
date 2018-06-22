@@ -17,9 +17,7 @@ describe('Grammar', () => {
     });
 
     it('should return a inifnite language', () => {
-      const grammar = Grammar.fromText(
-        `S -> B | a S\nB ->a`
-      );
+      const grammar = Grammar.fromText(`S -> B | a S\nB ->a`);
       expect(grammar.getLanguageFinitude()).toBe(INFINITE);
     });
 

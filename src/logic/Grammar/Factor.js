@@ -1,20 +1,81 @@
 import SymbolValidator, { EPSILON } from '../SymbolValidator';
 import { first } from './First';
 import * as R from 'ramda';
+import { makeNewUniqueNonTerminalName } from '../helpers';
 
 export const DIRECT = 'direct';
 export const INDIRECT = 'indirect';
 
 /**
- * @param grammar
- * @param steps
+ * @param originalGrammar {Grammar}
+ * @param maxSteps
  * @return {boolean}
  */
-export function canBeFactored(grammar, steps) {
-  // If we have left recursion, we must eliminate in order to be able to factor
-  // if (grammar.hasLeftRecursion()) grammar.eliminateLeftRecursion();
+export function canBeFactored(originalGrammar, maxSteps) {
+  const grammar = originalGrammar.clone();
 
-  return false;
+  removeFactors(grammar, maxSteps);
+
+  return grammar.isFactored();
+}
+
+/**
+ * Removes the most factors possible in the max steps given
+ *
+ * @param grammar {Grammar}
+ * @param maxSteps
+ */
+export function removeFactors(grammar, maxSteps) {
+  let loops = 0;
+
+  while (!grammar.isFactored()) {
+    if (++loops > maxSteps) return;
+
+    // If we have left recursion, we must eliminate in order to be able to factor
+    if (grammar.hasLeftRecursion()) {
+      grammar.removeLeftRecursion();
+
+      if (grammar.hasLeftRecursion()) {
+        throw new Error(
+          'Could not remove left recursion, so we can not factor. Its probably a bug, please review!'
+        );
+      }
+    }
+
+    /*
+    {
+        C: { direct: { 'if E then C': ['if E then C', 'if E then C else C'] } },
+      }
+    */
+    const factors = grammar.getFactors();
+
+    R.forEachObjIndexed((nTFactors, nT) => {
+      if (nTFactors[DIRECT]) {
+        R.forEachObjIndexed((productions, alpha) => {
+          const newNT = makeNewUniqueNonTerminalName(grammar.Vn, nT);
+          grammar.addNonTerminal(newNT);
+
+          // Remove productions A -> α β | α γ
+          grammar.P[nT] = R.without(productions, grammar.P[nT] || []);
+
+          // Add A -> α A’
+          grammar.P[nT].push(`${alpha} ${newNT}`.trim());
+
+          // Add A’ -> β | γ
+          grammar.P[newNT] = R.uniq(
+            R.union(
+              grammar.P[newNT] || [],
+              R.map(p => {
+                let newP = p.slice(alpha.length).trim();
+                if (newP === '') newP = EPSILON;
+                return newP;
+              }, productions)
+            )
+          ).sort();
+        }, nTFactors[DIRECT]);
+      }
+    }, factors);
+  }
 }
 
 /**

@@ -96,7 +96,7 @@ describe('First', () => {
   // });
 
   describe('Removal', () => {
-    it('should remove direct left recursions on simple grammar 1', () => {
+    it('should NOT remove left recursions on a grammar that will generate indirect left recursion after the direct is taken and it turns invalid', () => {
       const grammar = Grammar.fromText(
         `S -> A B C | S C
         A -> a A | &
@@ -107,15 +107,9 @@ describe('First', () => {
       expect(grammar.hasLeftRecursion()).toBeTruthy();
       grammar.removeLeftRecursion();
 
-      // expect(grammar.rules()).toEqual({
-      //   S: ['A B C S0'],
-      //   S0: ['&', 'C S0'],
-      //   A: ['&', 'a A'],
-      //   B: ['b', 'b C'],
-      //   C: ['C0'],
-      //   C0: ['&', 'a C0', 'C b C0', 'C c C0'].sort(),
-      // });
-
+      // This grammar will became empty/invalid when we try to remove left recursions, cause
+      // we will make it own/própria
+      expect(grammar.isValid()).toBeFalsy();
       expect(grammar.hasLeftRecursion()).toBeFalsy();
     });
 

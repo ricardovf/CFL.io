@@ -31,7 +31,12 @@ import {
   removeLeftRecursion,
   getLeftRecursions,
 } from './Grammar/LeftRecursion';
-import { canBeFactored, getFactors, isFactored } from './Grammar/Factor';
+import {
+  canBeFactored,
+  getFactors,
+  isFactored,
+  removeFactors,
+} from './Grammar/Factor';
 
 const parser = new GrammarParser();
 
@@ -371,15 +376,14 @@ export default class Grammar {
     return steps;
   }
 
-
   hasCycle(symbol = this.S, visited = []) {
-    visited.push(symbol)
+    visited.push(symbol);
 
     if (this.P[symbol]) {
       for (let production of this.P[symbol]) {
         if (production.length === 1 && this.Vn.includes(production)) {
           if (visited.includes(production)) return true;
-          visited.push(production)
+          visited.push(production);
           if (this.hasCycle(production, visited)) return true;
         }
       }
@@ -402,7 +406,7 @@ export default class Grammar {
       for (let production of this.P[this.S])
         for (let symbol of production)
           if (this.Vn.includes(symbol))
-            if(this.hasCycle_(visited, symbol)) return true;
+            if (this.hasCycle_(visited, symbol)) return true;
 
     return false;
   }
@@ -416,7 +420,7 @@ export default class Grammar {
           if (!visited.includes(symbol_) && this.Vn.includes(symbol_)) {
             visited.push(symbol_);
             if (this.hasCycle_(visited, symbol_)) return true;
-          } else if (visited.includes(symbol_)) return true
+          } else if (visited.includes(symbol_)) return true;
       }
     }
     visited.splice(visited.indexOf(symbol));
@@ -501,11 +505,19 @@ export default class Grammar {
   }
 
   /**
-   * @param steps
+   * @param maxSteps
    * @return {boolean}
    */
-  canBeFactored(steps) {
-    return canBeFactored(this, steps);
+  canBeFactored(maxSteps) {
+    return canBeFactored(this, maxSteps);
+  }
+
+  /**
+   * @param maxSteps
+   * @return {boolean}
+   */
+  removeFactors(maxSteps) {
+    removeFactors(this, maxSteps);
   }
 
   /**
