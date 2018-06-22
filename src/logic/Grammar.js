@@ -221,14 +221,12 @@ export default class Grammar {
    * @returns {string}
    */
   getFormattedText() {
-    if (!this.S || !this.P) {
+    if (this.S === '' || this.S === null || this.S === undefined || !this.P) {
       return '';
     }
 
-    let P = this.P;
-
     // make sure that the first production is first
-    P = R.merge(R.pick([this.S], this.P), R.dissoc(this.S, this.P));
+    let P = R.merge(R.pick([this.S], this.P), R.dissoc(this.S, this.P));
 
     let P_ = '';
     for (let nonTerminal in P) {
@@ -516,7 +514,7 @@ export default class Grammar {
    * @param maxSteps
    * @return {boolean}
    */
-  removeFactors(maxSteps) {
+  removeFactors(maxSteps = 100) {
     removeFactors(this, maxSteps);
   }
 

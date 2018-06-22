@@ -106,17 +106,20 @@ describe('Factor', () => {
     });
   });
 
-  describe('Remove factors', () => {
+  describe.only('Remove factors', () => {
     it('should remove factors on simple grammar 1', () => {
       const grammar = Grammar.fromText(
         `S -> a S | a B | d S
        B -> b B | b`
       );
+
       expect(grammar.isValid()).toBeTruthy();
       expect(grammar.isFactored()).toBeFalsy();
-      // Expect that it can be factored in 1 step, because its direct
+
+      // Expect that it can be factored in 2 step, because its direct
       expect(grammar.canBeFactored(0)).toBeFalsy();
-      expect(grammar.canBeFactored(1)).toBeTruthy();
+      expect(grammar.canBeFactored(1)).toBeFalsy();
+      expect(grammar.canBeFactored(2)).toBeTruthy();
     });
 
     it('should remove indirect factors factors on simple grammar 2', () => {
@@ -185,10 +188,8 @@ describe('Factor', () => {
 
     it('should remove the factors on simple grammar 4', () => {
       const grammar = Grammar.fromText(
-        `S -> A B | B C
-       A -> a A | &
-       B -> b B | d
-       C -> c C | c | ba B | ba a B`
+        `B -> b B | d
+         C -> c C | c | ba B | ba a B`
       );
       expect(grammar.isValid()).toBeTruthy();
       expect(grammar.isFactored()).toBeFalsy();
@@ -196,8 +197,24 @@ describe('Factor', () => {
       // Expect that it can be factored in 1 step, because its direct
       expect(grammar.canBeFactored(0)).toBeFalsy();
       expect(grammar.canBeFactored(1)).toBeFalsy();
-      expect(grammar.canBeFactored(5)).toBeTruthy();
-      grammar.removeFactors(5);
+      expect(grammar.canBeFactored(2)).toBeTruthy();
+      grammar.removeFactors(2);
+      expect(grammar.isFactored()).toBeTruthy();
+    });
+
+    it('should remove the factors on simple grammar 5', () => {
+      const grammar = Grammar.fromText(
+        `C -> c c b | c d | ba B | ba a B
+         B -> z`
+      );
+      expect(grammar.isValid()).toBeTruthy();
+      expect(grammar.isFactored()).toBeFalsy();
+
+      // Expect that it can be factored
+      expect(grammar.canBeFactored(0)).toBeFalsy();
+      expect(grammar.canBeFactored(1)).toBeFalsy();
+      expect(grammar.canBeFactored(2)).toBeTruthy();
+      grammar.removeFactors(2);
       expect(grammar.isFactored()).toBeTruthy();
     });
   });

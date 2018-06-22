@@ -27,14 +27,17 @@ export function canBeFactored(originalGrammar, maxSteps) {
  * @param grammar {Grammar}
  * @param maxSteps
  */
-export function removeFactors(grammar, maxSteps) {
+export function removeFactors(grammar, maxSteps = 100) {
   let loops = 0;
 
   while (!grammar.isFactored()) {
     if (++loops > maxSteps) return;
 
+    // console.log(grammar.getFactors(), grammar.getFormattedText());
+
     // If we have left recursion, we must eliminate in order to be able to factor
     if (grammar.hasLeftRecursion()) {
+      // console.log('HAS LEFT RECURSION!!!');
       grammar.removeLeftRecursion();
 
       if (grammar.hasLeftRecursion()) {
@@ -47,42 +50,41 @@ export function removeFactors(grammar, maxSteps) {
     const factors = grammar.getFactors();
 
     // Remove direct factors
-    let removedAnyDirect = false;
+    let removedAnyFactor = false;
 
     R.forEachObjIndexed((nTFactors, nT) => {
-      // We only remove the factors of one non terminal
-      if (removedAnyDirect) return;
-
-      if (nTFactors[DIRECT]) {
+      if (!removedAnyFactor && nTFactors[DIRECT]) {
         R.forEachObjIndexed((productions, alpha) => {
-          const newNT = makeNewUniqueNonTerminalName(grammar.Vn, nT);
-          grammar.addNonTerminal(newNT);
+          if (!removedAnyFactor) {
+            const newNT = makeNewUniqueNonTerminalName(grammar.Vn, nT);
+            grammar.addNonTerminal(newNT);
 
-          // Remove productions A -> α β | α γ
-          grammar.P[nT] = R.without(productions, grammar.P[nT] || []);
+            // Remove productions A -> α β | α γ
+            grammar.P[nT] = R.without(productions, grammar.P[nT] || []);
 
-          // Add A -> α A’
-          grammar.P[nT].push(`${alpha} ${newNT}`.trim());
+            // Add A -> α A’
+            grammar.P[nT].push(`${alpha} ${newNT}`.trim());
 
-          // Add A’ -> β | γ
-          grammar.P[newNT] = R.uniq(
-            R.union(
-              grammar.P[newNT] || [],
-              R.map(p => {
-                let newP = p.slice(alpha.length).trim();
-                if (newP === '') newP = EPSILON;
-                return newP;
-              }, productions)
-            )
-          ).sort();
+            // Add A’ -> β | γ
+            grammar.P[newNT] = R.uniq(
+              R.union(
+                grammar.P[newNT] || [],
+                R.map(p => {
+                  let newP = p.slice(alpha.length).trim();
+                  if (newP === '') newP = EPSILON;
+                  return newP;
+                }, productions)
+              )
+            ).sort();
+
+            removedAnyFactor = true;
+          }
         }, nTFactors[DIRECT]);
-
-        removedAnyDirect = true;
       }
     }, factors);
 
     // We break here cause we wanna count the steps of factoring
-    if (removedAnyDirect) break;
+    if (removedAnyFactor) continue;
 
     // Remove indirect factors
   }
