@@ -44,16 +44,40 @@ export function removeSimpleProductions(steps = [], grammar) {
 
 export function getNonTerminalsFromProduction(p, grammar) {
   let nonTerminals = [];
+  let nonTerminal = '';
+
   for (let char of p) {
-    if (grammar.Vn.includes(char)) nonTerminals.push(char);
+    if (char !== ' ') {
+      nonTerminal += char;
+    } else {
+      if (nonTerminal !== '' && grammar.Vn.includes(nonTerminal)) {
+        nonTerminals.push(nonTerminal);
+      }
+      nonTerminal = '';
+    }
+  }
+  if (nonTerminal !== '' && grammar.Vn.includes(nonTerminal)) {
+    nonTerminals.push(nonTerminal);
   }
   return nonTerminals;
 }
 
 export function getTerminalsFromProduction(p, grammar) {
   let terminals = [];
+  let terminal = '';
+
   for (let char of p) {
-    if (grammar.Vt.includes(char)) terminals.push(char);
+    if (char !== ' ') {
+      terminal += char;
+    } else {
+      if (terminal !== '' && grammar.Vt.includes(terminal)) {
+        terminals.push(terminal);
+      }
+      terminal = '';
+    }
+  }
+  if (terminal !== '' && grammar.Vt.includes(terminal)) {
+    terminals.push(terminal);
   }
   return terminals;
 }

@@ -16,12 +16,11 @@ export function getFertileSymbols(grammar) {
     for (let nonTerminal of grammar.Vn) {
       if (Array.isArray(grammar.P[nonTerminal])) {
         for (let production of grammar.P[nonTerminal]) {
-          let production_ = production.replace(/\s/g, '');
-          if (grammar.productionWithOnlyTerminals(production_))
+          if (grammar.productionWithOnlyTerminals(production))
             if (!fertileSymbols.includes(nonTerminal))
               fertileSymbols.push(nonTerminal);
 
-          let nonTerminals = grammar.getNonTerminalsFromProduction(production_);
+          let nonTerminals = grammar.getNonTerminalsFromProduction(production);
           for (let nonTerminal_ of nonTerminals) {
             if (!fertileSymbols.includes(nonTerminal_))
               allNonTerminalFertile = false;
@@ -95,9 +94,8 @@ export function removeUnreachableSymbols(steps = [], grammar) {
   for (let nonTerminal of reachableSymbols) {
     if (grammar.Vn.includes(nonTerminal)) {
       for (let production of grammar.P[nonTerminal]) {
-        let production_ = production.replace(/\s/g, '');
-        let nonTerminals = grammar.getNonTerminalsFromProduction(production_);
-        let terminals = grammar.getTerminalsFromProduction(production_);
+        let nonTerminals = grammar.getNonTerminalsFromProduction(production);
+        let terminals = grammar.getTerminalsFromProduction(production);
         for (let nonTerminal_ of nonTerminals)
           if (unreachableSymbols.includes(nonTerminal_))
             productionIncludesUnreachable = true;
@@ -149,7 +147,6 @@ export function getReachableSymbols(grammar) {
       if (grammar.Vn.includes(symbol)) {
         if (Array.isArray(grammar.P[symbol])) {
           for (let production of grammar.P[symbol]) {
-            production = production.replace(/\s/g, '');
             let nonTerminals = grammar.getNonTerminalsFromProduction(production);
             let terminals = grammar.getTerminalsFromProduction(production);
             for (let nonTerminal of nonTerminals)
