@@ -869,12 +869,7 @@ export default class Grammar {
    * @returns {Grammar}
    */
   clone() {
-    return new Grammar(
-      [...this.Vn],
-      [...this.Vt],
-      [...R.clone(this.P)],
-      this.S
-    );
+    return new Grammar([...this.Vn], [...this.Vt], R.clone(this.P), this.S);
   }
 
   /**
