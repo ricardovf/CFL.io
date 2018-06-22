@@ -84,4 +84,19 @@ describe('Factor', () => {
     // Expect that it can be factored in 1 step, because its direct
     // expect(grammar.canBeFactored(1)).toBeTruthy();
   });
+
+  it('should return the correct status of direct factorization on if grammar', () => {
+    const grammar = Grammar.fromText(
+      `C -> com | if E then C | if E then C else C
+       E -> exp`
+    );
+    expect(grammar.isValid()).toBeTruthy();
+    expect(grammar.isFactored()).toBeFalsy();
+    expect(grammar.getFactors()).toEqual({
+      C: { direct: { 'if E then C': ['if E then C', 'if E then C else C'] } },
+    });
+
+    // Expect that it can be factored in 1 step, because its direct
+    // expect(grammar.canBeFactored(1)).toBeTruthy();
+  });
 });

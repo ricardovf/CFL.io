@@ -26,7 +26,11 @@ export function removeLeftRecursion(grammar) {
     }
 
     // temporary
-    if (loops++ > 100) break;
+    if (loops++ > 1000) {
+      throw new Error(
+        'Could not remove left recursion after 1000 iterations, something must be wrong! Probably a bug...'
+      );
+    }
   } while (true);
 }
 

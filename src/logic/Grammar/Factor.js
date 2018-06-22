@@ -104,7 +104,48 @@ export function getFactors(grammar) {
     }
   }
 
-  return _removeFactorsWithSingleProduction(factors);
+  factors = _removeFactorsWithSingleProduction(factors);
+  factors = _expandFactorsToMaxLength(factors);
+
+  return factors;
+}
+
+function _expandFactorsToMaxLength(factors) {
+  let finalFactors = {};
+  R.forEachObjIndexed((AFactors, A) => {
+    if (AFactors[DIRECT]) {
+      R.forEachObjIndexed((productions, B) => {
+        // Try to find the biggest common start of strings
+        const max = R.tail(R.map(R.length, productions).sort());
+        for (let i = B.length; i < max; i++) {
+          if (
+            R.all(p => {
+              return p.slice(0, B.length).trim() === B.trim();
+            }, productions)
+          ) {
+            B = R.head(productions)
+              .slice(0, i)
+              .trim();
+          } else {
+            break;
+          }
+        }
+
+        finalFactors[A] = finalFactors[A] || {};
+        finalFactors[A][DIRECT] = finalFactors[A][DIRECT] || {};
+        finalFactors[A][DIRECT][B] = finalFactors[A][DIRECT][B] || [];
+        finalFactors[A][DIRECT][B] = productions;
+      }, AFactors[DIRECT]);
+    }
+
+    // Copy indirect factors
+    if (AFactors[INDIRECT]) {
+      finalFactors[A] = finalFactors[A] || {};
+      finalFactors[A][INDIRECT] = AFactors[INDIRECT];
+    }
+  }, factors);
+
+  return finalFactors;
 }
 
 function _removeFactorsWithSingleProduction(factors) {
