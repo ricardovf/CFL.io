@@ -6,7 +6,11 @@ import SelfOperationDialog from './SelfOperationDialog';
 import Grammar from '../../logic/Grammar';
 import {
   cloneGrammarWithSteps,
+  eliminateInfertileSymbolsWithSteps,
+  eliminateSimpleProductionsWithSteps,
+  eliminateUnreachableSymbolsWithSteps,
   toEpsilonFreeWithSteps,
+  toOwnWithSteps,
 } from '../../logic/Grammar/Operations';
 const mockWithSteps = () => {};
 
@@ -49,10 +53,10 @@ class OperationsMenu extends React.Component {
           language={language}
         />
         <SelfOperationDialog
-          title="Eliminar ciclos (produções simples)"
-          subtitle="Eliminando ciclos (produções simples) de "
+          title="Eliminar produções simples"
+          subtitle="Eliminando produções simples de "
           open={operation === 'eliminate-simple'}
-          operation={mockWithSteps}
+          operation={eliminateSimpleProductionsWithSteps}
           handleCancel={this.handleClose}
           handleSave={handleSave}
           language={language}
@@ -61,7 +65,7 @@ class OperationsMenu extends React.Component {
           title="Eliminar inférteis"
           subtitle="Eliminando produções inférteis de "
           open={operation === 'eliminate-infertile'}
-          operation={mockWithSteps}
+          operation={eliminateInfertileSymbolsWithSteps}
           handleCancel={this.handleClose}
           handleSave={handleSave}
           language={language}
@@ -69,7 +73,7 @@ class OperationsMenu extends React.Component {
         <SelfOperationDialog
           title="Eliminar inalcançáveis"
           subtitle="Eliminando símbolos inalcançáveis de "
-          operation={mockWithSteps}
+          operation={eliminateUnreachableSymbolsWithSteps}
           open={operation === 'eliminate-unreachable'}
           handleCancel={this.handleClose}
           handleSave={handleSave}
@@ -79,7 +83,7 @@ class OperationsMenu extends React.Component {
           title="Transformar em GLC Própria"
           subtitle="Transformando em GLC Própria "
           open={operation === 'transform-to-own'}
-          operation={mockWithSteps}
+          operation={toOwnWithSteps}
           handleCancel={this.handleClose}
           handleSave={handleSave}
           language={language}
@@ -117,7 +121,7 @@ class OperationsMenu extends React.Component {
             disabled={!grammar.hasSimpleProductions()}
             onClick={this.makeOperationHandler('eliminate-simple')}
           >
-            Eliminar ciclos (produções simples)
+            Eliminar produções simples
           </MenuItem>
           <MenuItem
             disabled={!grammar.hasInfertileSymbols()}

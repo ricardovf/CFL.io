@@ -368,12 +368,6 @@ export default class Grammar {
     this.removeUselessSymbols(steps);
   }
 
-  toOwnWithSteps() {
-    let steps = [];
-    this.toOwn(steps);
-    return steps;
-  }
-
   hasCycle(symbol = this.S, visited = []) {
     visited.push(symbol);
 
