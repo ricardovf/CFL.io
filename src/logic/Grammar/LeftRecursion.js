@@ -15,11 +15,11 @@ export function removeLeftRecursion(grammar) {
     const recursions = getLeftRecursions(grammar);
 
     if (!R.isEmpty(recursions)) {
-      if (_haveIndirectLeftRecursions(recursions)) {
-        _removeIndirectLeftRecursions(grammar, recursions);
-      } else {
-        _removeDirectLeftRecursions(grammar, recursions);
-      }
+      // if (_haveIndirectLeftRecursions(recursions)) {
+      _removeIndirectLeftRecursions(grammar, recursions);
+      // } else {
+      //   _removeDirectLeftRecursions(grammar, recursions);
+      // }
     } else {
       // No more recursions!
       break;
@@ -86,6 +86,9 @@ function _removeIndirectLeftRecursions(grammar, recursions) {
   // Make sure its a own grammar (Gramática Própria)
   if (!grammar.isOwn()) {
     grammar.toOwn();
+
+    // It might have became invalid, so we just return
+    if (!grammar.isValid()) return;
 
     if (!grammar.isOwn())
       throw new Error(

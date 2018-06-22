@@ -29,7 +29,7 @@ export default {
             language.grammar instanceof Grammar
               ? language.grammar
               : Grammar.fromPlainObject(language.grammar);
-          language.grammar = grammar.getFormattedText();
+          language.grammar = grammar;
           language.valid = grammar.isValid();
         } catch (e) {
           language.grammar = undefined;
@@ -161,7 +161,11 @@ export default {
         language = {
           ...language,
           grammar: grammar.toPlainObject(),
+          valid: grammar.isValid(),
         };
+
+        // If the grammar has turned invalid, we make the text empty!
+        if (!grammar.isValid()) language.grammarInputText = '';
 
         dispatch.languages._updateLanguage({ id, language });
       }

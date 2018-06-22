@@ -7,7 +7,7 @@ describe('Factor', () => {
       const grammar = Grammar.fromText('S -> aSS | aSB');
       expect(grammar.isValid()).toBeFalsy();
       expect(grammar.isFactored()).toBeTruthy();
-      expect(grammar.canBeFactored(10)).toBeFalsy();
+      expect(grammar.canBeFactored(10)).toBeTruthy();
     });
 
     it('should return the correct status of factorization on simple grammar 1', () => {
@@ -89,6 +89,21 @@ describe('Factor', () => {
         C: { direct: { 'if E then C': ['if E then C', 'if E then C else C'] } },
       });
     });
+
+    it('should return the correct status of indirect factorization on simple grammar 4', () => {
+      const grammar = Grammar.fromText(
+        `S -> A B | B C
+       A -> a A | &
+       B -> b B | d
+       C -> c C | c | ba B | ba a B`
+      );
+      expect(grammar.isValid()).toBeTruthy();
+      expect(grammar.isFactored()).toBeFalsy();
+      expect(grammar.getFactors()).toEqual({
+        C: { direct: { c: ['c', 'c C'], ba: ['ba B', 'ba a B'] } },
+        S: { indirect: { b: ['A B', 'B C'], d: ['A B', 'B C'] } },
+      });
+    });
   });
 
   describe('Remove factors', () => {
@@ -166,6 +181,24 @@ describe('Factor', () => {
         C0: [EPSILON, 'else C'],
         E: ['exp'],
       });
+    });
+
+    it('should remove the factors on simple grammar 4', () => {
+      const grammar = Grammar.fromText(
+        `S -> A B | B C
+       A -> a A | &
+       B -> b B | d
+       C -> c C | c | ba B | ba a B`
+      );
+      expect(grammar.isValid()).toBeTruthy();
+      expect(grammar.isFactored()).toBeFalsy();
+
+      // Expect that it can be factored in 1 step, because its direct
+      expect(grammar.canBeFactored(0)).toBeFalsy();
+      expect(grammar.canBeFactored(1)).toBeFalsy();
+      expect(grammar.canBeFactored(5)).toBeTruthy();
+      grammar.removeFactors(5);
+      expect(grammar.isFactored()).toBeTruthy();
     });
   });
 });

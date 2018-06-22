@@ -14,6 +14,8 @@ export const INDIRECT = 'indirect';
 export function canBeFactored(originalGrammar, maxSteps) {
   const grammar = originalGrammar.clone();
 
+  if (grammar.isFactored()) return true;
+
   removeFactors(grammar, maxSteps);
 
   return grammar.isFactored();
@@ -42,14 +44,15 @@ export function removeFactors(grammar, maxSteps) {
       }
     }
 
-    /*
-    {
-        C: { direct: { 'if E then C': ['if E then C', 'if E then C else C'] } },
-      }
-    */
     const factors = grammar.getFactors();
 
+    // Remove direct factors
+    let removedAnyDirect = false;
+
     R.forEachObjIndexed((nTFactors, nT) => {
+      // We only remove the factors of one non terminal
+      if (removedAnyDirect) return;
+
       if (nTFactors[DIRECT]) {
         R.forEachObjIndexed((productions, alpha) => {
           const newNT = makeNewUniqueNonTerminalName(grammar.Vn, nT);
@@ -73,8 +76,15 @@ export function removeFactors(grammar, maxSteps) {
             )
           ).sort();
         }, nTFactors[DIRECT]);
+
+        removedAnyDirect = true;
       }
     }, factors);
+
+    // We break here cause we wanna count the steps of factoring
+    if (removedAnyDirect) break;
+
+    // Remove indirect factors
   }
 }
 
@@ -176,21 +186,28 @@ function _expandFactorsToMaxLength(factors) {
   R.forEachObjIndexed((AFactors, A) => {
     if (AFactors[DIRECT]) {
       R.forEachObjIndexed((productions, B) => {
+        // productions = R.map(R.trim, productions);
+
         // Try to find the biggest common start of strings
         const max = R.tail(R.map(R.length, productions).sort());
-        for (let i = B.length; i < max; i++) {
+
+        let commonStart;
+        let i = B.length;
+        do {
+          commonStart = productions[0].slice(0, i);
+
           if (
-            R.all(p => {
-              return p.slice(0, B.length).trim() === B.trim();
-            }, productions)
+            !R.all(
+              p =>
+                p.length >= commonStart.length && p.slice(0, i) === commonStart
+            )(productions)
           ) {
-            B = R.head(productions)
-              .slice(0, i)
-              .trim();
-          } else {
+            commonStart = productions[0].slice(0, i - 1);
             break;
           }
-        }
+        } while (i++ < max);
+
+        B = commonStart.trim();
 
         finalFactors[A] = finalFactors[A] || {};
         finalFactors[A][DIRECT] = finalFactors[A][DIRECT] || {};

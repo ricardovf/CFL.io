@@ -2,8 +2,8 @@ import * as R from 'ramda';
 import SymbolValidator, { EPSILON } from '../SymbolValidator';
 
 /**
-   * @return {Array}
-   */
+ * @return {Array}
+ */
 export function getFertileSymbols(grammar) {
   let fertileSymbols = [];
 
@@ -72,6 +72,7 @@ export function removeInfertileSymbols(grammar, steps) {
     step.P = newProductions;
     step.Vt = newVt;
     step.Vn = newVn;
+    step.S = step.Vn.includes(step.S) ? step.S : null;
     steps.push(step);
     step = grammar.clone();
   }
@@ -79,10 +80,11 @@ export function removeInfertileSymbols(grammar, steps) {
   grammar.P = newProductions;
   grammar.Vt = R.uniq(newVt);
   grammar.Vn = R.uniq(newVn);
+  grammar.S = grammar.Vn.includes(grammar.S) ? grammar.S : null;
 }
 
 export function removeUnreachableSymbols(steps = [], grammar) {
-  if (!grammar.hasUnreachableSymbols()) return steps
+  if (!grammar.hasUnreachableSymbols()) return steps;
   let reachableSymbols = grammar.getReachableSymbols();
   let unreachableSymbols = grammar.getUnreachableSymbols(reachableSymbols);
   let newProductions = {};
@@ -117,6 +119,7 @@ export function removeUnreachableSymbols(steps = [], grammar) {
     step.P = newProductions;
     step.Vt = newVt;
     step.Vn = newVn;
+    step.S = step.Vn.includes(step.S) ? step.S : null;
     steps.push(step);
     step = grammar.clone();
   }
@@ -124,6 +127,7 @@ export function removeUnreachableSymbols(steps = [], grammar) {
   grammar.P = newProductions;
   grammar.Vn = R.uniq(newVn);
   grammar.Vt = R.uniq(newVt);
+  grammar.S = grammar.Vn.includes(grammar.S) ? grammar.S : null;
 }
 
 export function getInfertileSymbols(fertileSymbols, grammar) {
@@ -147,7 +151,9 @@ export function getReachableSymbols(grammar) {
       if (grammar.Vn.includes(symbol)) {
         if (Array.isArray(grammar.P[symbol])) {
           for (let production of grammar.P[symbol]) {
-            let nonTerminals = grammar.getNonTerminalsFromProduction(production);
+            let nonTerminals = grammar.getNonTerminalsFromProduction(
+              production
+            );
             let terminals = grammar.getTerminalsFromProduction(production);
             for (let nonTerminal of nonTerminals)
               if (!reachableSymbols.includes(nonTerminal))
