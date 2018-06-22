@@ -4,7 +4,10 @@ import Menu, { MenuItem } from 'material-ui/Menu';
 import Divider from 'material-ui/Divider';
 import SelfOperationDialog from './SelfOperationDialog';
 import Grammar from '../../logic/Grammar';
-import { cloneGrammarWithSteps } from '../../logic/Grammar/Operations';
+import {
+  cloneGrammarWithSteps,
+  toEpsilonFreeWithSteps,
+} from '../../logic/Grammar/Operations';
 const mockWithSteps = () => {};
 
 class OperationsMenu extends React.Component {
@@ -40,7 +43,7 @@ class OperationsMenu extends React.Component {
           title="Eliminar epsilon"
           subtitle="Eliminando produções com epsilon de "
           open={operation === 'eliminate-epsilon'}
-          operation={mockWithSteps}
+          operation={toEpsilonFreeWithSteps}
           handleCancel={this.handleClose}
           handleSave={handleSave}
           language={language}
@@ -105,26 +108,26 @@ class OperationsMenu extends React.Component {
           onClose={this.handleClose}
         >
           <MenuItem
-            disabled={grammar.hasEpsilonTransitions() ? false : true}
+            disabled={!grammar.hasEpsilonTransitions()}
             onClick={this.makeOperationHandler('eliminate-epsilon')}
           >
             Eliminar produções com epsilon
           </MenuItem>
           <MenuItem
-            disabled={grammar.hasCycle() ? true : false}
+            disabled={!grammar.hasSimpleProductions()}
             onClick={this.makeOperationHandler('eliminate-simple')}
           >
             Eliminar ciclos (produções simples)
           </MenuItem>
           <MenuItem
-            disabled={grammar.hasInfertileSymbols() ? true : false}
+            disabled={!grammar.hasInfertileSymbols()}
             onClick={this.makeOperationHandler('eliminate-infertile')}
           >
             Eliminar símbolos inférteis
           </MenuItem>
 
           <MenuItem
-            disabled={grammar.hasUnreachableSymbols() ? true : false}
+            disabled={!grammar.hasUnreachableSymbols()}
             onClick={this.makeOperationHandler('eliminate-unreachable')}
           >
             Eliminar símbolos inalcançáveis
@@ -133,7 +136,7 @@ class OperationsMenu extends React.Component {
           <Divider />
 
           <MenuItem
-            disabled={grammar.isOwn() ? true : false}
+            disabled={grammar.isOwn()}
             onClick={this.makeOperationHandler('transform-to-own')}
           >
             Transformar em GLC Própria

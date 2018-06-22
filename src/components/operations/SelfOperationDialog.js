@@ -47,18 +47,19 @@ class SelfOperationDialog extends React.Component {
     if (
       nextProps.open === false ||
       !nextProps.language ||
-      !nextProps.language.fsm
+      !nextProps.language.grammar
     ) {
       reset = true;
     } else if (nextProps.open === true) {
-      let fsms = nextProps.operation
-        ? nextProps.operation(Grammar.fromPlainObject(nextProps.language.fsm))
+      let grammars = nextProps.operation
+        ? nextProps.operation(
+            Grammar.fromPlainObject(nextProps.language.grammar)
+          )
         : [];
-      if (fsms.length > 0) {
-        fsms = R.map(fsm => fsm.toPlainObject(), fsms);
 
+      if (grammars.length > 0) {
         return {
-          steps: fsms,
+          steps: grammars,
           step: 1,
         };
       } else {
@@ -178,12 +179,14 @@ class SelfOperationDialog extends React.Component {
         <DialogContent>
           {Array.isArray(this.state.steps) && (
             <div>
-              <div className={classes.graphContainer}>
-                {/*<FSMGraph*/}
-                {/*showTitle={false}*/}
-                {/*fsm={this.state.steps[this.state.step - 1]}*/}
-                {/*/>*/}
-              </div>
+              <div
+                className={classes.graphContainer}
+                dangerouslySetInnerHTML={{
+                  __html: this.state.steps[this.state.step - 1]
+                    .getFormattedText()
+                    .replace('\n', '<br />'),
+                }}
+              />
             </div>
           )}
         </DialogContent>

@@ -76,22 +76,22 @@ export default {
     },
 
     // used by the modals operations
-    async newLanguageFromFSM({ id, name, fsm, select }, rootState) {
-      // let language = find(propEq('id', id))(rootState.languages);
-      //
-      // if (language) {
-      //   if (fsm instanceof FSM) fsm = fsm.toPlainObject();
-      //
-      //   let newLanguage = _makeNewLanguage(name);
-      //   newLanguage.fsm = fsm;
-      //   newLanguage.expression = language.expression;
-      //   newLanguage.userSentences = language.userSentences;
-      //   newLanguage.enumerationLength = language.enumerationLength;
-      //
-      //   dispatch.languages.create({ language: newLanguage });
-      //
-      //   if (select) dispatch.selectedLanguage.select({ id: newLanguage.id });
-      // }
+    async newLanguageFromGrammar({ id, name, grammar, select }, rootState) {
+      let language = find(propEq('id', id))(rootState.languages);
+
+      if (language) {
+        if (grammar instanceof Grammar) grammar = grammar.toPlainObject();
+
+        let newLanguage = _makeNewLanguage(name);
+        newLanguage.grammar = grammar;
+        newLanguage.valid = Grammar.fromPlainObject(grammar).isValid();
+        newLanguage.grammarInputText = language.grammarInputText;
+        newLanguage.factorizationSteps = language.factorizationSteps;
+
+        dispatch.languages.create({ language: newLanguage });
+
+        if (select) dispatch.selectedLanguage.select({ id: newLanguage.id });
+      }
     },
 
     async createAndSelect(payload, rootState) {

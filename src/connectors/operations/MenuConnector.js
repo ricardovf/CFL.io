@@ -12,8 +12,8 @@ const mapState = state => {
 };
 
 const mapDispatch = dispatch => ({
-  handleSave: (id, name, fsm, select = false) =>
-    dispatch.languages.newLanguageFromFSM({ id, name, fsm, select }),
+  handleSave: (id, name, grammar, select = false) =>
+    dispatch.languages.newLanguageFromGrammar({ id, name, grammar, select }),
 });
 
 export default connect(mapState, mapDispatch)(Menu);
