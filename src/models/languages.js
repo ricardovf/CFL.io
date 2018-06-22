@@ -4,6 +4,7 @@ import { dispatch } from '../store';
 import _ from 'lodash';
 import Grammar from '../logic/Grammar';
 import { multiTrim } from '../logic/helpers';
+import { MAX_STEPS } from '../logic/Grammar/Factor';
 
 function _makeNewLanguage(name) {
   return {
@@ -12,7 +13,7 @@ function _makeNewLanguage(name) {
     valid: false,
     grammar: undefined,
     grammarInputText: '',
-    factorizationLength: 5,
+    factorizationSteps: 5,
   };
 }
 
@@ -101,56 +102,47 @@ export default {
       dispatch.selectedLanguage.select({ id: newLanguage.id });
     },
 
-    changeEnumerationLength({ id, length }, rootState) {
-      // let language = find(propEq('id', id))(rootState.languages);
-      //
-      // if (language && length >= 1 && length <= GENERATE_MAX_SIZE) {
-      //   language = {
-      //     ...language,
-      //     enumerationLength: length,
-      //   };
-      //
-      //   dispatch.languages._updateLanguage({
-      //     id,
-      //     language,
-      //     updateExpression: false,
-      //     updateGrammar: false,
-      //   });
-      // }
+    changeFactorizationSteps({ id, steps }, rootState) {
+      let language = find(propEq('id', id))(rootState.languages);
+
+      if (language && steps >= 0) {
+        language = {
+          ...language,
+          factorizationSteps: steps > MAX_STEPS ? MAX_STEPS : steps,
+        };
+
+        dispatch.languages._updateLanguage({
+          id,
+          language,
+        });
+      }
     },
 
-    eliminateEpsilonTransitions({ id }, rootState) {
-      // let language = find(propEq('id', id))(rootState.languages);
-      //
-      // if (language && language.grammar) {
-      //   const fsm = Grammar.fromPlainObject(language.fsm);
-      //   fsm.eliminateEpsilonTransitions();
-      //
-      //   language = {
-      //     ...language,
-      //     fsm: fsm.toPlainObject(),
-      //   };
-      //
-      //   dispatch.languages._updateLanguage({ id, language });
-      // }
+    removeFactors({ id }, rootState) {
+      let language = find(propEq('id', id))(rootState.languages);
+
+      if (
+        language &&
+        language.grammar &&
+        language.factorizationSteps >= 0 &&
+        language.factorizationSteps <= MAX_STEPS
+      ) {
+        const grammar = Grammar.fromPlainObject(language.grammar);
+        grammar.removeFactors(language.factorizationSteps);
+
+        language = {
+          ...language,
+          grammar: grammar.toPlainObject(),
+          valid: grammar.isValid(),
+        };
+
+        // If the grammar has turned invalid, we make the text empty!
+        if (!grammar.isValid()) language.grammarInputText = '';
+
+        dispatch.languages._updateLanguage({ id, language });
+      }
     },
 
-    // determinate({ id }, rootState) {
-    //   let language = find(propEq('id', id))(rootState.languages);
-    //
-    //   if (language && language.grammar) {
-    //     const fsm = Grammar.fromPlainObject(language.fsm);
-    //     fsm.determinate();
-    //
-    //     language = {
-    //       ...language,
-    //       fsm: fsm.toPlainObject(),
-    //     };
-    //
-    //     dispatch.languages._updateLanguage({ id, language });
-    //   }
-    // },
-    //
     removeLeftRecursion({ id }, rootState) {
       let language = find(propEq('id', id))(rootState.languages);
 

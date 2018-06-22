@@ -7,18 +7,21 @@ const mapState = state => {
   const language = find(propEq('id', state.selectedLanguage))(state.languages);
   return {
     language,
-    length:
+    factorizationSteps:
       language !== undefined
-        ? parseInt(language.enumerationLength, 10)
+        ? language.factorizationSteps !== undefined
+          ? parseInt(language.factorizationSteps, 10)
+          : 5
         : undefined,
   };
 };
 
 const mapDispatch = dispatch => ({
-  onLengthChange: (id, length) =>
-    dispatch.languages.changeEnumerationLength({
+  onRemoveFactorsClick: id => dispatch.languages.removeFactors({ id }),
+  onStepsChange: (id, steps) =>
+    dispatch.languages.changeFactorizationSteps({
       id,
-      length: parseInt(length, 10),
+      steps: parseInt(steps, 10),
     }),
 });
 

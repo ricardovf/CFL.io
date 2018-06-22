@@ -6,8 +6,8 @@ import Grid from 'material-ui/Grid';
 import GrammarCardConnector from '../connectors/GrammarCardConnector';
 import InformationCardConnector from '../connectors/InformationCardConnector';
 import RecursionCardConnector from '../connectors/RecursionCardConnector';
-import EnumerationCardConnector from '../connectors/EnumerationCardConnector';
 import FirstFollowTableConnector from '../connectors/FirstFollowTableConnector';
+import FactorizationCardConnector from '../connectors/FactorizationCardConnector';
 
 const styles = theme => ({
   // root: {
@@ -67,7 +67,7 @@ function LayoutDashboard(props) {
             <RecursionCardConnector />
           </Grid>
           <Grid item xs={12} sm={6} md={6}>
-            <EnumerationCardConnector />
+            <FactorizationCardConnector />
           </Grid>
         </Grid>
       </div>

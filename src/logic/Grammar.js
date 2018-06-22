@@ -514,7 +514,7 @@ export default class Grammar {
    * @param maxSteps
    * @return {boolean}
    */
-  removeFactors(maxSteps = 100) {
+  removeFactors(maxSteps = 10) {
     removeFactors(this, maxSteps);
   }
 

@@ -11,7 +11,7 @@ import Table, {
   TableRow,
 } from 'material-ui/Table';
 import * as R from 'ramda';
-import { DIRECT, INDIRECT } from '../logic/Grammar/Factor';
+import { DIRECT, INDIRECT, MAX_STEPS } from '../logic/Grammar/Factor';
 
 const styles = () => ({
   card: {
@@ -58,7 +58,13 @@ class FactorizationCard extends React.Component {
   }
 
   render() {
-    const { classes, language, length, onLengthChange } = this.props;
+    const {
+      classes,
+      language,
+      factorizationSteps,
+      onStepsChange,
+      onRemoveFactorsClick,
+    } = this.props;
 
     if (!language || !language.valid) return null;
     const grammar = Grammar.fromPlainObject(language.grammar);
@@ -69,6 +75,29 @@ class FactorizationCard extends React.Component {
       R.keys(factors)
     );
 
+    let isFactorable = false;
+    let isFactorableResult = (
+      <strong style={{ color: 'red' }}>não é fatorável</strong>
+    );
+    console.log(factorizationSteps);
+    if (!isFactored && grammar.canBeFactored(factorizationSteps)) {
+      isFactorable = true;
+      isFactorableResult = (
+        <React.Fragment>
+          <strong style={{ color: 'green' }}>é fatorável</strong>.{' '}
+          <Button
+            color="primary"
+            size="small"
+            onClick={() => {
+              onRemoveFactorsClick(language.id);
+            }}
+          >
+            Fatorar
+          </Button>
+        </React.Fragment>
+      );
+    }
+
     return (
       <Card className={classes.card}>
         <CardContent>
@@ -77,15 +106,17 @@ class FactorizationCard extends React.Component {
           </Typography>
           {!isFactored && (
             <div>
-              Em até <Input type="number" value={100} /> passos a gramática{' '}
-              <strong style={{ color: 'green' }}>é fatorável</strong>.{' '}
-              <Button color="primary" size="small">
-                Fatorar
-              </Button>
-              <div>
-                Em até <Input type="number" value={10} /> passos a gramática{' '}
-                <strong style={{ color: 'red' }}>não é fatorável</strong>.
-              </div>
+              Em até{' '}
+              <Input
+                type="number"
+                defaultValue={factorizationSteps}
+                onChange={e => {
+                  let value = e.target.value < 0 ? 0 : e.target.value;
+                  value = value > MAX_STEPS ? MAX_STEPS : value;
+                  onStepsChange(language.id, value);
+                }}
+              />{' '}
+              passos a gramática {isFactorableResult}
               <Table>
                 <TableHead>
                   <TableRow>
@@ -157,8 +188,9 @@ class FactorizationCard extends React.Component {
 
 FactorizationCard.propTypes = {
   language: PropTypes.object,
-  length: PropTypes.number,
-  onLengthChange: PropTypes.func,
+  factorizationSteps: PropTypes.number,
+  onStepsChange: PropTypes.func,
+  onRemoveFactorsClick: PropTypes.func,
 };
 
 export default withStyles(styles)(FactorizationCard);

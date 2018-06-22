@@ -5,6 +5,7 @@ import { makeNewUniqueNonTerminalName } from '../helpers';
 
 export const DIRECT = 'direct';
 export const INDIRECT = 'indirect';
+export const MAX_STEPS = 100;
 
 /**
  * @param originalGrammar {Grammar}
@@ -27,8 +28,10 @@ export function canBeFactored(originalGrammar, maxSteps) {
  * @param grammar {Grammar}
  * @param maxSteps
  */
-export function removeFactors(grammar, maxSteps = 100) {
+export function removeFactors(grammar, maxSteps = 10) {
   let loops = 0;
+
+  if (maxSteps > MAX_STEPS) maxSteps = MAX_STEPS;
 
   while (!grammar.isFactored()) {
     if (++loops > maxSteps) return;
@@ -86,7 +89,55 @@ export function removeFactors(grammar, maxSteps = 100) {
     // We break here cause we wanna count the steps of factoring
     if (removedAnyFactor) continue;
 
-    // Remove indirect factors
+    // Remove indirect factors by making successive derivations
+    R.forEachObjIndexed((nTFactors, nT) => {
+      if (!removedAnyFactor && nTFactors[INDIRECT]) {
+        R.forEachObjIndexed((productions, alpha) => {
+          if (!removedAnyFactor) {
+            // Derive each production
+            for (let production of productions) {
+              let y = production.split(' ');
+              let nTToDerive = y[0];
+
+              if (SymbolValidator.isValidNonTerminal(nTToDerive)) {
+                // Remove production to replace with derived version
+                grammar.P[nT] = R.without([production], grammar.P[nT] || []);
+
+                // If we do not have productions for this non terminal, lets just continue
+                if (!grammar.P[nTToDerive]) continue;
+
+                // get all productions starting with the non terminal to be derived
+                let updatedProductions = R.map(rp => {
+                  let newP = `${rp === EPSILON ? '' : rp} ${production.slice(
+                    1
+                  )}`.trim();
+                  return newP === '' ? EPSILON : newP;
+                }, grammar.P[nTToDerive]);
+
+                grammar.P[nT] = R.uniq(
+                  R.union(grammar.P[nT] || [], updatedProductions)
+                ).sort();
+
+                removedAnyFactor = true;
+              }
+            }
+          }
+        }, nTFactors[INDIRECT]);
+      }
+    }, factors);
+
+    /**
+     const grammar = Grammar.fromText(
+     `S -> A B | B C
+     A -> a A | &
+     B -> b B | d
+     C -> c C | c`
+     );
+     {
+        C: { direct: { c: ['c', 'c C'] } },
+        S: { indirect: { b: ['A B', 'B C'], d: ['A B', 'B C'] } },
+      }
+     */
   }
 }
 
