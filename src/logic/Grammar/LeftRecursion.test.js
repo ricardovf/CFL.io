@@ -96,55 +96,55 @@ describe('First', () => {
   // });
 
   describe('Removal', () => {
-    // it('should remove direct left recursions on simple grammar 1', () => {
-    //   const grammar = Grammar.fromText(
-    //     `S -> A B C | S C
-    //     A -> a A | &
-    //     B -> b | b C
-    //     C -> C a | C C b | C C c`
-    //   );
-    //   expect(grammar.isValid()).toBeTruthy();
-    //   expect(grammar.hasLeftRecursion()).toBeTruthy();
-    //   grammar.removeLeftRecursion();
-    //
-    //   // expect(grammar.rules()).toEqual({
-    //   //   S: ['A B C S0'],
-    //   //   S0: ['&', 'C S0'],
-    //   //   A: ['&', 'a A'],
-    //   //   B: ['b', 'b C'],
-    //   //   C: ['C0'],
-    //   //   C0: ['&', 'a C0', 'C b C0', 'C c C0'].sort(),
-    //   // });
-    //
-    //   expect(grammar.hasLeftRecursion()).toBeFalsy();
-    // });
+    it('should remove direct left recursions on simple grammar 1', () => {
+      const grammar = Grammar.fromText(
+        `S -> A B C | S C
+        A -> a A | &
+        B -> b | b C
+        C -> C a | C C b | C C c`
+      );
+      expect(grammar.isValid()).toBeTruthy();
+      expect(grammar.hasLeftRecursion()).toBeTruthy();
+      grammar.removeLeftRecursion();
 
-    // it('should remove direct left recursions on simple grammar 2', () => {
-    //   const grammar = Grammar.fromText(
-    //     `E -> E + T | T
-    //    T -> T * F | F
-    //    F -> ( E ) | id`
-    //   );
-    //   expect(grammar.isValid()).toBeTruthy();
-    //   expect(grammar.hasLeftRecursion()).toBeTruthy();
-    //   grammar.removeLeftRecursion();
-    //   expect(grammar.hasLeftRecursion()).toBeFalsy();
-    // });
+      // expect(grammar.rules()).toEqual({
+      //   S: ['A B C S0'],
+      //   S0: ['&', 'C S0'],
+      //   A: ['&', 'a A'],
+      //   B: ['b', 'b C'],
+      //   C: ['C0'],
+      //   C0: ['&', 'a C0', 'C b C0', 'C c C0'].sort(),
+      // });
 
-    // it('should remove indirect left recursions on simple grammar 3', () => {
-    //   const grammar = Grammar.fromText(
-    //     `S -> A a
-    //    A -> S c | d
-    //    B -> C d
-    //    C -> D E
-    //    D -> & | a
-    //    E -> a | D B`
-    //   );
-    //   expect(grammar.isValid()).toBeTruthy();
-    //   expect(grammar.hasLeftRecursion()).toBeTruthy();
-    //   grammar.removeLeftRecursion();
-    //   expect(grammar.hasLeftRecursion()).toBeFalsy();
-    // });
+      expect(grammar.hasLeftRecursion()).toBeFalsy();
+    });
+
+    it('should remove direct left recursions on simple grammar 2', () => {
+      const grammar = Grammar.fromText(
+        `E -> E + T | T
+       T -> T * F | F
+       F -> ( E ) | id`
+      );
+      expect(grammar.isValid()).toBeTruthy();
+      expect(grammar.hasLeftRecursion()).toBeTruthy();
+      grammar.removeLeftRecursion();
+      expect(grammar.hasLeftRecursion()).toBeFalsy();
+    });
+
+    it('should remove indirect left recursions on simple grammar 3', () => {
+      const grammar = Grammar.fromText(
+        `S -> A a
+       A -> S c | d
+       B -> C d
+       C -> D E
+       D -> & | a
+       E -> a | D B`
+      );
+      expect(grammar.isValid()).toBeTruthy();
+      expect(grammar.hasLeftRecursion()).toBeTruthy();
+      grammar.removeLeftRecursion();
+      expect(grammar.hasLeftRecursion()).toBeFalsy();
+    });
 
     it('should remove direct and indirect left recursions on simple grammar 4', () => {
       const grammar = Grammar.fromText(
@@ -153,9 +153,20 @@ describe('First', () => {
        C -> B | C a | b`
       );
       expect(grammar.isValid()).toBeTruthy();
-      // expect(grammar.hasLeftRecursion()).toBeTruthy();
+      expect(grammar.hasLeftRecursion()).toBeTruthy();
       grammar.removeLeftRecursion();
-      // expect(grammar.hasLeftRecursion()).toBeFalsy();
+      expect(grammar.hasLeftRecursion()).toBeFalsy();
+    });
+
+    it('should remove indirect left recursions on simple grammar 5', () => {
+      const grammar = Grammar.fromText(
+        `S -> A a
+         A -> S c | d`
+      );
+      expect(grammar.isValid()).toBeTruthy();
+      expect(grammar.hasLeftRecursion()).toBeTruthy();
+      grammar.removeLeftRecursion();
+      expect(grammar.hasLeftRecursion()).toBeFalsy();
     });
   });
 });

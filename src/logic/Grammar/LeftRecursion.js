@@ -26,7 +26,7 @@ export function removeLeftRecursion(grammar) {
     }
 
     // temporary
-    if (loops++ > 10) break;
+    if (loops++ > 100) break;
   } while (true);
 }
 
@@ -85,15 +85,17 @@ function _removeIndirectLeftRecursions(grammar, recursions) {
 
     if (!grammar.isOwn())
       throw new Error(
-        'Grammar should be own (própria) to be able to remove indirect left recursion, but the step to make it own has failed to do so!'
+        'Grammar should be own (própria) to be able to remove indirect left recursion, but the step to make it own has failed to do so! The grammar is: \n ' +
+          grammar.getFormattedText()
       );
   }
 
   // 1 – Ordene os não-terminais de G em uma ordem
-  let Vn = grammar.Vn;
+  let Vn = [...grammar.Vn].sort();
   for (let i = 0; i < Vn.length; i++) {
-    for (let j = 0; j < i - 1; j++) {
-      const Ai = Vn[i];
+    const Ai = Vn[i];
+
+    for (let j = 0; j < i; j++) {
       const Aj = Vn[j];
 
       if (grammar.P[Ai]) {
@@ -105,7 +107,8 @@ function _removeIndirectLeftRecursions(grammar, recursions) {
               for (let jProduction of grammar.P[Aj]) {
                 let newProduction = `${
                   jProduction === EPSILON ? '' : jProduction
-                } ${iProduction.slice(Ai.length)}`.trim();
+                } ${iProduction.slice(Ai.length).trim()}`.trim();
+
                 grammar.P[Ai].push(newProduction);
               }
 
@@ -116,11 +119,14 @@ function _removeIndirectLeftRecursions(grammar, recursions) {
       }
     }
 
+    // Gotta recalculate recursions, cause the grammar might have changed
+    recursions = getLeftRecursions(grammar);
+
     // Elimine as rec. esq. Diretas das Ai – produções
-    if (recursions[Vn[i]] && recursions[Vn[i]][DIRECT]) {
+    if (recursions[Ai] && recursions[Ai][DIRECT]) {
       _removeDirectLeftRecursions(grammar, {
-        [Vn[i]]: {
-          [DIRECT]: recursions[Vn[i]][DIRECT],
+        [Ai]: {
+          [DIRECT]: recursions[Ai][DIRECT],
         },
       });
     }
