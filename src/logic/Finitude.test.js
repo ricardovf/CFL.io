@@ -16,6 +16,13 @@ describe('Grammar', () => {
       expect(grammar.getLanguageFinitude()).toBe(FINITE);
     });
 
+    it('should return a inifnite language', () => {
+      const grammar = Grammar.fromText(
+        `S -> B | a S\nB ->a`
+      );
+      expect(grammar.getLanguageFinitude()).toBe(INFINITE);
+    });
+
     it('should return a inifnite language (list example)', () => {
       const grammar = Grammar.fromText(
         `A -> B C \nC -> + B C | &\nB -> D E\nE -> * D E | &\nD -> ( A ) | i`

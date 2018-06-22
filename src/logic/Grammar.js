@@ -377,15 +377,11 @@ export default class Grammar {
 
     visited.push(this.S);
 
-    if (this.P[this.S]) {
-      for (let production of this.P[this.S]) {
-        for (let symbol of production) {
-          if (this.Vn.includes(symbol)) {
-            return this.hasCycle_(visited, symbol);
-          }
-        }
-      }
-    }
+    if (this.P[this.S])
+      for (let production of this.P[this.S])
+        for (let symbol of production)
+          if (this.Vn.includes(symbol))
+            if(this.hasCycle_(visited, symbol)) return true;
 
     return false;
   }
