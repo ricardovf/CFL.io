@@ -160,16 +160,30 @@ export default class Grammar {
    * @return {boolean}
    */
   nonTerminalDerivesInitialSymbol() {
+    let nonTerminal = '';
+
     if (Array.isArray(this.Vn)) {
       for (let nonTerminal of this.Vn) {
         if (Array.isArray(this.P[nonTerminal])) {
           for (let production of this.P[nonTerminal]) {
-            if (production.includes(this.S)) return true;
+            for (let char of production) {
+              if (char !== ' ') {
+                nonTerminal += char;
+              } else {
+                if (nonTerminal !== '' && this.S === nonTerminal) {
+                  return true;
+                }
+                nonTerminal = '';
+              }
+            }
           }
         }
       }
     }
 
+    if (nonTerminal !== '' && grammar.Vn.includes(nonTerminal)) {
+      return true;
+    }
     return false;
   }
 

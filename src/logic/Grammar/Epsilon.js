@@ -92,16 +92,15 @@ export function isEpsilonFree(grammar) {
       for (let production_ of grammar.P[nonTerminal]) {
         if (production_ === '&' && nonTerminal !== grammar.initialSymbol()) {
           return false;
-        } else {
-          if (
-            grammar.initialSymbolDerivesEpsilon() &&
-            grammar.nonTerminalDerivesInitialSymbol()
-          ) {
-            return false;
-          }
         }
       }
     }
   }
+  if (
+    grammar.initialSymbolDerivesEpsilon() &&
+    grammar.nonTerminalDerivesInitialSymbol()
+  )
+    return false;
+
   return true;
 }

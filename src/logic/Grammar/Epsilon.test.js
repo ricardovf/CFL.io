@@ -8,6 +8,11 @@ describe('Grammar', () => {
       expect(grammar.isEpsilonFree()).toBeTruthy();
     });
 
+    it('should not detect epsilon free', () => {
+      const grammar = Grammar.fromText(`S -> a S0 | a | &\nS0 -> b`);
+      expect(grammar.isEpsilonFree()).toBeTruthy();
+    });
+
     it('should detect epsilon free with epsilon on initial symbol', () => {
       const grammar = Grammar.fromText(`S -> A | &\nA -> a A b | a b`);
       expect(grammar.isEpsilonFree()).toBeTruthy();

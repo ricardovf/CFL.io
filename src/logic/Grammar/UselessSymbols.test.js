@@ -126,5 +126,16 @@ describe('Grammar', () => {
       expect(grammar.isOwn()).toBeFalsy();
       expect(grammar.isValid()).toBeFalsy();
     });
+
+    it('should not validate grammar', () => {
+        const grammar = Grammar.fromText(
+            `S -> A B C | S C
+            A -> a A | &
+            B -> b | b C
+            C -> C a | C C b | C C c`
+        );
+        grammar.toOwn();
+        expect(grammar.isValid()).toBeFalsy();
+    });
   });
 });
