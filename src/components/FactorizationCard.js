@@ -69,8 +69,6 @@ class FactorizationCard extends React.Component {
       R.keys(factors)
     );
 
-    console.log(nonTerminals, factors);
-
     return (
       <Card className={classes.card}>
         <CardContent>
@@ -107,8 +105,14 @@ class FactorizationCard extends React.Component {
                             ? R.values(
                                 R.mapObjIndexed(
                                   (p, s) =>
-                                    `<strong>${s}</strong>: ${p
+                                    `${p
                                       .sort()
+                                      .map(
+                                        pp =>
+                                          `<strong><u>${s}</u></strong>${pp.slice(
+                                            s.length
+                                          )}`
+                                      )
                                       .join(', ')}`,
                                   factors[nT][DIRECT]
                                 )
@@ -123,9 +127,9 @@ class FactorizationCard extends React.Component {
                             ? R.values(
                                 R.mapObjIndexed(
                                   (p, s) =>
-                                    `<strong>${
+                                    `<strong><u>${
                                       s === '' ? R.head(p)[0] : s
-                                    }</strong>: ${p.sort().join(', ')}`,
+                                    }</u></strong>: ${p.sort().join(', ')}`,
                                   factors[nT][INDIRECT]
                                 )
                               ).join('<br />')
