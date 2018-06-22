@@ -76,15 +76,15 @@ class InformationCard extends React.Component {
             <ListItemIcon>
               {grammar
                 ? grammar.hasSimpleProductions()
-                  ? yesIcon
-                  : noIcon
+                  ? noIcon
+                  : yesIcon
                 : dontKnowIcon}
             </ListItemIcon>
             <ListItemText primary="Sem produções simples" />
           </ListItem>
           <ListItem disableGutters>
             <ListItemIcon>
-              {grammar ? (grammar.hasCycle() ? yesIcon : noIcon) : dontKnowIcon}
+              {grammar ? (grammar.hasCycle() ? noIcon : yesIcon) : dontKnowIcon}
             </ListItemIcon>
             <ListItemText primary="Sem ciclos" />
           </ListItem>
@@ -92,8 +92,8 @@ class InformationCard extends React.Component {
             <ListItemIcon>
               {grammar
                 ? grammar.hasInfertileSymbols()
-                  ? yesIcon
-                  : noIcon
+                  ? noIcon
+                  : yesIcon
                 : dontKnowIcon}
             </ListItemIcon>
             <ListItemText primary="Sem não terminais inférteis" />
@@ -102,8 +102,8 @@ class InformationCard extends React.Component {
             <ListItemIcon>
               {grammar
                 ? grammar.hasUnreachableSymbols()
-                  ? yesIcon
-                  : noIcon
+                  ? noIcon
+                  : yesIcon
                 : dontKnowIcon}
             </ListItemIcon>
             <ListItemText primary="Sem não terminais inalcançáveis" />
