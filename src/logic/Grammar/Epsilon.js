@@ -24,12 +24,12 @@ export function getEpsilonProducers(grammar) {
 
 export function toEpsilonFree(steps = [], grammar) {
   grammar.removeUselessSymbols();
+
   let epsilonProducers = grammar.getEpsilonProducers();
   let oldNumProductions = grammar.getNumberOfProductions();
   let step = grammar.clone();
   let newProductions = 0;
   let newProduction;
-
   while (oldNumProductions !== newProductions) {
     for (let symbol of grammar.Vn) {
       for (let production of grammar.P[symbol]) {
@@ -59,7 +59,8 @@ export function toEpsilonFree(steps = [], grammar) {
   }
   for (let symbol of grammar.Vn)
     if (symbol !== grammar.initialSymbol())
-      grammar.P[symbol].splice(grammar.P[symbol].indexOf('&'), 1);
+      if (grammar.P[symbol].indexOf('&') > -1)
+        grammar.P[symbol].splice(grammar.P[symbol].indexOf('&'), 1);
 
   step.P = grammar.P;
   steps.push(step);

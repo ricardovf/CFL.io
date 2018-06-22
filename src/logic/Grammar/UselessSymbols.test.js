@@ -77,5 +77,36 @@ describe('Grammar', () => {
       expect(grammar.hasInfertileSymbols()).toBeFalsy();
       expect(grammar.hasUnreachableSymbols()).toBeFalsy();
     });
+
+    it('should return reachable symbols', () => {
+      const grammar = Grammar.fromText(
+        `S -> A B C D\nA -> & | a A\nB -> b | b C\nC -> E\n E -> & | C b E | C c E | a E\nD -> & | C D`
+      );
+      const reachableLen = grammar.getReachableSymbols().length;
+      const alphabetLen = grammar.Vt.length + grammar.Vn.length;
+      expect(reachableLen === alphabetLen).toBeTruthy();
+    });
+
+    it('should return reachable symbols (if statement)', () => {
+      const grammar = Grammar.fromText(
+        `C -> c o m | i f E t h e n C | i f E t h e n C e l s e C\nE -> e x p`
+      );
+      const reachableLen = grammar.getReachableSymbols().length;
+      const alphabetLen = grammar.Vt.length + grammar.Vn.length;
+      expect(reachableLen === alphabetLen).toBeTruthy();
+    });
+
+    it('should transform to own #1', () => {
+      const grammar = Grammar.fromText(
+        `S -> A a
+       A -> S c | d
+       B -> C d
+       C -> D E
+       D -> & | a
+       E -> a | D B`
+      );
+      grammar.toOwn();
+      expect(grammar.isOwn()).toBeTruthy();
+    });
   });
 });

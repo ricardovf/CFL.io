@@ -10,7 +10,7 @@ export function getFertileSymbols(grammar) {
   if (!grammar.isValid()) return fertileSymbols;
 
   let oldSize = fertileSymbols.length;
-  let newSize = 1;
+  let newSize = -1;
   let allNonTerminalFertile = true;
   while (oldSize !== newSize) {
     for (let nonTerminal of grammar.Vn) {
@@ -27,9 +27,12 @@ export function getFertileSymbols(grammar) {
               allNonTerminalFertile = false;
           }
 
-          if (allNonTerminalFertile)
-            if (!fertileSymbols.includes(nonTerminal))
-              fertileSymbols.push(nonTerminal);
+          if (allNonTerminalFertile) {
+            for (let nonTerminal_ of nonTerminals) {
+              if (!fertileSymbols.includes(nonTerminal))
+                fertileSymbols.push(nonTerminal);
+            }
+          }
           allNonTerminalFertile = true;
         }
       }
@@ -41,86 +44,88 @@ export function getFertileSymbols(grammar) {
 }
 
 export function removeInfertileSymbols(grammar, steps) {
+  if (!grammar.hasInfertileSymbols()) return steps;
   let fertileSymbols = grammar.getFertileSymbols();
-    let infertileSymbols = grammar.getInfertileSymbols(fertileSymbols);
-    let newProductions = {};
-    let step = grammar.clone();
-    let newVn = [];
-    let newVt = [];
-    let productionIncludesInfertile = false;
+  let infertileSymbols = grammar.getInfertileSymbols(fertileSymbols);
+  let newProductions = {};
+  let step = grammar.clone();
+  let newVn = [];
+  let newVt = [];
+  let productionIncludesInfertile = false;
 
-    for (let nonTerminal of grammar.Vn) {
-      for (let production of grammar.P[nonTerminal]) {
-        let nonTerminals = grammar.getNonTerminalsFromProduction(production);
-        let terminals = grammar.getTerminalsFromProduction(production);
-        for (let nonTerminal_ of nonTerminals) {
-          if (infertileSymbols.includes(nonTerminal_))
-            productionIncludesInfertile = true;
-        }
-        if (!productionIncludesInfertile) {
-          if (newProductions[nonTerminal] === undefined)
-            newProductions[nonTerminal] = [];
-          newVn.push(nonTerminal);
-          newProductions[nonTerminal].push(production);
-          for (let terminal of terminals) newVt.push(terminal);
-        }
-        productionIncludesInfertile = false;
+  for (let nonTerminal of grammar.Vn) {
+    for (let production of grammar.P[nonTerminal]) {
+      let nonTerminals = grammar.getNonTerminalsFromProduction(production);
+      let terminals = grammar.getTerminalsFromProduction(production);
+      for (let nonTerminal_ of nonTerminals) {
+        if (infertileSymbols.includes(nonTerminal_))
+          productionIncludesInfertile = true;
       }
-      step.P = newProductions;
-      step.Vt = newVt;
-      step.Vn = newVn;
-      steps.push(step);
-      step = grammar.clone();
+      if (!productionIncludesInfertile) {
+        if (newProductions[nonTerminal] === undefined)
+          newProductions[nonTerminal] = [];
+        newVn.push(nonTerminal);
+        newProductions[nonTerminal].push(production);
+        for (let terminal of terminals) newVt.push(terminal);
+      }
+      productionIncludesInfertile = false;
     }
+    step.P = newProductions;
+    step.Vt = newVt;
+    step.Vn = newVn;
+    steps.push(step);
+    step = grammar.clone();
+  }
 
-    grammar.P = newProductions;
-    grammar.Vt = R.uniq(newVt);
-    grammar.Vn = R.uniq(newVn);
+  grammar.P = newProductions;
+  grammar.Vt = R.uniq(newVt);
+  grammar.Vn = R.uniq(newVn);
 }
 
 export function removeUnreachableSymbols(steps = [], grammar) {
+  if (!grammar.hasUnreachableSymbols()) return steps
   let reachableSymbols = grammar.getReachableSymbols();
-    let unreachableSymbols = grammar.getUnreachableSymbols(reachableSymbols);
-    let newProductions = {};
-    let step = grammar.clone();
-    let newVn = [];
-    let newVt = [];
-    let productionIncludesUnreachable = false;
+  let unreachableSymbols = grammar.getUnreachableSymbols(reachableSymbols);
+  let newProductions = {};
+  let step = grammar.clone();
+  let newVn = [];
+  let newVt = [];
+  let productionIncludesUnreachable = false;
 
-    for (let nonTerminal of reachableSymbols) {
-      if (grammar.Vn.includes(nonTerminal)) {
-        for (let production of grammar.P[nonTerminal]) {
-          let production_ = production.replace(/\s/g, '');
-          let nonTerminals = grammar.getNonTerminalsFromProduction(production_);
-          let terminals = grammar.getTerminalsFromProduction(production_);
-          for (let nonTerminal_ of nonTerminals)
-            if (unreachableSymbols.includes(nonTerminal_))
-              productionIncludesUnreachable = true;
+  for (let nonTerminal of reachableSymbols) {
+    if (grammar.Vn.includes(nonTerminal)) {
+      for (let production of grammar.P[nonTerminal]) {
+        let production_ = production.replace(/\s/g, '');
+        let nonTerminals = grammar.getNonTerminalsFromProduction(production_);
+        let terminals = grammar.getTerminalsFromProduction(production_);
+        for (let nonTerminal_ of nonTerminals)
+          if (unreachableSymbols.includes(nonTerminal_))
+            productionIncludesUnreachable = true;
 
-          for (let terminal of terminals)
-            if (unreachableSymbols.includes(terminal))
-              productionIncludesUnreachable = true;
+        for (let terminal of terminals)
+          if (unreachableSymbols.includes(terminal))
+            productionIncludesUnreachable = true;
 
-          if (!productionIncludesUnreachable) {
-            if (newProductions[nonTerminal] === undefined)
-              newProductions[nonTerminal] = [];
-            newProductions[nonTerminal].push(production);
-            newVn.push(nonTerminal);
-            for (let terminal of terminals) newVt.push(terminal);
-          }
-          productionIncludesUnreachable = false;
+        if (!productionIncludesUnreachable) {
+          if (newProductions[nonTerminal] === undefined)
+            newProductions[nonTerminal] = [];
+          newProductions[nonTerminal].push(production);
+          newVn.push(nonTerminal);
+          for (let terminal of terminals) newVt.push(terminal);
         }
+        productionIncludesUnreachable = false;
       }
-      step.P = newProductions;
-      step.Vt = newVt;
-      step.Vn = newVn;
-      steps.push(step);
-      step = grammar.clone();
     }
+    step.P = newProductions;
+    step.Vt = newVt;
+    step.Vn = newVn;
+    steps.push(step);
+    step = grammar.clone();
+  }
 
-    grammar.P = newProductions;
-    grammar.Vn = R.uniq(newVn);
-    grammar.Vt = R.uniq(newVt);
+  grammar.P = newProductions;
+  grammar.Vn = R.uniq(newVn);
+  grammar.Vt = R.uniq(newVt);
 }
 
 export function getInfertileSymbols(fertileSymbols, grammar) {
@@ -156,6 +161,8 @@ export function getReachableSymbols(grammar) {
                 reachableSymbols.push(terminal);
           }
         }
+      } else if (!reachableSymbols.includes(symbol)) {
+        reachableSymbols.push(symbol);
       }
     }
     oldSize = newSize;

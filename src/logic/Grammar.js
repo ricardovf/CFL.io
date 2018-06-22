@@ -371,12 +371,29 @@ export default class Grammar {
     return steps;
   }
 
+
+  hasCycle(symbol = this.S, visited = []) {
+    visited.push(symbol)
+
+    if (this.P[symbol]) {
+      for (let production of this.P[symbol]) {
+        if (production.length === 1 && this.Vn.includes(production)) {
+          if (visited.includes(production)) return true;
+          visited.push(production)
+          if (this.hasCycle(production, visited)) return true;
+        }
+      }
+    }
+
+    visited.splice(visited.indexOf(symbol), 1);
+    return false;
+  }
   /**
    * Cycles in the form of A -> B | B -> A or A -> A
    * @todo
    * @returns {boolean}
    */
-  hasCycle(visited = []) {
+  hasCycleInFinitude(visited = []) {
     if (!this.isValid()) return false;
 
     visited.push(this.S);
@@ -391,16 +408,15 @@ export default class Grammar {
   }
 
   hasCycle_(visited, symbol) {
-    if (visited.includes(symbol)) return true;
-
     visited.push(symbol);
+
     if (this.P[symbol]) {
       for (let production of this.P[symbol]) {
         for (let symbol_ of production)
           if (!visited.includes(symbol_) && this.Vn.includes(symbol_)) {
             visited.push(symbol_);
             if (this.hasCycle_(visited, symbol_)) return true;
-          }
+          } else if (visited.includes(symbol_)) return true
       }
     }
     visited.splice(visited.indexOf(symbol));
@@ -410,7 +426,7 @@ export default class Grammar {
   getLanguageFinitude() {
     let fertileSymbols = this.getFertileSymbols();
     if (fertileSymbols.includes(this.S)) {
-      if (this.hasCycle()) return INFINITE;
+      if (this.hasCycleInFinitude()) return INFINITE;
       else return FINITE;
     } else {
       return EMPTY;
