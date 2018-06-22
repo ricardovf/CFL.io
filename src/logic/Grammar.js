@@ -1,9 +1,27 @@
 import GrammarParser from './Grammar/GrammarParser';
 import * as R from 'ramda';
 import SymbolValidator, { EPSILON } from './SymbolValidator';
+import { getEpsilonProducers, toEpsilonFree, isEpsilonFree } from './Grammar/Epsilon';
 import { first } from './Grammar/First';
 import { firstNT } from './Grammar/FirstNT';
 import { follow } from './Grammar/Follow';
+import {
+  removeSimpleProductions,
+  getNonTerminalsFromProduction,
+  getTerminalsFromProduction,
+  getSimpleProductions,
+  getSimpleProductionsFromSymbol,
+  getNonSimpleProductions,
+  hasSimpleProductions
+} from './Grammar/SimpleProductions';
+import {
+  removeInfertileSymbols,
+  removeUnreachableSymbols,
+  getFertileSymbols,
+  getInfertileSymbols,
+  getReachableSymbols,
+  getUnreachableSymbols,
+} from './Grammar/UselessSymbols';
 import { findMatchOfFromStartOfString, multiTrim } from './helpers';
 import {
   removeLeftRecursion,
@@ -238,25 +256,7 @@ export default class Grammar {
    * @returns {boolean}
    */
   isEpsilonFree() {
-    if (!this.isValid()) return false;
-
-    for (let nonTerminal of this.Vn) {
-      if (Array.isArray(this.P[nonTerminal])) {
-        for (let production_ of this.P[nonTerminal]) {
-          if (production_ === '&' && nonTerminal !== this.initialSymbol()) {
-            return false;
-          } else {
-            if (
-              this.initialSymbolDerivesEpsilon() &&
-              this.nonTerminalDerivesInitialSymbol()
-            ) {
-              return false;
-            }
-          }
-        }
-      }
-    }
-    return true;
+    return isEpsilonFree(this);
   }
 
   /**
@@ -264,17 +264,7 @@ export default class Grammar {
    * @returns {boolean}
    */
   hasSimpleProductions() {
-    if (!this.isValid()) return false;
-
-    for (let nonTerminal of this.Vn) {
-      if (Array.isArray(this.P[nonTerminal])) {
-        for (let production of this.P[nonTerminal]) {
-          if (production.length === 1 && this.Vn.indexOf(production) > -1)
-            return true;
-        }
-      }
-    }
-    return false;
+    return hasSimpleProductions(this);
   }
 
   /**
@@ -317,41 +307,7 @@ export default class Grammar {
   }
 
   removeInfertileSymbols(steps = []) {
-    let fertileSymbols = this.getFertileSymbols();
-    let infertileSymbols = this.getInfertileSymbols(fertileSymbols);
-    let newProductions = {};
-    let step = this.clone();
-    let newVn = [];
-    let newVt = [];
-    let productionIncludesInfertile = false;
-
-    for (let nonTerminal of this.Vn) {
-      for (let production of this.P[nonTerminal]) {
-        let nonTerminals = this.getNonTerminalsFromProduction(production);
-        let terminals = this.getTerminalsFromProduction(production);
-        for (let nonTerminal_ of nonTerminals) {
-          if (infertileSymbols.includes(nonTerminal_))
-            productionIncludesInfertile = true;
-        }
-        if (!productionIncludesInfertile) {
-          if (newProductions[nonTerminal] === undefined)
-            newProductions[nonTerminal] = [];
-          newVn.push(nonTerminal);
-          newProductions[nonTerminal].push(production);
-          for (let terminal of terminals) newVt.push(terminal);
-        }
-        productionIncludesInfertile = false;
-      }
-      step.P = newProductions;
-      step.Vt = newVt;
-      step.Vn = newVn;
-      steps.push(step);
-      step = this.clone();
-    }
-
-    this.P = newProductions;
-    this.Vt = R.uniq(newVt);
-    this.Vn = R.uniq(newVn);
+    removeInfertileSymbols(this, steps);
   }
 
   removeInfertileSymbolsWithSteps() {
@@ -361,48 +317,7 @@ export default class Grammar {
   }
 
   removeUnreachableSymbols(steps = []) {
-    let reachableSymbols = this.getReachableSymbols();
-    let unreachableSymbols = this.getUnreachableSymbols(reachableSymbols);
-    let newProductions = {};
-    let step = this.clone();
-    let newVn = [];
-    let newVt = [];
-    let productionIncludesUnreachable = false;
-
-    for (let nonTerminal of reachableSymbols) {
-      if (this.Vn.includes(nonTerminal)) {
-        for (let production of this.P[nonTerminal]) {
-          let production_ = production.replace(/\s/g, '');
-          let nonTerminals = this.getNonTerminalsFromProduction(production_);
-          let terminals = this.getTerminalsFromProduction(production_);
-          for (let nonTerminal_ of nonTerminals)
-            if (unreachableSymbols.includes(nonTerminal_))
-              productionIncludesUnreachable = true;
-
-          for (let terminal of terminals)
-            if (unreachableSymbols.includes(terminal))
-              productionIncludesUnreachable = true;
-
-          if (!productionIncludesUnreachable) {
-            if (newProductions[nonTerminal] === undefined)
-              newProductions[nonTerminal] = [];
-            newProductions[nonTerminal].push(production);
-            newVn.push(nonTerminal);
-            for (let terminal of terminals) newVt.push(terminal);
-          }
-          productionIncludesUnreachable = false;
-        }
-      }
-      step.P = newProductions;
-      step.Vt = newVt;
-      step.Vn = newVn;
-      steps.push(step);
-      step = this.clone();
-    }
-
-    this.P = newProductions;
-    this.Vn = R.uniq(newVn);
-    this.Vt = R.uniq(newVt);
+    removeUnreachableSymbols(steps, this);
   }
 
   removeUnreachableSymbolsWithSteps() {
@@ -412,44 +327,7 @@ export default class Grammar {
   }
 
   removeSimpleProductions(steps = []) {
-    if (this.hasEpsilonTransitions()) {
-      this.toEpsilonFree();
-    }
-
-    let simpleProductions = this.getSimpleProductions();
-    let newProductions = {};
-    let step = this.clone();
-
-    for (let nonTerminal of this.Vn) {
-      if (newProductions[nonTerminal] === undefined)
-        newProductions[nonTerminal] = [];
-    }
-
-    for (let symbol of this.Vn)
-      for (let simpleProduction of simpleProductions[symbol])
-        for (let indirectProduction of simpleProductions[simpleProduction])
-          if (!simpleProductions[symbol].includes(indirectProduction))
-            simpleProductions[symbol].push(indirectProduction);
-
-    for (let symbol of this.Vn) {
-      for (let simpleProduction of simpleProductions[symbol]) {
-        let nonSimpleProductions = this.getNonSimpleProductions(
-          simpleProduction
-        );
-        for (let nonSimpleProduction of nonSimpleProductions)
-          if (!newProductions[symbol].includes(nonSimpleProduction))
-            newProductions[symbol].push(nonSimpleProduction);
-      }
-
-      let nonSimpleProductions_ = this.getNonSimpleProductions(symbol);
-      for (let nonSimpleProduction of nonSimpleProductions_)
-        if (!newProductions[symbol].includes(nonSimpleProduction))
-          newProductions[symbol].push(nonSimpleProduction);
-      step.P = newProductions;
-      steps.push(step);
-      step = this.clone();
-    }
-    this.P = newProductions;
+    removeSimpleProductions(steps, this);
   }
 
   removeSimpleProductionsWithSteps() {
@@ -459,65 +337,7 @@ export default class Grammar {
   }
 
   toEpsilonFree(steps = []) {
-    this.removeUselessSymbols();
-    let epsilonProducers = this.getEpsilonProducers();
-    let oldNumProductions = this.getNumberOfProductions();
-    let step = this.clone();
-    let newProductions = 0;
-    let newProduction;
-
-    while (oldNumProductions !== newProductions) {
-      for (let symbol of this.Vn) {
-        for (let production of this.P[symbol]) {
-          for (let epsilonProducer of epsilonProducers) {
-            if (production.includes(epsilonProducer)) {
-              newProduction = production
-                .replace(epsilonProducer, '')
-                .replace(/\s+/g, ' ')
-                .replace(/^\s|\s$/g, '');
-              if (newProduction === '') newProduction = '&';
-              if (!this.P[symbol].includes(newProduction))
-                this.P[symbol].push(newProduction);
-            }
-          }
-          if (
-            this.P[symbol].includes('&') &&
-            !epsilonProducers.includes(symbol)
-          )
-            epsilonProducers.push(symbol);
-        }
-      }
-      step.P = this.P;
-      steps.push(step);
-      step = this.clone();
-      oldNumProductions = newProductions;
-      newProductions = this.getNumberOfProductions();
-    }
-    for (let symbol of this.Vn)
-      if (symbol !== this.initialSymbol())
-        this.P[symbol].splice(this.P[symbol].indexOf('&'), 1);
-
-    step.P = this.P;
-    steps.push(step);
-    step = this.clone();
-    if (
-      this.nonTerminalDerivesInitialSymbol() &&
-      this.initialSymbolDerivesEpsilon()
-    ) {
-      let newInitialSymbol;
-      let oldInitialSymbol = this.S;
-      let index = 0;
-      do {
-        newInitialSymbol = 'S' + index.toString();
-        ++index;
-      } while (this.Vn.includes(newInitialSymbol));
-      this.P[this.S].splice(this.P[this.S].indexOf('&'), 1);
-      this.S = newInitialSymbol;
-      this.P[this.S] = [oldInitialSymbol, '&'];
-      this.Vn.push(this.S);
-    }
-    step.P = this.P;
-    steps.push(step);
+    toEpsilonFree(steps, this);
   }
 
   /**
@@ -542,7 +362,9 @@ export default class Grammar {
   }
 
   toOwnWithSteps() {
-    return this.toOwn([]);
+    let steps = [];
+    this.toOwn(steps);
+    return steps;
   }
 
   /**
@@ -599,39 +421,7 @@ export default class Grammar {
    * @return {Array}
    */
   getFertileSymbols() {
-    let fertileSymbols = [];
-
-    if (!this.isValid()) return fertileSymbols;
-
-    let oldSize = fertileSymbols.length;
-    let newSize = 1;
-    let allNonTerminalFertile = true;
-    while (oldSize !== newSize) {
-      for (let nonTerminal of this.Vn) {
-        if (Array.isArray(this.P[nonTerminal])) {
-          for (let production of this.P[nonTerminal]) {
-            let production_ = production.replace(/\s/g, '');
-            if (this.productionWithOnlyTerminals(production_))
-              if (!fertileSymbols.includes(nonTerminal))
-                fertileSymbols.push(nonTerminal);
-
-            let nonTerminals = this.getNonTerminalsFromProduction(production_);
-            for (let nonTerminal_ of nonTerminals) {
-              if (!fertileSymbols.includes(nonTerminal_))
-                allNonTerminalFertile = false;
-            }
-
-            if (allNonTerminalFertile)
-              if (!fertileSymbols.includes(nonTerminal))
-                fertileSymbols.push(nonTerminal);
-            allNonTerminalFertile = true;
-          }
-        }
-      }
-      oldSize = newSize;
-      newSize = fertileSymbols.length;
-    }
-    return fertileSymbols;
+    return getFertileSymbols(this);
   }
 
   /**
@@ -639,47 +429,14 @@ export default class Grammar {
    * @return {Array}
    */
   getInfertileSymbols(fertileSymbols) {
-    let infertileSymbols = [];
-    if (Array.isArray(this.Vn)) {
-      for (let symbol of this.Vn)
-        if (!fertileSymbols.includes(symbol)) infertileSymbols.push(symbol);
-    }
-
-    return infertileSymbols;
+    return getInfertileSymbols(fertileSymbols, this);
   }
 
   /**
    * @return {Array}
    */
   getReachableSymbols() {
-    if (!this.isValid()) return [];
-
-    let reachableSymbols = [this.initialSymbol()];
-    let oldSize = reachableSymbols.length;
-    let newSize = 0;
-    while (oldSize !== newSize) {
-      for (let symbol of reachableSymbols) {
-        if (this.Vn.includes(symbol)) {
-          if (Array.isArray(this.P[symbol])) {
-            for (let production of this.P[symbol]) {
-              production = production.replace(/\s/g, '');
-              let nonTerminals = this.getNonTerminalsFromProduction(production);
-              let terminals = this.getTerminalsFromProduction(production);
-              for (let nonTerminal of nonTerminals)
-                if (!reachableSymbols.includes(nonTerminal))
-                  reachableSymbols.push(nonTerminal);
-
-              for (let terminal of terminals)
-                if (!reachableSymbols.includes(terminal))
-                  reachableSymbols.push(terminal);
-            }
-          }
-        }
-      }
-      oldSize = newSize;
-      newSize = reachableSymbols.length;
-    }
-    return reachableSymbols;
+    return getReachableSymbols(this);
   }
 
   /**
@@ -687,90 +444,31 @@ export default class Grammar {
    * @return {Array}
    */
   getUnreachableSymbols(reachableSymbols) {
-    let unreachableSymbols = [];
-
-    if (Array.isArray(this.Vn)) {
-      for (let symbol of this.Vn)
-        if (!reachableSymbols.includes(symbol)) unreachableSymbols.push(symbol);
-    }
-
-    if (Array.isArray(this.Vt)) {
-      for (let symbol of this.Vt)
-        if (!reachableSymbols.includes(symbol)) unreachableSymbols.push(symbol);
-    }
-
-    return unreachableSymbols;
+    return getUnreachableSymbols(reachableSymbols, this);
   }
 
   getNonTerminalsFromProduction(p) {
-    let nonTerminals = [];
-    for (let char of p) {
-      if (this.Vn.includes(char)) nonTerminals.push(char);
-    }
-    return nonTerminals;
+    return getNonTerminalsFromProduction(p, this);
   }
 
   getTerminalsFromProduction(p) {
-    let terminals = [];
-    for (let char of p) {
-      if (this.Vt.includes(char)) terminals.push(char);
-    }
-    return terminals;
+    return getTerminalsFromProduction(p, this);
   }
 
   getSimpleProductions() {
-    let simpleProductions = [];
-
-    for (let nonTerminal of this.Vn)
-      if (simpleProductions[nonTerminal] === undefined)
-        simpleProductions[nonTerminal] = [];
-
-    for (let nonTerminal of this.Vn)
-      for (let production of this.P[nonTerminal])
-        if (production.length === 1 && this.Vn.indexOf(production) > -1)
-          simpleProductions[nonTerminal].push(production);
-
-    return simpleProductions;
+    return getSimpleProductions(this);
   }
 
   getSimpleProductionsFromSymbol(symbol) {
-    let simpleProductions = [];
-
-    for (let production of this.P[symbol])
-      if (production.length === 1 && this.Vn.indexOf(production) > -1)
-        simpleProductions.push(production);
-
-    return simpleProductions;
+    return getSimpleProductionsFromSymbol(symbol, this);
   }
 
   getNonSimpleProductions(symbol) {
-    let nonSimpleProductions = [];
-
-    for (let production of this.P[symbol]) {
-      if (production.length > 1 || this.Vt.includes(production))
-        nonSimpleProductions.push(production);
-    }
-    return nonSimpleProductions;
+    return getNonSimpleProductions(symbol, this);
   }
 
   getEpsilonProducers() {
-    let epsilonProducers = [];
-    let oldSize = epsilonProducers.length;
-    let newSize = 1;
-
-    while (oldSize !== newSize) {
-      for (let symbol of this.Vn)
-        for (let production of this.P[symbol])
-          if (
-            (production === '&' || epsilonProducers.includes(production)) &&
-            !epsilonProducers.includes(symbol)
-          )
-            epsilonProducers.push(symbol);
-
-      oldSize = newSize;
-      newSize = epsilonProducers.length;
-    }
-    return epsilonProducers;
+    return getEpsilonProducers(this);
   }
 
   getNumberOfProductions() {
