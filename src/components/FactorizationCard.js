@@ -79,7 +79,6 @@ class FactorizationCard extends React.Component {
     let isFactorableResult = (
       <strong style={{ color: 'red' }}>não é fatorável</strong>
     );
-    console.log(factorizationSteps);
     if (!isFactored && grammar.canBeFactored(factorizationSteps)) {
       isFactorable = true;
       isFactorableResult = (

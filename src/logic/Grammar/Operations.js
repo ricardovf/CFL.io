@@ -14,31 +14,31 @@ export function cloneGrammarWithSteps(grammar) {
 }
 
 export function toEpsilonFreeWithSteps(grammar) {
-  let steps = [];
+  let steps = [grammar.clone()];
   toEpsilonFree(steps, grammar.clone());
   return steps;
 }
 
 export function eliminateSimpleProductionsWithSteps(grammar) {
-  let steps = [];
+  let steps = [grammar.clone()];
   removeSimpleProductions(steps, grammar.clone());
   return steps;
 }
 
 export function eliminateInfertileSymbolsWithSteps(grammar) {
-  let steps = [];
+  let steps = [grammar.clone()];
   removeInfertileSymbols(grammar.clone(), steps);
   return steps;
 }
 
 export function eliminateUnreachableSymbolsWithSteps(grammar) {
-  let steps = [];
+  let steps = [grammar.clone()];
   removeUnreachableSymbols(steps, grammar.clone());
   return steps;
 }
 
 export function toOwnWithSteps(grammar) {
-  let steps = [];
+  let steps = [grammar.clone()];
   grammar.clone().toOwn(steps);
   return steps;
 }

@@ -184,7 +184,7 @@ class SelfOperationDialog extends React.Component {
                 dangerouslySetInnerHTML={{
                   __html: this.state.steps[this.state.step - 1]
                     .getFormattedText()
-                    .replace('\n', '<br />'),
+                    .replace(/\n/g, '<br />'),
                 }}
               />
             </div>
