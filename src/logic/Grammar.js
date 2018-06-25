@@ -181,7 +181,7 @@ export default class Grammar {
       }
     }
 
-    if (nonTerminal !== '' && grammar.Vn.includes(nonTerminal)) {
+    if (nonTerminal !== '' && this.Vn.includes(nonTerminal)) {
       return true;
     }
     return false;

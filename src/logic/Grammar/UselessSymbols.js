@@ -53,21 +53,23 @@ export function removeInfertileSymbols(grammar, steps) {
   let productionIncludesInfertile = false;
 
   for (let nonTerminal of grammar.Vn) {
-    for (let production of grammar.P[nonTerminal]) {
-      let nonTerminals = grammar.getNonTerminalsFromProduction(production);
-      let terminals = grammar.getTerminalsFromProduction(production);
-      for (let nonTerminal_ of nonTerminals) {
-        if (infertileSymbols.includes(nonTerminal_))
-          productionIncludesInfertile = true;
+    if (grammar.P[nonTerminal]) {
+      for (let production of grammar.P[nonTerminal]) {
+        let nonTerminals = grammar.getNonTerminalsFromProduction(production);
+        let terminals = grammar.getTerminalsFromProduction(production);
+        for (let nonTerminal_ of nonTerminals) {
+          if (infertileSymbols.includes(nonTerminal_))
+            productionIncludesInfertile = true;
+        }
+        if (!productionIncludesInfertile) {
+          if (newProductions[nonTerminal] === undefined)
+            newProductions[nonTerminal] = [];
+          newVn.push(nonTerminal);
+          newProductions[nonTerminal].push(production);
+          for (let terminal of terminals) newVt.push(terminal);
+        }
+        productionIncludesInfertile = false;
       }
-      if (!productionIncludesInfertile) {
-        if (newProductions[nonTerminal] === undefined)
-          newProductions[nonTerminal] = [];
-        newVn.push(nonTerminal);
-        newProductions[nonTerminal].push(production);
-        for (let terminal of terminals) newVt.push(terminal);
-      }
-      productionIncludesInfertile = false;
     }
     step.P = newProductions;
     step.Vt = newVt;
@@ -95,25 +97,27 @@ export function removeUnreachableSymbols(steps = [], grammar) {
 
   for (let nonTerminal of reachableSymbols) {
     if (grammar.Vn.includes(nonTerminal)) {
-      for (let production of grammar.P[nonTerminal]) {
-        let nonTerminals = grammar.getNonTerminalsFromProduction(production);
-        let terminals = grammar.getTerminalsFromProduction(production);
-        for (let nonTerminal_ of nonTerminals)
-          if (unreachableSymbols.includes(nonTerminal_))
-            productionIncludesUnreachable = true;
+      if (grammar.P[nonTerminal]) {
+        for (let production of grammar.P[nonTerminal]) {
+          let nonTerminals = grammar.getNonTerminalsFromProduction(production);
+          let terminals = grammar.getTerminalsFromProduction(production);
+          for (let nonTerminal_ of nonTerminals)
+            if (unreachableSymbols.includes(nonTerminal_))
+              productionIncludesUnreachable = true;
 
-        for (let terminal of terminals)
-          if (unreachableSymbols.includes(terminal))
-            productionIncludesUnreachable = true;
+          for (let terminal of terminals)
+            if (unreachableSymbols.includes(terminal))
+              productionIncludesUnreachable = true;
 
-        if (!productionIncludesUnreachable) {
-          if (newProductions[nonTerminal] === undefined)
-            newProductions[nonTerminal] = [];
-          newProductions[nonTerminal].push(production);
-          newVn.push(nonTerminal);
-          for (let terminal of terminals) newVt.push(terminal);
+          if (!productionIncludesUnreachable) {
+            if (newProductions[nonTerminal] === undefined)
+              newProductions[nonTerminal] = [];
+            newProductions[nonTerminal].push(production);
+            newVn.push(nonTerminal);
+            for (let terminal of terminals) newVt.push(terminal);
+          }
+          productionIncludesUnreachable = false;
         }
-        productionIncludesUnreachable = false;
       }
     }
     step.P = newProductions;
