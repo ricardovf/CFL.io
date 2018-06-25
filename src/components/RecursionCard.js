@@ -88,7 +88,7 @@ class RecursionCard extends React.Component {
           {!hasRecursions && (
             <div>
               <strong style={{ color: 'green' }}>
-                A gramática não possuí recursão à esquerda
+                A gramática não possui recursão à esquerda
               </strong>.
             </div>
           )}
