@@ -74,6 +74,12 @@ export default class Grammar {
     return this.Vn;
   }
 
+  ensureSymbolsAreUnique() {
+    this.Vn = R.uniq(this.Vn);
+    this.Vt = R.uniq(this.Vt);
+    this.P = R.uniq(this.P);
+  }
+
   /**
    * Return the non terminals sorted and with the initial symbol as first item of the array
    *
@@ -377,7 +383,7 @@ export default class Grammar {
   toOwn(steps = []) {
     this.toEpsilonFree(steps);
 
-    if (this.hasCycle()) this.removeSimpleProductions(steps);
+    if (this.hasSimpleProductions()) this.removeSimpleProductions(steps);
 
     this.removeUselessSymbols(steps);
   }

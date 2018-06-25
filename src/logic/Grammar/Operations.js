@@ -8,6 +8,7 @@ import {
   removeInfertileSymbols,
   removeUnreachableSymbols,
 } from './UselessSymbols';
+import * as R from 'ramda';
 
 export function cloneGrammarWithSteps(grammar) {
   return [grammar.clone()];
@@ -16,29 +17,33 @@ export function cloneGrammarWithSteps(grammar) {
 export function toEpsilonFreeWithSteps(grammar) {
   let steps = [grammar.clone()];
   toEpsilonFree(steps, grammar.clone());
-  return steps;
+  return _makeStepsUnique(steps);
 }
 
 export function eliminateSimpleProductionsWithSteps(grammar) {
   let steps = [grammar.clone()];
   removeSimpleProductions(steps, grammar.clone());
-  return steps;
+  return _makeStepsUnique(steps);
 }
 
 export function eliminateInfertileSymbolsWithSteps(grammar) {
   let steps = [grammar.clone()];
   removeInfertileSymbols(grammar.clone(), steps);
-  return steps;
+  return _makeStepsUnique(steps);
 }
 
 export function eliminateUnreachableSymbolsWithSteps(grammar) {
   let steps = [grammar.clone()];
   removeUnreachableSymbols(steps, grammar.clone());
-  return steps;
+  return _makeStepsUnique(steps);
 }
 
 export function toOwnWithSteps(grammar) {
   let steps = [grammar.clone()];
   grammar.clone().toOwn(steps);
-  return steps;
+  return _makeStepsUnique(steps);
+}
+
+function _makeStepsUnique(steps) {
+  return R.uniq(steps);
 }

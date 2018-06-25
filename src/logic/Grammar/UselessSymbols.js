@@ -121,8 +121,8 @@ export function removeUnreachableSymbols(steps = [], grammar) {
       }
     }
     step.P = newProductions;
-    step.Vt = newVt;
-    step.Vn = newVn;
+    step.Vt = R.uniq(newVt);
+    step.Vn = R.uniq(newVn);
     step.S = step.Vn.includes(step.S) ? step.S : null;
     steps.push(step);
     step = grammar.clone();
