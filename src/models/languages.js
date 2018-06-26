@@ -170,7 +170,11 @@ export default {
         let language = find(propEq('id', id))(rootState.languages);
 
         if (language) {
-          const trimmedText = multiTrim(text, false);
+          let trimmedText = multiTrim(text, false);
+
+          trimmedText = trimmedText.replace(/→/g, '->');
+          trimmedText = trimmedText.replace(//g, '->');
+          trimmedText = trimmedText.replace(/ε/g, '&');
 
           const grammar = Grammar.fromText(trimmedText);
           const valid = grammar && grammar.isValid();
