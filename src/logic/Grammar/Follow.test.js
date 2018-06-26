@@ -102,4 +102,27 @@ describe('Follow', () => {
     expect(grammar.follow('T0')).toEqual([END, '+', ')'].sort());
     expect(grammar.follow('F')).toEqual([END, '+', '*', ')'].sort());
   });
+
+  it('should return the correct follow on grammar 8a', () => {
+    const grammar = Grammar.fromText(
+      `P -> B P0
+      P0 -> & | ; B P0
+      C -> C0 | b D
+      C0 -> & | com C0
+      D -> C e C0 | K V ; C e C0
+      B -> K V C
+      K -> & | c K
+      V -> & | v V`
+    );
+    expect(grammar.isValid()).toBeTruthy();
+
+    expect(grammar.follow('P')).toEqual([END].sort());
+    expect(grammar.follow('B')).toEqual([END, ';'].sort());
+    expect(grammar.follow('C')).toEqual([END, ';', 'e'].sort());
+    expect(grammar.follow('C0')).toEqual([END, ';', 'e'].sort());
+    expect(grammar.follow('D')).toEqual([END, ';', 'e'].sort());
+    expect(grammar.follow('K')).toEqual([END, 'v', ';', 'b', 'com'].sort());
+    expect(grammar.follow('P0')).toEqual([END].sort());
+    expect(grammar.follow('V')).toEqual([END, ';', 'b', 'com'].sort());
+  });
 });

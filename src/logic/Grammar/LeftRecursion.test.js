@@ -1,6 +1,6 @@
 import Grammar from '../Grammar';
 
-describe('First', () => {
+describe('Left Recursion', () => {
   describe('Detection', () => {
     it('should return empty when in a invalid grammar', () => {
       const grammar = Grammar.fromText('S -> aSS | aSB');
@@ -161,6 +161,70 @@ describe('First', () => {
       expect(grammar.hasLeftRecursion()).toBeTruthy();
       grammar.removeLeftRecursion();
       expect(grammar.hasLeftRecursion()).toBeFalsy();
+    });
+
+    it('should remove left recursions on grammar 8a', () => {
+      const grammar = Grammar.fromText(
+        `P -> B | P ; B
+         B -> K V C
+         K -> & | c K
+         V -> & | v V
+         C -> & | C com | b C e | b K V ; C e`
+      );
+      expect(grammar.isValid()).toBeTruthy();
+      expect(grammar.hasLeftRecursion()).toBeTruthy();
+      grammar.removeLeftRecursion();
+      expect(grammar.hasLeftRecursion()).toBeFalsy();
+
+      const rules = grammar.rules();
+
+      expect(grammar.nonTerminals()).toEqual(
+        ['P', 'B', 'K', 'V', 'C', 'P0', 'C0'].sort()
+      );
+      expect(grammar.initialSymbol()).toEqual('P');
+
+      expect(rules.P).toEqual(['B P0']);
+      expect(rules.P0).toEqual(['; B P0', '&'].sort());
+      expect(rules.C).toEqual(['b K V ; C e C0', 'b C e C0', 'C0'].sort());
+      expect(rules.C0).toEqual(['com C0', '&'].sort());
+    });
+
+    it('should remove left recursions on grammar 8b', () => {
+      const grammar = Grammar.fromText(
+        `P -> begin D C end
+        D -> & | int I
+        I -> & | , id I
+        C -> C ; T = E | T = E | com
+        E -> E + T | T
+        T -> id | id [ E ]`
+      );
+      expect(grammar.isValid()).toBeTruthy();
+      expect(grammar.hasLeftRecursion()).toBeTruthy();
+
+      const leftRecursions = grammar.getLeftRecursions();
+      expect(leftRecursions).toEqual({
+        C: { direct: ['C ; T = E'] },
+        E: { direct: ['E + T'] },
+      });
+
+      grammar.removeLeftRecursion();
+      expect(grammar.hasLeftRecursion()).toBeFalsy();
+
+      const rules = grammar.rules();
+
+      expect(grammar.nonTerminals()).toEqual(
+        ['P', 'D', 'I', 'C', 'E', 'C0', 'E0', 'T'].sort()
+      );
+      expect(grammar.initialSymbol()).toEqual('P');
+
+      expect(rules.P).toEqual(['begin D C end']);
+      expect(rules.D).toEqual(['&', 'int I']);
+      expect(rules.I).toEqual(['&', ', id I']);
+      expect(rules.C).toEqual(['T = E C0', 'com C0']);
+      expect(rules.C0).toEqual(['&', '; T = E C0']);
+      expect(rules.E).toEqual(['T E0']);
+      expect(rules.E0).toEqual(['&', '+ T E0']);
+      expect(rules.T).toEqual(['id', 'id [ E ]']);
     });
   });
 });

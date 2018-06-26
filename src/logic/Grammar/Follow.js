@@ -32,7 +32,7 @@ export function follow(grammar, input) {
           let y = production.split(' '); // a B C c
           for (let i = 0; i < y.length; i++) {
             let B = y[i];
-            let Beta = i + 1 < y.length ? y.slice(i + 1).join() : undefined;
+            let Beta = i + 1 < y.length ? y.slice(i + 1).join('') : undefined;
             let BetaFirst = Beta ? first(grammar, Beta) : [];
 
             // We only run this on the first loop
@@ -63,8 +63,6 @@ export function follow(grammar, input) {
     // If _follow did not change anymore, we break
     if (R.equals(previousFollow, _follow)) break;
   } while (true);
-
-  // console.log(_follow);
 
   return _follow[input] ? _follow[input].sort() : [];
 }

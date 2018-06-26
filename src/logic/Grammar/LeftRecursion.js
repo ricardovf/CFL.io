@@ -15,18 +15,28 @@ export function removeLeftRecursion(grammar) {
     const recursions = getLeftRecursions(grammar);
 
     if (!R.isEmpty(recursions)) {
-      // if (_haveIndirectLeftRecursions(recursions)) {
-      _removeIndirectLeftRecursions(grammar, recursions);
-      // } else {
-      //   _removeDirectLeftRecursions(grammar, recursions);
-      // }
+      if (_haveIndirectLeftRecursions(recursions)) {
+        _removeIndirectLeftRecursions(grammar, recursions);
+      } else {
+        // If the grammar became invalid, we update the grammar and return;
+        if (!grammar.isOwn()) {
+          let clonedOwn = grammar.clone();
+          clonedOwn.toOwn();
+          if (!clonedOwn.isValid()) {
+            grammar.toOwn();
+            break;
+          }
+        }
+
+        _removeDirectLeftRecursions(grammar, recursions);
+      }
     } else {
       // No more recursions!
       break;
     }
 
     // temporary
-    if (loops++ > 1000) {
+    if (loops++ > 50) {
       throw new Error(
         'Could not remove left recursion after 1000 iterations, something must be wrong! Probably a bug...'
       );
@@ -55,13 +65,17 @@ function _removeDirectLeftRecursions(grammar, recursions) {
           // A’ -> α1A’ | α2A’ | ... | αnA’ | ε
           grammar.P[newNT] = grammar.P[newNT] || [];
           grammar.P[newNT].push(
-            `${production.slice(nT.length)} ${newNT}`.trim()
+            `${production
+              .slice(nT.length)
+              .replace(EPSILON, '')} ${newNT}`.trim()
           );
           grammar.P[newNT].push(EPSILON);
         } else {
           // A -> β1A' | β2A' | ... | βmA’
-          grammar.P[nT].push(`${production} ${newNT}`.trim());
-          created.push(`${production} ${newNT}`.trim());
+          grammar.P[nT].push(
+            `${production.replace(EPSILON, '')} ${newNT}`.trim()
+          );
+          created.push(`${production.replace(EPSILON, '')} ${newNT}`.trim());
         }
 
         grammar.P[nT] = R.without([production], grammar.P[nT]);
@@ -233,7 +247,7 @@ function _canDeriveAsFirst(grammar, B, A, checked = []) {
         // If first(Y) does not contain &
         if (!first(grammar, Y).includes(EPSILON)) break;
 
-        let Beta = i + 1 < y.length ? y.slice(i + 1).join() : undefined;
+        let Beta = i + 1 < y.length ? y.slice(i + 1).join('') : undefined;
 
         if (Beta && _canDeriveAsFirst(grammar, Beta, A, checked)) return true;
       }
