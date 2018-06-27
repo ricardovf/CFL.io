@@ -231,8 +231,6 @@ describe('Left Recursion', () => {
       expect(grammar.isValid()).toBeTruthy();
       expect(grammar.hasLeftRecursion()).toBeTruthy();
 
-      // const c = grammar.clone();
-
       const leftRecursions = grammar.getLeftRecursions();
       expect(leftRecursions).toEqual({
         B: { indirect: ['C', 'C D'] },

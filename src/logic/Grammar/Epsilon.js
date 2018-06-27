@@ -25,6 +25,11 @@ export function getEpsilonProducers(grammar) {
 }
 
 export function toEpsilonFree(steps = [], grammar) {
+  if (isEpsilonFree(grammar)) {
+    steps.push(grammar.clone());
+    return;
+  }
+
   grammar.removeUselessSymbols();
 
   let epsilonProducers = grammar.getEpsilonProducers();
