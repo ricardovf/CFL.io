@@ -57,9 +57,7 @@ describe('Grammar', () => {
     });
 
     it('should return a empty language for invalid grammar', () => {
-      const grammar = Grammar.fromText(
-        `S -> A | B c\nB -> B B`
-      );
+      const grammar = Grammar.fromText(`S -> A | B c\nB -> B B`);
       expect(grammar.getLanguageFinitude()).toBe(EMPTY);
     });
   });

@@ -62,7 +62,7 @@ class InformationCard extends React.Component {
         </List>
         <Divider />
         <List dense className={classes.lastList}>
-          {grammar && grammar.hasEpsilonTransitions() ? (
+          {grammar && !grammar.isEpsilonFree() ? (
             <ListItem disableGutters>
               <ListItemText primary=" - Contém transições por epsilon (&)" />
             </ListItem>

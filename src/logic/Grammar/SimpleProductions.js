@@ -37,6 +37,7 @@ export function removeSimpleProductions(steps = [], grammar) {
     for (let nonSimpleProduction of nonSimpleProductions_)
       if (!newProductions[symbol].includes(nonSimpleProduction))
         newProductions[symbol].push(nonSimpleProduction);
+
     R.uniq(grammar.P[symbol]);
     step.P = newProductions;
     steps.push(step);

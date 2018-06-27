@@ -112,26 +112,26 @@ class OperationsMenu extends React.Component {
           onClose={this.handleClose}
         >
           <MenuItem
-            disabled={!grammar.hasEpsilonTransitions()}
+            // disabled={!grammar.hasEpsilonTransitions()}
             onClick={this.makeOperationHandler('eliminate-epsilon')}
           >
             Eliminar produções com epsilon
           </MenuItem>
           <MenuItem
-            disabled={!grammar.hasSimpleProductions()}
+            // disabled={!grammar.hasSimpleProductions()}
             onClick={this.makeOperationHandler('eliminate-simple')}
           >
             Eliminar produções simples
           </MenuItem>
           <MenuItem
-            disabled={!grammar.hasInfertileSymbols()}
+            // disabled={!grammar.hasInfertileSymbols()}
             onClick={this.makeOperationHandler('eliminate-infertile')}
           >
             Eliminar símbolos inférteis
           </MenuItem>
 
           <MenuItem
-            disabled={!grammar.hasUnreachableSymbols()}
+            // disabled={!grammar.hasUnreachableSymbols()}
             onClick={this.makeOperationHandler('eliminate-unreachable')}
           >
             Eliminar símbolos inalcançáveis
@@ -140,7 +140,7 @@ class OperationsMenu extends React.Component {
           <Divider />
 
           <MenuItem
-            disabled={grammar.isOwn()}
+            // disabled={grammar.isOwn()}
             onClick={this.makeOperationHandler('transform-to-own')}
           >
             Transformar em GLC Própria
