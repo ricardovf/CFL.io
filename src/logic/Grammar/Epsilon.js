@@ -86,7 +86,7 @@ export function toEpsilonFree(steps = [], grammar) {
 }
 
 export function isEpsilonFree(grammar) {
-  if (!grammar.isValid()) return false;
+  if (!grammar.isValid()) return true;
 
   for (let nonTerminal of grammar.Vn) {
     if (Array.isArray(grammar.P[nonTerminal])) {

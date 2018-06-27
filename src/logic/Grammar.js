@@ -277,18 +277,21 @@ export default class Grammar {
   areProductionsUnique() {
     let visitedProductions = [];
     for (let symbol of this.Vn) {
-      for (let production of this.P[symbol]) {
-        if (!visitedProductions.includes(production))
-          visitedProductions.push(production);
-        else return false;
-      }
+      if (this.P[symbol]) {
+        for (let production of this.P[symbol]) {
+          if (!visitedProductions.includes(production))
+            visitedProductions.push(production)
+          else
+            return false;
+        }
       visitedProductions = [];
+      }
     }
     return true;
   }
 
   hasEpsilonTransitions() {
-    return !this.isEpsilonFree();
+    return (!this.isEpsilonFree() || this.P[this.S].includes(EPSILON))
   }
 
   /**
@@ -447,11 +450,8 @@ export default class Grammar {
           if (!visited.includes(symbol_) && grammar.Vn.includes(symbol_)) {
             visited.push(symbol_);
             if (grammar.hasCycle_(visited, symbol_, grammar)) return true;
-          } else if (
-            visited.includes(symbol_) &&
-            grammar.Vn.includes(symbol_)
-          ) {
-            return true;
+          } else if (visited.includes(symbol_) && grammar.Vn.includes(symbol_)) {
+              return true;
           }
       }
     }

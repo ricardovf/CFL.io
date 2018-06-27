@@ -42,13 +42,21 @@ describe('Grammar', () => {
       expect(grammar.areProductionsUnique()).toBeTruthy();
     });
 
-    it('should transform to epsilon free (list example)', () => {
+    it('should transform to epsilon free (list example 1)', () => {
       const grammar = Grammar.fromText(
         `S -> A b B | A D\nA -> a A | B\nB -> S B D | C D\nC -> c C | A S | & \nD -> d D | &`
       );
       grammar.toEpsilonFree();
-      console.log(grammar);
+      // expect(grammar.hasEpsilonTransitions()).toBeTruthy();
       expect(grammar.isEpsilonFree()).toBeTruthy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
+    });
+
+    it('should transform to epsilon free (list example 2)', () => {
+      const grammar = Grammar.fromText(
+        `S -> & | A | a\nB -> S`
+      );
+      expect(grammar.hasEpsilonTransitions()).toBeTruthy();
       expect(grammar.areProductionsUnique()).toBeTruthy();
     });
   });
