@@ -39,9 +39,8 @@ export function follow(grammar, input) {
             // 2 – Se A -> α B β ∈ P ∧ β ≠ ε -> adicione first(β) em Follow(B)
             if (loops === 0) {
               if (grammar.Vn.includes(B) && Beta) {
-                _follow[B] = R.union(
-                  _follow[B] || [],
-                  R.without([EPSILON], BetaFirst)
+                _follow[B] = R.uniq(
+                  R.union(_follow[B] || [], R.without([EPSILON], BetaFirst))
                 );
               }
             }
@@ -51,7 +50,7 @@ export function follow(grammar, input) {
               grammar.Vn.includes(B) &&
               (Beta === undefined || BetaFirst.includes(EPSILON))
             ) {
-              _follow[B] = R.union(_follow[B] || [], _follow[A] || []);
+              _follow[B] = R.uniq(R.union(_follow[B] || [], _follow[A] || []));
             }
           }
         }

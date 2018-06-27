@@ -15,7 +15,7 @@ describe('First-NT', () => {
         C -> c C | &`
     );
     expect(grammar.isValid()).toBeTruthy();
-    expect(grammar.firstNT('S')).toEqual(['A', 'B']);
+    expect(grammar.firstNT('S')).toEqual(['A', 'B', 'C']);
     expect(grammar.firstNT('A')).toEqual([]);
     expect(grammar.firstNT('B')).toEqual(['A', 'C']);
     expect(grammar.firstNT('C')).toEqual([]);
@@ -35,7 +35,7 @@ describe('First-NT', () => {
     expect(grammar.firstNT('S')).toEqual(['A', 'E', 'F']);
     expect(grammar.firstNT('A')).toEqual([]);
     expect(grammar.firstNT('C')).toEqual(['C', 'E']);
-    expect(grammar.firstNT('D')).toEqual(['C']);
+    expect(grammar.firstNT('D')).toEqual(['C', 'E']);
     expect(grammar.firstNT('E')).toEqual([]);
     expect(grammar.firstNT('F')).toEqual(['F']);
   });
@@ -49,10 +49,24 @@ describe('First-NT', () => {
         F  -> ( E ) | id`
     );
     expect(grammar.isValid()).toBeTruthy();
-    expect(grammar.firstNT('E')).toEqual(['T']);
+    expect(grammar.firstNT('E')).toEqual(['F', 'T']);
     expect(grammar.firstNT('E0')).toEqual([]);
     expect(grammar.firstNT('T')).toEqual(['F']);
     expect(grammar.firstNT('T0')).toEqual([]);
     expect(grammar.firstNT('F')).toEqual([]);
+  });
+
+  it('should return the correct first-NT recursive grammar with epsilon', () => {
+    const grammar = Grammar.fromText(
+      ` S -> B
+        B -> C D
+        C -> & | S
+        D -> a`
+    );
+    expect(grammar.isValid()).toBeTruthy();
+    expect(grammar.firstNT('S')).toEqual(['B', 'C', 'D', 'S']);
+    expect(grammar.firstNT('B')).toEqual(['B', 'C', 'D', 'S']);
+    expect(grammar.firstNT('C')).toEqual(['B', 'C', 'D', 'S']);
+    expect(grammar.firstNT('D')).toEqual([]);
   });
 });

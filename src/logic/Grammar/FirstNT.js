@@ -28,18 +28,25 @@ export function firstNT(grammar, input, _calculatedFirsts = {}) {
         let y = production.split(' ');
         for (let i = 0; i < y.length; i++) {
           let yk = y[i];
-          let ykFirst = first(grammar, yk, _calculatedFirsts);
+          let ykFirst = first(grammar, yk);
 
-          if (grammar.Vn.includes(yk)) _calculatedFirsts[nonTerminal].push(yk);
-
-          if (!ykFirst.includes(EPSILON)) break;
+          if (
+            grammar.Vn.includes(yk) &&
+            !_calculatedFirsts[nonTerminal].includes(yk)
+          ) {
+            _calculatedFirsts[nonTerminal].push(yk);
+          }
 
           let ykFirstNT = firstNT(grammar, yk, _calculatedFirsts);
 
-          _calculatedFirsts[nonTerminal] = R.union(
-            _calculatedFirsts[nonTerminal],
-            R.filter(SymbolValidator.isValidNonTerminal, ykFirstNT)
+          _calculatedFirsts[nonTerminal] = R.uniq(
+            R.union(
+              _calculatedFirsts[nonTerminal],
+              R.filter(SymbolValidator.isValidNonTerminal, ykFirstNT)
+            )
           );
+
+          if (!ykFirst.includes(EPSILON)) break;
         }
       }
     }
