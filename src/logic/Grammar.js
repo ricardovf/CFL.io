@@ -277,19 +277,21 @@ export default class Grammar {
   areProductionsUnique() {
     let visitedProductions = [];
     for (let symbol of this.Vn) {
-      for (let production of this.P[symbol]) {
-        if (!visitedProductions.includes(production))
-          visitedProductions.push(production)
-        else
-          return false;
-      }
+      if (this.P[symbol]) {
+        for (let production of this.P[symbol]) {
+          if (!visitedProductions.includes(production))
+            visitedProductions.push(production)
+          else
+            return false;
+        }
       visitedProductions = [];
+      }
     }
     return true;
   }
 
   hasEpsilonTransitions() {
-    return !this.isEpsilonFree();
+    return (!this.isEpsilonFree() || this.P[this.S].includes(EPSILON))
   }
 
   /**
