@@ -51,7 +51,7 @@ export function toEpsilonFree(steps = [], grammar) {
         )
           epsilonProducers.push(symbol);
       }
-      R.uniq(grammar.P[symbol]);
+      grammar.P = R.map(p => R.uniq(p).sort(), grammar.P);
     }
     step.P = grammar.P;
     steps.push(step);

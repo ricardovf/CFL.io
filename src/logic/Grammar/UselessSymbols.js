@@ -72,7 +72,7 @@ export function removeInfertileSymbols(grammar, steps) {
         }
         productionIncludesInfertile = false;
       }
-      R.uniq(newProductions[nonTerminal]);
+      grammar.P = R.map(p => R.uniq(p).sort(), grammar.P);
     }
     step.P = newProductions;
     step.Vt = newVt;
@@ -121,7 +121,7 @@ export function removeUnreachableSymbols(steps = [], grammar) {
           }
           productionIncludesUnreachable = false;
         }
-        R.uniq(newProductions[nonTerminal]);
+        grammar.P = R.map(p => R.uniq(p).sort(), grammar.P);
       }
     }
     step.P = newProductions;
