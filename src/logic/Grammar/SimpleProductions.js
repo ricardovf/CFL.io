@@ -16,10 +16,12 @@ export function removeSimpleProductions(steps = [], grammar) {
   }
 
   for (let symbol of grammar.Vn)
-    for (let simpleProduction of simpleProductions[symbol])
+    for (let simpleProduction of simpleProductions[symbol]) {
       for (let indirectProduction of simpleProductions[simpleProduction])
         if (!simpleProductions[symbol].includes(indirectProduction))
           simpleProductions[symbol].push(indirectProduction);
+      R.uniq(grammar.P[symbol]);
+    }
 
   for (let symbol of grammar.Vn) {
     for (let simpleProduction of simpleProductions[symbol]) {
@@ -35,6 +37,7 @@ export function removeSimpleProductions(steps = [], grammar) {
     for (let nonSimpleProduction of nonSimpleProductions_)
       if (!newProductions[symbol].includes(nonSimpleProduction))
         newProductions[symbol].push(nonSimpleProduction);
+    R.uniq(grammar.P[symbol]);
     step.P = newProductions;
     steps.push(step);
     step = grammar.clone();

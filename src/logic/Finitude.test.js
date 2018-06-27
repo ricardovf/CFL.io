@@ -48,5 +48,19 @@ describe('Grammar', () => {
       );
       expect(grammar.getLanguageFinitude()).toBe(EMPTY);
     });
+
+    it('should return a finite language (list example 5)', () => {
+      const grammar = Grammar.fromText(
+        `S -> a B | &\nB -> B D | b\nD -> a D d `
+      );
+      expect(grammar.getLanguageFinitude()).toBe(FINITE);
+    });
+
+    it('should return a empty language for invalid grammar', () => {
+      const grammar = Grammar.fromText(
+        `S -> A | B c\nB -> B B`
+      );
+      expect(grammar.getLanguageFinitude()).toBe(EMPTY);
+    });
   });
 });

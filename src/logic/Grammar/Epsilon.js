@@ -1,4 +1,5 @@
 import Grammar from '../Grammar';
+import * as R from 'ramda';
 import { ACCEPT_STATE, EPSILON } from '../SymbolValidator';
 import { makeNewUniqueNonTerminalName } from '../helpers';
 
@@ -15,7 +16,7 @@ export function getEpsilonProducers(grammar) {
           !epsilonProducers.includes(symbol)
         )
           epsilonProducers.push(symbol);
-
+    R.uniq(epsilonProducers);
     oldSize = newSize;
     newSize = epsilonProducers.length;
   }
@@ -28,9 +29,9 @@ export function toEpsilonFree(steps = [], grammar) {
   let epsilonProducers = grammar.getEpsilonProducers();
   let oldNumProductions = grammar.getNumberOfProductions();
   let step = grammar.clone();
-  let newProductions = 0;
+  let newProductionsNum = 0;
   let newProduction;
-  while (oldNumProductions !== newProductions) {
+  while (oldNumProductions !== newProductionsNum) {
     for (let symbol of grammar.Vn) {
       for (let production of grammar.P[symbol]) {
         for (let epsilonProducer of epsilonProducers) {
@@ -50,12 +51,12 @@ export function toEpsilonFree(steps = [], grammar) {
         )
           epsilonProducers.push(symbol);
       }
+      R.uniq(grammar.P[symbol]);
     }
     step.P = grammar.P;
     steps.push(step);
-    step = grammar.clone();
-    oldNumProductions = newProductions;
-    newProductions = grammar.getNumberOfProductions();
+    oldNumProductions = newProductionsNum;
+    newProductionsNum = grammar.getNumberOfProductions();
   }
   for (let symbol of grammar.Vn)
     if (symbol !== grammar.initialSymbol())

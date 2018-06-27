@@ -6,11 +6,13 @@ describe('Grammar', () => {
     it('should not detect simple productions', () => {
       const grammar = Grammar.fromText(`S -> a S b | a b`);
       expect(grammar.hasSimpleProductions()).toBeFalsy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
     });
 
     it('should detect simple productions', () => {
       const grammar = Grammar.fromText(`S -> A | &\nA -> a S b | a b`);
       expect(grammar.hasSimpleProductions()).toBeTruthy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
     });
 
     it('should remove simple productions', () => {
@@ -19,6 +21,7 @@ describe('Grammar', () => {
       );
       grammar.removeSimpleProductions();
       expect(grammar.hasSimpleProductions()).toBeFalsy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
     });
 
     it('should remove simple productions (list example)', () => {
@@ -27,6 +30,16 @@ describe('Grammar', () => {
       );
       grammar.removeSimpleProductions();
       expect(grammar.hasSimpleProductions()).toBeFalsy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
+    });
+
+    it('should remove simple productions (list example)', () => {
+      const grammar = Grammar.fromText(
+        `S -> L = R | R\nL -> * R | id\nR ->L`
+      );
+      grammar.removeSimpleProductions();
+      expect(grammar.hasSimpleProductions()).toBeFalsy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
     });
   });
 });
