@@ -39,8 +39,7 @@ export function getFertileSymbols(grammar) {
     oldSize = newSize;
     newSize = fertileSymbols.length;
   }
-  R.uniq(fertileSymbols);
-  return fertileSymbols;
+  return R.uniq(fertileSymbols);
 }
 
 export function removeInfertileSymbols(grammar, steps) {
@@ -175,7 +174,7 @@ export function getReachableSymbols(grammar) {
       } else if (!reachableSymbols.includes(symbol)) {
         reachableSymbols.push(symbol);
       }
-      R.uniq(reachableSymbols);
+      reachableSymbols = R.uniq(reachableSymbols);
     }
     oldSize = newSize;
     newSize = reachableSymbols.length;

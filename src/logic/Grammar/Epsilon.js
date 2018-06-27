@@ -16,7 +16,7 @@ export function getEpsilonProducers(grammar) {
           !epsilonProducers.includes(symbol)
         )
           epsilonProducers.push(symbol);
-    R.uniq(epsilonProducers);
+    epsilonProducers = R.uniq(epsilonProducers);
     oldSize = newSize;
     newSize = epsilonProducers.length;
   }
