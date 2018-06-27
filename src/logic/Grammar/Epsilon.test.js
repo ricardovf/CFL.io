@@ -54,7 +54,8 @@ describe('Grammar', () => {
 
     it('should transform to epsilon free (list example 2)', () => {
       const grammar = Grammar.fromText(
-        `S -> & | A | a\nB -> S`
+        `S -> & | A | a
+         B -> S`
       );
       expect(grammar.hasEpsilonTransitions()).toBeTruthy();
       expect(grammar.areProductionsUnique()).toBeTruthy();
