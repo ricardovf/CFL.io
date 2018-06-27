@@ -17,7 +17,7 @@ export function getEpsilonProducers(grammar) {
           !epsilonProducers.includes(symbol)
         )
           epsilonProducers.push(symbol);
-    R.uniq(epsilonProducers);
+    epsilonProducers = R.uniq(epsilonProducers);
     oldSize = newSize;
     newSize = epsilonProducers.length;
   }
@@ -57,7 +57,7 @@ export function toEpsilonFree(steps = [], grammar) {
         )
           epsilonProducers.push(symbol);
       }
-      R.uniq(grammar.P[symbol]);
+      grammar.P = R.map(p => R.uniq(p).sort(), grammar.P);
     }
     step.P = grammar.P;
     steps.push(step);
