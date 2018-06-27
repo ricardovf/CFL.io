@@ -56,7 +56,10 @@ export function first(grammar, input, _calculatedFirsts = {}) {
           }
 
           // If its the last symbol of the production and we have epsilon in first
-          if (i === y.length - 1) {
+          if (
+            i === y.length - 1 &&
+            !_calculatedFirsts[maybeNonTerminal].includes(EPSILON)
+          ) {
             _calculatedFirsts[maybeNonTerminal].push(EPSILON);
           }
         }
@@ -78,22 +81,19 @@ export function first(grammar, input, _calculatedFirsts = {}) {
 
       if (R.intersection(tokens, grammar.Vt).length > 0) {
         // if we find a non terminal, we remove epsilon
-        _calculatedFirsts[maybeNonTerminal] = R.without(
-          [EPSILON],
-          _calculatedFirsts[maybeNonTerminal]
+        _calculatedFirsts[maybeNonTerminal] = R.uniq(
+          R.without([EPSILON], _calculatedFirsts[maybeNonTerminal])
         );
       } else if (_calculatedFirsts[maybeNonTerminal].includes(EPSILON)) {
         for (let t of tokens) {
           let tFirst = first(grammar, t, _calculatedFirsts);
-          _calculatedFirsts[maybeNonTerminal] = R.union(
-            _calculatedFirsts[maybeNonTerminal],
-            tFirst
+          _calculatedFirsts[maybeNonTerminal] = R.uniq(
+            R.union(_calculatedFirsts[maybeNonTerminal], tFirst)
           );
 
           if (!tFirst.includes(EPSILON)) {
-            _calculatedFirsts[maybeNonTerminal] = R.without(
-              [EPSILON],
-              _calculatedFirsts[maybeNonTerminal]
+            _calculatedFirsts[maybeNonTerminal] = R.uniq(
+              R.without([EPSILON], _calculatedFirsts[maybeNonTerminal])
             );
             break;
           }
