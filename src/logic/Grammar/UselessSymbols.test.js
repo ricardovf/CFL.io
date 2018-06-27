@@ -152,5 +152,21 @@ describe('Grammar', () => {
       expect(grammar.isValid()).toBeFalsy();
       expect(grammar.areProductionsUnique()).toBeTruthy();
     });
+
+    it('should transform to own (ricardo example)', () => {
+      const grammar = Grammar.fromText(
+        `S -> & | B S | C D | a
+        B -> & | B S | C D | a
+        C -> & | B S | C D | a
+        D -> a`
+      );
+      grammar.toOwn();
+      console.log('Valid: '+ grammar.isValid());
+      console.log('Has useless symbols: '+ grammar.hasUselessSymbols());
+      console.log('Has epsilon transition: '+ grammar.hasEpsilonTransitions());
+      console.log('Has epsilon transition: '+ grammar.hasCycle());
+      expect(grammar.isOwn()).toBeTruthy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
+    });
   });
 });

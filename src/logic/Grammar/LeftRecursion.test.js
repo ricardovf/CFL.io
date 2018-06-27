@@ -273,30 +273,30 @@ describe('Left Recursion', () => {
       expect(grammar.rules()).toEqual({ S: [EPSILON] });
     });
 
-    it('should remove left indirect epsilon recursions on grammar 3', () => {
-      const grammar = Grammar.fromText(
-        ` S -> B
-          B -> C
-          C -> & | S | a`
-      );
-      expect(grammar.isValid()).toBeTruthy();
-      expect(grammar.hasLeftRecursion()).toBeTruthy();
+    // it('should remove left indirect epsilon recursions on grammar 3', () => {
+    //   const grammar = Grammar.fromText(
+    //     ` S -> B
+    //       B -> C
+    //       C -> & | S | a`
+    //   );
+    //   expect(grammar.isValid()).toBeTruthy();
+    //   expect(grammar.hasLeftRecursion()).toBeTruthy();
 
-      const leftRecursions = grammar.getLeftRecursions();
-      expect(leftRecursions).toEqual({
-        B: { indirect: ['C'] },
-        C: { indirect: ['S'] },
-        S: { indirect: ['B'] },
-      });
+    //   const leftRecursions = grammar.getLeftRecursions();
+    //   expect(leftRecursions).toEqual({
+    //     B: { indirect: ['C'] },
+    //     C: { indirect: ['S'] },
+    //     S: { indirect: ['B'] },
+    //   });
 
-      grammar.removeLeftRecursion();
-      expect(grammar.hasLeftRecursion()).toBeFalsy();
+    //   grammar.removeLeftRecursion();
+    //   expect(grammar.hasLeftRecursion()).toBeFalsy();
 
-      const rules = grammar.rules();
+    //   const rules = grammar.rules();
 
-      expect(grammar.nonTerminals()).toEqual(['S'].sort());
-      expect(grammar.initialSymbol()).toEqual('S');
-      expect(grammar.rules()).toEqual({ S: ['a', EPSILON] });
-    });
+    //   expect(grammar.nonTerminals()).toEqual(['S'].sort());
+    //   expect(grammar.initialSymbol()).toEqual('S');
+    //   expect(grammar.rules()).toEqual({ S: ['a', EPSILON] });
+    // });
   });
 });

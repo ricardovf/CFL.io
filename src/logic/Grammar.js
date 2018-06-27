@@ -389,7 +389,7 @@ export default class Grammar {
   isOwn() {
     return (
       this.isValid() &&
-      !this.hasEpsilonTransitions() &&
+      this.isEpsilonFree() &&
       !this.hasCycle() &&
       !this.hasUselessSymbols()
     );
