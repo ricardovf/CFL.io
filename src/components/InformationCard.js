@@ -62,52 +62,29 @@ class InformationCard extends React.Component {
         </List>
         <Divider />
         <List dense className={classes.lastList}>
-          <ListItem disableGutters>
-            <ListItemIcon>
-              {grammar
-                ? grammar.hasEpsilonTransitions()
-                  ? noIcon
-                  : yesIcon
-                : dontKnowIcon}
-            </ListItemIcon>
-            <ListItemText primary="Sem transições por epsilon" />
-          </ListItem>
-          <ListItem disableGutters>
-            <ListItemIcon>
-              {grammar
-                ? grammar.hasSimpleProductions()
-                  ? noIcon
-                  : yesIcon
-                : dontKnowIcon}
-            </ListItemIcon>
-            <ListItemText primary="Sem produções simples" />
-          </ListItem>
-          <ListItem disableGutters>
-            <ListItemIcon>
-              {grammar ? (grammar.hasCycle() ? noIcon : yesIcon) : dontKnowIcon}
-            </ListItemIcon>
-            <ListItemText primary="Sem ciclos" />
-          </ListItem>
-          <ListItem disableGutters>
-            <ListItemIcon>
-              {grammar
-                ? grammar.hasInfertileSymbols()
-                  ? noIcon
-                  : yesIcon
-                : dontKnowIcon}
-            </ListItemIcon>
-            <ListItemText primary="Sem não terminais inférteis" />
-          </ListItem>
-          <ListItem disableGutters>
-            <ListItemIcon>
-              {grammar
-                ? grammar.hasUnreachableSymbols()
-                  ? noIcon
-                  : yesIcon
-                : dontKnowIcon}
-            </ListItemIcon>
-            <ListItemText primary="Sem símbolos inalcançáveis" />
-          </ListItem>
+          {grammar && grammar.hasEpsilonTransitions() ? (
+            <ListItem disableGutters>
+              <ListItemText primary=" - Contém transições por epsilon (&)" />
+            </ListItem>
+          ) : null}
+
+          {grammar && grammar.hasSimpleProductions() ? (
+            <ListItem disableGutters>
+              <ListItemText primary=" - Contém produções simples" />
+            </ListItem>
+          ) : null}
+
+          {grammar && grammar.hasInfertileSymbols() ? (
+            <ListItem disableGutters>
+              <ListItemText primary=" - Contém não terminais (Vn) inférteis" />
+            </ListItem>
+          ) : null}
+
+          {grammar && grammar.hasUnreachableSymbols() ? (
+            <ListItem disableGutters>
+              <ListItemText primary=" - Contém símbolos inalcançáveis" />
+            </ListItem>
+          ) : null}
         </List>
       </React.Fragment>
     );

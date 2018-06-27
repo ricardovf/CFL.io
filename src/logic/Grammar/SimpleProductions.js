@@ -90,19 +90,23 @@ export function getSimpleProductions(grammar) {
       simpleProductions[nonTerminal] = [];
 
   for (let nonTerminal of grammar.Vn)
-    for (let production of grammar.P[nonTerminal])
-      if (production.length === 1 && grammar.Vn.indexOf(production) > -1)
-        simpleProductions[nonTerminal].push(production);
-
+    if (grammar.P[nonTerminal]) {
+      for (let production of grammar.P[nonTerminal]) {
+        if (production.length === 1 && grammar.Vn.indexOf(production) > -1)
+          simpleProductions[nonTerminal].push(production);
+      }
+    }
   return simpleProductions;
 }
 
 export function getSimpleProductionsFromSymbol(symbol, grammar) {
   let simpleProductions = [];
 
-  for (let production of grammar.P[symbol])
-    if (production.length === 1 && grammar.Vn.indexOf(production) > -1)
-      simpleProductions.push(production);
+  if (grammar.P[symbol]) {
+    for (let production of grammar.P[symbol])
+      if (production.length === 1 && grammar.Vn.indexOf(production) > -1)
+        simpleProductions.push(production);
+  }
 
   return simpleProductions;
 }
@@ -110,23 +114,25 @@ export function getSimpleProductionsFromSymbol(symbol, grammar) {
 export function getNonSimpleProductions(symbol, grammar) {
   let nonSimpleProductions = [];
 
-  for (let production of grammar.P[symbol]) {
-    if (production.length > 1 || grammar.Vt.includes(production))
-      nonSimpleProductions.push(production);
+  if (grammar.P[symbol]) {
+    for (let production of grammar.P[symbol]) {
+      if (production.length > 1 || grammar.Vt.includes(production))
+        nonSimpleProductions.push(production);
+    }
   }
   return nonSimpleProductions;
 }
 
-  export function hasSimpleProductions(grammar) {
-    if (!grammar.isValid()) return false;
+export function hasSimpleProductions(grammar) {
+  if (!grammar.isValid()) return false;
 
-    for (let nonTerminal of grammar.Vn) {
-      if (Array.isArray(grammar.P[nonTerminal])) {
-        for (let production of grammar.P[nonTerminal]) {
-          if (production.length === 1 && grammar.Vn.indexOf(production) > -1)
-            return true;
-        }
+  for (let nonTerminal of grammar.Vn) {
+    if (Array.isArray(grammar.P[nonTerminal])) {
+      for (let production of grammar.P[nonTerminal]) {
+        if (production.length === 1 && grammar.Vn.indexOf(production) > -1)
+          return true;
       }
     }
-    return false;
   }
+  return false;
+}

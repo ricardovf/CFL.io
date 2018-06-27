@@ -1,4 +1,5 @@
 import Grammar from '../Grammar';
+import { EPSILON } from '../SymbolValidator';
 
 describe('Left Recursion', () => {
   describe('Detection', () => {
@@ -52,29 +53,22 @@ describe('Left Recursion', () => {
     it('should return the correct indirect left recursions on simple grammar 3', () => {
       const grammar = Grammar.fromText(
         `S -> A a
-       A -> S c | d
-       B -> C d
-       C -> D E
-       D -> & | a
-       E -> a | D B`
+         A -> S c | d
+         B -> C d
+         C -> D E
+         D -> & | a
+         E -> a | D B`
       );
       expect(grammar.isValid()).toBeTruthy();
       expect(grammar.hasLeftRecursion()).toBeTruthy();
 
       const leftRecursions = grammar.getLeftRecursions();
       expect(leftRecursions).toEqual({
-        S: {
-          indirect: ['A a'],
-        },
-        A: {
-          indirect: ['S c'],
-        },
-        B: {
-          indirect: ['C d'],
-        },
-        C: {
-          indirect: ['D E'],
-        },
+        A: { indirect: ['S c'] },
+        B: { indirect: ['C d'] },
+        C: { indirect: ['D E'] },
+        E: { indirect: ['D B'] },
+        S: { indirect: ['A a'] },
       });
     });
 
@@ -225,6 +219,86 @@ describe('Left Recursion', () => {
       expect(rules.E).toEqual(['T E0']);
       expect(rules.E0).toEqual(['&', '+ T E0']);
       expect(rules.T).toEqual(['id', 'id [ E ]']);
+    });
+
+    it('should remove left indirect epsilon recursions on grammar 1', () => {
+      const grammar = Grammar.fromText(
+        ` S -> & | B S
+          B -> C | C D | D
+          C -> S
+          D -> a`
+      );
+      expect(grammar.isValid()).toBeTruthy();
+      expect(grammar.hasLeftRecursion()).toBeTruthy();
+
+      const c = grammar.clone();
+
+      const leftRecursions = grammar.getLeftRecursions();
+      expect(leftRecursions).toEqual({
+        B: { indirect: ['C', 'C D'] },
+        C: { indirect: ['S'] },
+        S: { indirect: ['B S'] },
+      });
+
+      grammar.removeLeftRecursion();
+      expect(grammar.hasLeftRecursion()).toBeFalsy();
+
+      // const rules = grammar.rules();
+      //
+      // expect(grammar.nonTerminals()).toEqual(['S', 'B', 'C', 'D'].sort());
+      // expect(grammar.initialSymbol()).toEqual('S');
+
+      // expect(rules.S).toEqual(['begin D C end']);
+      // expect(rules.B).toEqual(['&', 'int I']);
+      // expect(rules.C).toEqual(['&', ', id I']);
+      // expect(rules.D).toEqual(['T = E C0', 'com C0']);
+    });
+
+    it('should remove left indirect epsilon recursions on grammar 2 and turn into S -> &', () => {
+      const grammar = Grammar.fromText(
+        ` S -> B
+          B -> C
+          C -> & | S`
+      );
+      expect(grammar.isValid()).toBeTruthy();
+      expect(grammar.hasLeftRecursion()).toBeTruthy();
+
+      const leftRecursions = grammar.getLeftRecursions();
+      expect(leftRecursions).toEqual({
+        B: { indirect: ['C'] },
+        C: { indirect: ['S'] },
+        S: { indirect: ['B'] },
+      });
+
+      grammar.removeLeftRecursion();
+      expect(grammar.hasLeftRecursion()).toBeFalsy();
+      expect(grammar.rules()).toEqual({ S: [EPSILON] });
+    });
+
+    it('should remove left indirect epsilon recursions on grammar 3', () => {
+      const grammar = Grammar.fromText(
+        ` S -> B
+          B -> C
+          C -> & | S | a`
+      );
+      expect(grammar.isValid()).toBeTruthy();
+      expect(grammar.hasLeftRecursion()).toBeTruthy();
+
+      const leftRecursions = grammar.getLeftRecursions();
+      expect(leftRecursions).toEqual({
+        B: { indirect: ['C'] },
+        C: { indirect: ['S'] },
+        S: { indirect: ['B'] },
+      });
+
+      grammar.removeLeftRecursion();
+      expect(grammar.hasLeftRecursion()).toBeFalsy();
+
+      const rules = grammar.rules();
+
+      expect(grammar.nonTerminals()).toEqual(['S'].sort());
+      expect(grammar.initialSymbol()).toEqual('S');
+      expect(grammar.rules()).toEqual({ S: ['a', EPSILON] });
     });
   });
 });

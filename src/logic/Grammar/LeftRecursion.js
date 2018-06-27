@@ -2,6 +2,7 @@ import SymbolValidator, { EPSILON } from '../SymbolValidator';
 import { first } from './First';
 import * as R from 'ramda';
 import { makeNewUniqueNonTerminalName } from '../helpers';
+import { firstNT } from './FirstNT';
 
 export const DIRECT = 'direct';
 export const INDIRECT = 'indirect';
@@ -36,9 +37,9 @@ export function removeLeftRecursion(grammar) {
     }
 
     // temporary
-    if (loops++ > 50) {
+    if (loops++ > 10) {
       throw new Error(
-        'Could not remove left recursion after 1000 iterations, something must be wrong! Probably a bug...'
+        'Could not remove left recursion after 10 iterations, something must be wrong! Probably a bug...'
       );
     }
   } while (true);
@@ -133,7 +134,9 @@ function _removeIndirectLeftRecursions(grammar, recursions) {
                 grammar.P[Ai].push(newProduction);
               }
 
-              grammar.P[Ai] = R.without([iProduction], grammar.P[Ai]);
+              grammar.P[Ai] = R.uniq(
+                R.without([iProduction], grammar.P[Ai])
+              ).sort();
             }
           }
         }
@@ -212,7 +215,7 @@ export function getLeftRecursions(grammar) {
 }
 
 /**
- * Checks if B and derive A with A on the left
+ * Checks if B can derive A with A on the left
  * @param grammar
  * @param B
  * @param A
@@ -223,38 +226,7 @@ export function getLeftRecursions(grammar) {
 function _canDeriveAsFirst(grammar, B, A, checked = []) {
   if (!grammar.isValid()) return false;
 
-  if (checked.includes(B + '->' + A)) return false;
-
-  checked[B + '->' + A] = true;
-
-  if (B === A) return true;
-
-  if (grammar.P[B]) {
-    for (let production of grammar.P[B]) {
-      let y = production.split(' ');
-
-      for (let i = 0; i < y.length; i++) {
-        let Y = y[i];
-
-        // Check for direct recursion
-        if (i === 0 && Y === A) {
-          return true;
-        }
-
-        // If symbol is not a non terminal, lets break, as can not have an indirect recursion
-        if (!SymbolValidator.isValidNonTerminal(Y)) break;
-
-        // If first(Y) does not contain &
-        if (!first(grammar, Y).includes(EPSILON)) break;
-
-        let Beta = i + 1 < y.length ? y.slice(i + 1).join('') : undefined;
-
-        if (Beta && _canDeriveAsFirst(grammar, Beta, A, checked)) return true;
-      }
-    }
-  }
-
-  return false;
+  return firstNT(grammar, B).includes(A);
 }
 
 function _haveIndirectLeftRecursions(recursions) {
