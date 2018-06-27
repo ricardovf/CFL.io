@@ -34,9 +34,7 @@ describe('Grammar', () => {
     });
 
     it('should remove simple productions (list example 2)', () => {
-      const grammar = Grammar.fromText(
-        `S -> L = R | R\nL -> * R | id\nR ->L`
-      );
+      const grammar = Grammar.fromText(`S -> L = R | R\nL -> * R | id\nR ->L`);
       grammar.removeSimpleProductions();
       expect(grammar.hasSimpleProductions()).toBeFalsy();
       expect(grammar.areProductionsUnique()).toBeTruthy();

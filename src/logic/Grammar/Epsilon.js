@@ -2,6 +2,7 @@ import Grammar from '../Grammar';
 import * as R from 'ramda';
 import { ACCEPT_STATE, EPSILON } from '../SymbolValidator';
 import { makeNewUniqueNonTerminalName } from '../helpers';
+import { first } from './First';
 
 export function getEpsilonProducers(grammar) {
   let epsilonProducers = [];
@@ -88,14 +89,8 @@ export function toEpsilonFree(steps = [], grammar) {
 export function isEpsilonFree(grammar) {
   if (!grammar.isValid()) return true;
 
-  for (let nonTerminal of grammar.Vn) {
-    if (Array.isArray(grammar.P[nonTerminal])) {
-      for (let production_ of grammar.P[nonTerminal]) {
-        if (production_ === '&' && nonTerminal !== grammar.initialSymbol()) {
-          return false;
-        }
-      }
-    }
+  for (let nonTerminal of R.without([grammar.initialSymbol()], grammar.Vn)) {
+    if (first(grammar, nonTerminal).includes(EPSILON)) return false;
   }
   if (
     grammar.initialSymbolDerivesEpsilon() &&
