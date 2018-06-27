@@ -39,6 +39,7 @@ export function getFertileSymbols(grammar) {
     oldSize = newSize;
     newSize = fertileSymbols.length;
   }
+  R.uniq(fertileSymbols);
   return fertileSymbols;
 }
 
@@ -54,6 +55,8 @@ export function removeInfertileSymbols(grammar, steps) {
 
   for (let nonTerminal of grammar.Vn) {
     if (grammar.P[nonTerminal]) {
+      if (newProductions[nonTerminal] === undefined)
+        newProductions[nonTerminal] = [];
       for (let production of grammar.P[nonTerminal]) {
         let nonTerminals = grammar.getNonTerminalsFromProduction(production);
         let terminals = grammar.getTerminalsFromProduction(production);
@@ -62,14 +65,14 @@ export function removeInfertileSymbols(grammar, steps) {
             productionIncludesInfertile = true;
         }
         if (!productionIncludesInfertile) {
-          if (newProductions[nonTerminal] === undefined)
-            newProductions[nonTerminal] = [];
+
           newVn.push(nonTerminal);
           newProductions[nonTerminal].push(production);
           for (let terminal of terminals) newVt.push(terminal);
         }
         productionIncludesInfertile = false;
       }
+      R.uniq(newProductions[nonTerminal]);
     }
     step.P = newProductions;
     step.Vt = newVt;
@@ -98,6 +101,8 @@ export function removeUnreachableSymbols(steps = [], grammar) {
   for (let nonTerminal of reachableSymbols) {
     if (grammar.Vn.includes(nonTerminal)) {
       if (grammar.P[nonTerminal]) {
+        if (newProductions[nonTerminal] === undefined)
+          newProductions[nonTerminal] = [];
         for (let production of grammar.P[nonTerminal]) {
           let nonTerminals = grammar.getNonTerminalsFromProduction(production);
           let terminals = grammar.getTerminalsFromProduction(production);
@@ -110,14 +115,13 @@ export function removeUnreachableSymbols(steps = [], grammar) {
               productionIncludesUnreachable = true;
 
           if (!productionIncludesUnreachable) {
-            if (newProductions[nonTerminal] === undefined)
-              newProductions[nonTerminal] = [];
             newProductions[nonTerminal].push(production);
             newVn.push(nonTerminal);
             for (let terminal of terminals) newVt.push(terminal);
           }
           productionIncludesUnreachable = false;
         }
+        R.uniq(newProductions[nonTerminal]);
       }
     }
     step.P = newProductions;
@@ -171,6 +175,7 @@ export function getReachableSymbols(grammar) {
       } else if (!reachableSymbols.includes(symbol)) {
         reachableSymbols.push(symbol);
       }
+      R.uniq(reachableSymbols);
     }
     oldSize = newSize;
     newSize = reachableSymbols.length;
@@ -191,5 +196,5 @@ export function getUnreachableSymbols(reachableSymbols, grammar) {
       if (!reachableSymbols.includes(symbol)) unreachableSymbols.push(symbol);
   }
 
-  return unreachableSymbols;
+  return R.uniq(unreachableSymbols);
 }

@@ -170,13 +170,13 @@ export default class Grammar {
 
     if (Array.isArray(this.Vn)) {
       for (let nonTerminal of this.Vn) {
-        if (Array.isArray(this.P[nonTerminal])) {
+        if (Array.isArray(this.P[nonTerminal]) && nonTerminal !== this.S) {
           for (let production of this.P[nonTerminal]) {
             for (let char of production) {
               if (char !== ' ') {
                 nonTerminal += char;
               } else {
-                if (nonTerminal !== '' && this.S === nonTerminal) {
+                if (nonTerminal !== '' && nonTerminal.includes(this.S)) {
                   return true;
                 }
                 nonTerminal = '';
@@ -187,7 +187,7 @@ export default class Grammar {
       }
     }
 
-    if (nonTerminal !== '' && this.Vn.includes(nonTerminal)) {
+    if (nonTerminal !== '' && this.Vn.includes(this.S)) {
       return true;
     }
     return false;
@@ -271,6 +271,20 @@ export default class Grammar {
       return false;
     }
 
+    return true;
+  }
+
+  areProductionsUnique() {
+    let visitedProductions = [];
+    for (let symbol of this.Vn) {
+      for (let production of this.P[symbol]) {
+        if (!visitedProductions.includes(production))
+          visitedProductions.push(production)
+        else
+          return false;
+      }
+      visitedProductions = [];
+    }
     return true;
   }
 
@@ -411,28 +425,32 @@ export default class Grammar {
    */
   hasCycleInFinitude(visited = []) {
     if (!this.isValid()) return false;
+    let grammar = this.clone();
+    grammar.removeUselessSymbols();
 
-    visited.push(this.S);
+    visited.push(grammar.S);
 
-    if (this.P[this.S])
-      for (let production of this.P[this.S])
+    if (grammar.P[grammar.S])
+      for (let production of grammar.P[grammar.S])
         for (let symbol of production)
-          if (this.Vn.includes(symbol))
-            if (this.hasCycle_(visited, symbol)) return true;
+          if (grammar.Vn.includes(symbol))
+            if (grammar.hasCycle_(visited, symbol, grammar)) return true;
 
     return false;
   }
 
-  hasCycle_(visited, symbol) {
+  hasCycle_(visited, symbol, grammar) {
     visited.push(symbol);
 
-    if (this.P[symbol]) {
-      for (let production of this.P[symbol]) {
+    if (grammar.P[symbol]) {
+      for (let production of grammar.P[symbol]) {
         for (let symbol_ of production)
-          if (!visited.includes(symbol_) && this.Vn.includes(symbol_)) {
+          if (!visited.includes(symbol_) && grammar.Vn.includes(symbol_)) {
             visited.push(symbol_);
-            if (this.hasCycle_(visited, symbol_)) return true;
-          } else if (visited.includes(symbol_)) return true;
+            if (grammar.hasCycle_(visited, symbol_, grammar)) return true;
+          } else if (visited.includes(symbol_) && grammar.Vn.includes(symbol_)) {
+              return true;
+          }
       }
     }
     visited.splice(visited.indexOf(symbol));
@@ -441,7 +459,7 @@ export default class Grammar {
 
   getLanguageFinitude() {
     let fertileSymbols = this.getFertileSymbols();
-    if (fertileSymbols.includes(this.S)) {
+    if (fertileSymbols.includes(this.S) && this.isValid()) {
       if (this.hasCycleInFinitude()) return INFINITE;
       else return FINITE;
     } else {

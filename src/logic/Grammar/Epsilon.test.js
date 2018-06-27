@@ -6,26 +6,31 @@ describe('Grammar', () => {
     it('should detect epsilon free', () => {
       const grammar = Grammar.fromText(`S -> a S b | ab`);
       expect(grammar.isEpsilonFree()).toBeTruthy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
     });
 
     it('should not detect epsilon free', () => {
       const grammar = Grammar.fromText(`S -> a S0 | a | &\nS0 -> b`);
       expect(grammar.isEpsilonFree()).toBeTruthy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
     });
 
     it('should detect epsilon free with epsilon on initial symbol', () => {
       const grammar = Grammar.fromText(`S -> A | &\nA -> a A b | a b`);
       expect(grammar.isEpsilonFree()).toBeTruthy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
     });
 
     it('should not detect epsilon free with epsilon on initial symbol', () => {
       const grammar = Grammar.fromText(`S -> A | &\nA -> a S b | a b`);
       expect(grammar.isEpsilonFree()).toBeFalsy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
     });
 
     it('should not detect epsilon free with non terminal producing epsilon', () => {
       const grammar = Grammar.fromText(`S -> A \nA -> a S b | a b | &`);
       expect(grammar.isEpsilonFree()).toBeFalsy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
     });
 
     it('should transform to epsilon free', () => {
@@ -34,6 +39,7 @@ describe('Grammar', () => {
       );
       grammar.toEpsilonFree();
       expect(grammar.isEpsilonFree()).toBeTruthy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
     });
 
     it('should transform to epsilon free (list example)', () => {
@@ -41,7 +47,9 @@ describe('Grammar', () => {
         `S -> A b B | A D\nA -> a A | B\nB -> S B D | C D\nC -> c C | A S | & \nD -> d D | &`
       );
       grammar.toEpsilonFree();
+      console.log(grammar);
       expect(grammar.isEpsilonFree()).toBeTruthy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
     });
   });
 });

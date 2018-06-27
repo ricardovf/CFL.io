@@ -6,6 +6,7 @@ describe('Grammar', () => {
     it('should not detect unreachable symbols', () => {
       const grammar = Grammar.fromText(`S -> A | &\nA -> a S b | a b`);
       expect(grammar.hasUnreachableSymbols()).toBeFalsy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
     });
 
     it('should detect unreachable symbols', () => {
@@ -13,6 +14,7 @@ describe('Grammar', () => {
         `S -> A | &\nA -> a S b | a b\nB -> c B | c`
       );
       expect(grammar.hasUnreachableSymbols()).toBeTruthy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
     });
 
     it('should detect only fertile symbols', () => {
@@ -20,6 +22,7 @@ describe('Grammar', () => {
         `S -> A | &\nA -> a S b | a b\nB -> c B | c`
       );
       expect(grammar.hasInfertileSymbols()).toBeFalsy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
     });
 
     it('should detect infertile symbols', () => {
@@ -27,6 +30,7 @@ describe('Grammar', () => {
         `S -> A | &\nA -> a S b | a b\nB -> c B | c\nC -> c C`
       );
       expect(grammar.hasInfertileSymbols()).toBeTruthy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
     });
 
     it('should remove infertile symbols', () => {
@@ -35,6 +39,7 @@ describe('Grammar', () => {
       );
       grammar.removeInfertileSymbols();
       expect(grammar.hasInfertileSymbols()).toBeFalsy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
     });
 
     it('should not remove infertile symbols', () => {
@@ -43,6 +48,7 @@ describe('Grammar', () => {
       );
       grammar.removeInfertileSymbols();
       expect(grammar.hasInfertileSymbols()).toBeFalsy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
     });
 
     it('should remove infertile symbols (list example)', () => {
@@ -51,6 +57,7 @@ describe('Grammar', () => {
       );
       grammar.removeInfertileSymbols();
       expect(grammar.hasInfertileSymbols()).toBeFalsy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
     });
 
     it('should remove unreachable symbols', () => {
@@ -59,6 +66,7 @@ describe('Grammar', () => {
       );
       grammar.removeUnreachableSymbols();
       expect(grammar.hasUnreachableSymbols()).toBeFalsy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
     });
 
     it('should not remove unreachable symbols', () => {
@@ -67,6 +75,7 @@ describe('Grammar', () => {
       );
       grammar.removeUnreachableSymbols();
       expect(grammar.hasUnreachableSymbols()).toBeFalsy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
     });
 
     it('should remove useless symbols', () => {
@@ -76,6 +85,7 @@ describe('Grammar', () => {
       grammar.removeUselessSymbols();
       expect(grammar.hasInfertileSymbols()).toBeFalsy();
       expect(grammar.hasUnreachableSymbols()).toBeFalsy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
     });
 
     it('should return reachable symbols', () => {
@@ -90,6 +100,7 @@ describe('Grammar', () => {
       const reachableLen = grammar.getReachableSymbols().length;
       const alphabetLen = grammar.Vt.length + grammar.Vn.length;
       expect(reachableLen === alphabetLen).toBeTruthy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
     });
 
     it('should return reachable symbols (if statement)', () => {
@@ -100,6 +111,7 @@ describe('Grammar', () => {
       const reachableLen = grammar.getReachableSymbols().length;
       const alphabetLen = grammar.Vt.length + grammar.Vn.length;
       expect(reachableLen === alphabetLen).toBeTruthy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
     });
 
     it('should transform to own #1', () => {
@@ -113,6 +125,7 @@ describe('Grammar', () => {
       );
       grammar.toOwn();
       expect(grammar.isOwn()).toBeTruthy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
     });
 
     it('should not transform to own on an infertile grammar, it should became invalid', () => {
@@ -125,6 +138,7 @@ describe('Grammar', () => {
       grammar.toOwn();
       expect(grammar.isOwn()).toBeFalsy();
       expect(grammar.isValid()).toBeFalsy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
     });
 
     it('should not validate grammar', () => {
@@ -136,6 +150,7 @@ describe('Grammar', () => {
       );
       grammar.toOwn();
       expect(grammar.isValid()).toBeFalsy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
     });
   });
 });
