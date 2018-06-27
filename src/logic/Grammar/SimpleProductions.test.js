@@ -24,7 +24,7 @@ describe('Grammar', () => {
       expect(grammar.areProductionsUnique()).toBeTruthy();
     });
 
-    it('should remove simple productions (list example)', () => {
+    it('should remove simple productions (list example 1)', () => {
       const grammar = Grammar.fromText(
         `S -> Z | &\nZ -> A b B | A D | A b | b B | b | A | D\nA -> a A | B | a \nB -> Z B D | C D | Z B | C | D | Z D | Z | B D | B\nC -> c C | A Z | c | A | Z\nD -> d D | d`
       );
@@ -33,9 +33,18 @@ describe('Grammar', () => {
       expect(grammar.areProductionsUnique()).toBeTruthy();
     });
 
-    it('should remove simple productions (list example)', () => {
+    it('should remove simple productions (list example 2)', () => {
       const grammar = Grammar.fromText(
         `S -> L = R | R\nL -> * R | id\nR ->L`
+      );
+      grammar.removeSimpleProductions();
+      expect(grammar.hasSimpleProductions()).toBeFalsy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
+    });
+
+    it('should remove simple productions (list example 2)', () => {
+      const grammar = Grammar.fromText(
+        `S ->F G H\nF -> G | a\nG -> d G | H | b\nH -> c`
       );
       grammar.removeSimpleProductions();
       expect(grammar.hasSimpleProductions()).toBeFalsy();

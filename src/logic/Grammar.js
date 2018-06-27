@@ -170,13 +170,13 @@ export default class Grammar {
 
     if (Array.isArray(this.Vn)) {
       for (let nonTerminal of this.Vn) {
-        if (Array.isArray(this.P[nonTerminal])) {
+        if (Array.isArray(this.P[nonTerminal]) && nonTerminal !== this.S) {
           for (let production of this.P[nonTerminal]) {
             for (let char of production) {
               if (char !== ' ') {
                 nonTerminal += char;
               } else {
-                if (nonTerminal !== '' && this.S === nonTerminal) {
+                if (nonTerminal !== '' && nonTerminal.includes(this.S)) {
                   return true;
                 }
                 nonTerminal = '';
@@ -187,7 +187,7 @@ export default class Grammar {
       }
     }
 
-    if (nonTerminal !== '' && this.Vn.includes(nonTerminal)) {
+    if (nonTerminal !== '' && this.Vn.includes(this.S)) {
       return true;
     }
     return false;
