@@ -64,7 +64,6 @@ export function removeInfertileSymbols(grammar, steps) {
             productionIncludesInfertile = true;
         }
         if (!productionIncludesInfertile) {
-
           newVn.push(nonTerminal);
           newProductions[nonTerminal].push(production);
           for (let terminal of terminals) newVt.push(terminal);
@@ -74,10 +73,10 @@ export function removeInfertileSymbols(grammar, steps) {
       newProductions = R.map(p => R.uniq(p).sort(), newProductions);
     }
     step.P = newProductions;
-    step.Vt = newVt;
-    step.Vn = newVn;
+    step.Vt = R.uniq(newVt);
+    step.Vn = R.uniq(newVn);
     step.S = step.Vn.includes(step.S) ? step.S : null;
-    steps.push(step);
+    // steps.push(step);
     step = grammar.clone();
   }
 
@@ -86,11 +85,7 @@ export function removeInfertileSymbols(grammar, steps) {
   grammar.Vn = R.uniq(newVn);
   grammar.S = grammar.Vn.includes(grammar.S) ? grammar.S : null;
   grammar.removeEmptyNonTerminal();
-  step.P = newProductions;
-  step.Vt = newVt;
-  step.Vn = newVn;
-  step.S = step.Vn.includes(step.S) ? step.S : null;
-  steps.push(step)
+  steps.push(grammar.clone());
 }
 
 export function removeUnreachableSymbols(steps = [], grammar) {

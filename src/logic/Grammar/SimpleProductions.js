@@ -38,7 +38,11 @@ export function removeSimpleProductions(steps = [], grammar) {
         newProductions[symbol].push(nonSimpleProduction);
     newProductions = R.map(p => R.uniq(p).sort(), newProductions);
     step.P = newProductions;
-    steps.push(step);
+    step.Vn = R.uniq(step.Vn);
+    step.Vt = R.uniq(step.Vt);
+    step.removeEmptyNonTerminal();
+    if (R.keys(step.P).length > 0) steps.push(step);
+
     step = grammar.clone();
   }
   grammar.P = newProductions;

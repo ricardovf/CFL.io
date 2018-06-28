@@ -1,5 +1,10 @@
 import Grammar from '../Grammar';
 import { ACCEPT_STATE, EPSILON } from '../SymbolValidator';
+import {
+  eliminateInfertileSymbolsWithSteps,
+  eliminateSimpleProductionsWithSteps,
+} from './Operations';
+import { removeSimpleProductions } from './SimpleProductions';
 
 describe('Grammar', () => {
   describe('simple productions', () => {
@@ -47,6 +52,14 @@ describe('Grammar', () => {
       grammar.removeSimpleProductions();
       expect(grammar.hasSimpleProductions()).toBeFalsy();
       expect(grammar.areProductionsUnique()).toBeTruthy();
+    });
+
+    it('should eliminate useless without duplication (ricardo example 2) using steps', () => {
+      // const grammar = Grammar.fromText(`S -> B | a | a S`);
+      // expect(grammar.hasSimpleProductions()).toBeTruthy();
+      // const steps = eliminateSimpleProductionsWithSteps(grammar);
+      // expect(grammar.hasSimpleProductions()).toBeFalsy();
+      // expect(grammar.areProductionsUnique()).toBeTruthy();
     });
   });
 });

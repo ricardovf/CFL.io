@@ -1,5 +1,6 @@
 import Grammar from '../Grammar';
 import { ACCEPT_STATE, EPSILON } from '../SymbolValidator';
+import { eliminateInfertileSymbolsWithSteps } from './Operations';
 
 describe('Grammar', () => {
   describe('useless symbols', () => {
@@ -163,6 +164,22 @@ describe('Grammar', () => {
       grammar.toEpsilonFree();
       grammar.toOwn();
       expect(grammar.isOwn()).toBeTruthy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
+    });
+
+    it('should eliminate useless without duplication (ricardo example 2)', () => {
+      const grammar = Grammar.fromText(`S -> B | a | a S`);
+      expect(grammar.hasInfertileSymbols()).toBeTruthy();
+      grammar.removeInfertileSymbols();
+      expect(grammar.hasInfertileSymbols()).toBeFalsy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
+    });
+
+    it('should eliminate useless without duplication (ricardo example 2) using steps', () => {
+      // const grammar = Grammar.fromText(`S -> B | a | a S`);
+      // expect(grammar.hasInfertileSymbols()).toBeTruthy();
+      // let steps = eliminateInfertileSymbolsWithSteps(grammar);
+      // expect(grammar.hasInfertileSymbols()).toBeFalsy();
       // expect(grammar.areProductionsUnique()).toBeTruthy();
     });
   });

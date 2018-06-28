@@ -183,7 +183,7 @@ export default class Grammar {
               }
             }
             if (prod !== '' && prod === this.S) {
-                  return true;
+              return true;
             }
             prod = '';
           }
@@ -275,6 +275,9 @@ export default class Grammar {
   }
 
   areProductionsUnique() {
+    if (R.equals(R.uniq(this.Vn), this.Vn) === false) return false;
+    if (R.equals(R.uniq(this.Vt), this.Vt) === false) return false;
+
     let visitedProductions = [];
     for (let symbol of this.Vn) {
       if (this.P[symbol]) {
@@ -398,12 +401,10 @@ export default class Grammar {
   removeEmptyNonTerminal() {
     let eliminate = [];
     for (let nonTerminal of this.Vn)
-      if (this.P[nonTerminal].length === 0)
-        eliminate.push(nonTerminal);
+      if (this.P[nonTerminal].length === 0) eliminate.push(nonTerminal);
 
-
-    for (let elim of eliminate)
-      this.Vn.splice(this.Vn.indexOf(elim), 1);
+    this.Vn = R.uniq(R.without(eliminate, this.Vn));
+    this.P = R.omit(eliminate, this.P);
   }
 
   toOwn(steps = []) {
@@ -661,15 +662,15 @@ export default class Grammar {
    * @returns {Grammar}
    */
   static fromText(text) {
-    if (parser.changed(text)) {
-      parser.run(text);
-      currentGrammarFromText = new Grammar(
-        parser.nonTerminals(),
-        parser.terminals(),
-        parser.rules(),
-        parser.initialSymbol()
-      );
-    }
+    // if (parser.changed(text)) {
+    parser.run(text);
+    currentGrammarFromText = new Grammar(
+      parser.nonTerminals(),
+      parser.terminals(),
+      parser.rules(),
+      parser.initialSymbol()
+    );
+    // }
 
     return currentGrammarFromText;
   }
