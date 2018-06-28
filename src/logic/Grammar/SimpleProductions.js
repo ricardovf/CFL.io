@@ -21,7 +21,6 @@ export function removeSimpleProductions(steps = [], grammar) {
         if (!simpleProductions[symbol].includes(indirectProduction))
           simpleProductions[symbol].push(indirectProduction);
     }
-  grammar.P = R.map(p => R.uniq(p).sort(), grammar.P);
 
   for (let symbol of grammar.Vn) {
     for (let simpleProduction of simpleProductions[symbol]) {
@@ -37,12 +36,13 @@ export function removeSimpleProductions(steps = [], grammar) {
     for (let nonSimpleProduction of nonSimpleProductions_)
       if (!newProductions[symbol].includes(nonSimpleProduction))
         newProductions[symbol].push(nonSimpleProduction);
-    grammar.P = R.map(p => R.uniq(p).sort(), grammar.P);
+    newProductions = R.map(p => R.uniq(p).sort(), newProductions);
     step.P = newProductions;
     steps.push(step);
     step = grammar.clone();
   }
   grammar.P = newProductions;
+  grammar.removeEmptyNonTerminal();
 }
 
 export function getNonTerminalsFromProduction(p, grammar) {

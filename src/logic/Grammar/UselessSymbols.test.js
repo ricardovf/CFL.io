@@ -152,5 +152,18 @@ describe('Grammar', () => {
       expect(grammar.isValid()).toBeFalsy();
       expect(grammar.areProductionsUnique()).toBeTruthy();
     });
+
+    it('should transform to own (ricardo example)', () => {
+      const grammar = Grammar.fromText(
+        ` S -> & | B S
+          B -> C | C D | D
+          C -> S
+          D -> a`
+      );
+      grammar.toEpsilonFree();
+      grammar.toOwn();
+      expect(grammar.isOwn()).toBeTruthy();
+      // expect(grammar.areProductionsUnique()).toBeTruthy();
+    });
   });
 });

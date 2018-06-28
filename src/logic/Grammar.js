@@ -166,29 +166,29 @@ export default class Grammar {
    * @return {boolean}
    */
   nonTerminalDerivesInitialSymbol() {
-    let nonTerminal = '';
+    let prod = '';
 
     if (Array.isArray(this.Vn)) {
-      for (let nonTerminal of this.Vn) {
-        if (Array.isArray(this.P[nonTerminal]) && nonTerminal !== this.S) {
-          for (let production of this.P[nonTerminal]) {
+      for (let nonTerminal_ of this.Vn) {
+        if (Array.isArray(this.P[nonTerminal_])) {
+          for (let production of this.P[nonTerminal_]) {
             for (let char of production) {
               if (char !== ' ') {
-                nonTerminal += char;
+                prod += char;
               } else {
-                if (nonTerminal !== '' && nonTerminal.includes(this.S)) {
+                if (prod !== '' && prod === this.S) {
                   return true;
                 }
-                nonTerminal = '';
+                prod = '';
               }
             }
+            if (prod !== '' && prod === this.S) {
+                  return true;
+            }
+            prod = '';
           }
         }
       }
-    }
-
-    if (nonTerminal !== '' && this.Vn.includes(this.S)) {
-      return true;
     }
     return false;
   }
@@ -389,10 +389,21 @@ export default class Grammar {
   isOwn() {
     return (
       this.isValid() &&
-      !this.hasEpsilonTransitions() &&
+      this.isEpsilonFree() &&
       !this.hasCycle() &&
       !this.hasUselessSymbols()
     );
+  }
+
+  removeEmptyNonTerminal() {
+    let eliminate = [];
+    for (let nonTerminal of this.Vn)
+      if (this.P[nonTerminal].length === 0)
+        eliminate.push(nonTerminal);
+
+
+    for (let elim of eliminate)
+      this.Vn.splice(this.Vn.indexOf(elim), 1);
   }
 
   toOwn(steps = []) {

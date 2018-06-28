@@ -47,7 +47,6 @@ describe('Grammar', () => {
         `S -> A b B | A D\nA -> a A | B\nB -> S B D | C D\nC -> c C | A S | & \nD -> d D | &`
       );
       grammar.toEpsilonFree();
-      // expect(grammar.hasEpsilonTransitions()).toBeTruthy();
       expect(grammar.isEpsilonFree()).toBeTruthy();
       expect(grammar.areProductionsUnique()).toBeTruthy();
     });

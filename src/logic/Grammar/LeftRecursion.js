@@ -101,15 +101,15 @@ function _removeIndirectLeftRecursions(grammar, recursions) {
   // Make sure its a own grammar (Gramática Própria)
   if (!grammar.isOwn()) {
     grammar.toOwn();
-
     // It might have became invalid, so we just return
     if (!grammar.isValid()) return;
 
-    if (!grammar.isOwn())
+    if (!grammar.isOwn()) {
       throw new Error(
         'Grammar should be own (própria) to be able to remove indirect left recursion, but the step to make it own has failed to do so! The grammar is: \n ' +
           grammar.getFormattedText()
       );
+    }
   }
 
   // 1 – Ordene os não-terminais de G em uma ordem
