@@ -21,8 +21,7 @@ export default {
   state: [],
   reducers: {
     create(state, { language = undefined }) {
-      if (!language)
-        language = _makeNewLanguage(`Nova linguagem #${state.length}`);
+      if (!language) language = _makeNewLanguage(`GLC #${state.length}`);
 
       if (language.grammar) {
         try {
@@ -99,7 +98,7 @@ export default {
 
     async createAndSelect(payload, rootState) {
       const newLanguage = _makeNewLanguage(
-        `Nova linguagem #${rootState.languages.length}`
+        `GLC #${rootState.languages.length}`
       );
       dispatch.languages.create({ language: newLanguage });
       dispatch.selectedLanguage.select({ id: newLanguage.id });

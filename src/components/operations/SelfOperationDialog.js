@@ -89,12 +89,12 @@ class SelfOperationDialog extends React.Component {
   }
 
   handleSaveAndClose() {
-    const { language, title, handleCancel, handleSave } = this.props;
+    const { language, title, handleCancel, handleSave, savedName } = this.props;
 
     if (handleSave && language && Array.isArray(this.state.steps))
       handleSave(
         language.id,
-        language.name + ` (${title})`,
+        language.name + ` (${savedName})`,
         this.state.steps[this.state.step - 1],
         true
       );
@@ -103,19 +103,29 @@ class SelfOperationDialog extends React.Component {
   }
 
   handleSave() {
-    const { language, title, handleSave } = this.props;
+    const { language, title, handleSave, savedName } = this.props;
 
     if (handleSave && language && Array.isArray(this.state.steps))
       handleSave(
         language.id,
-        language.name + ` (${title} - Passo ${this.state.step})`,
+        language.name +
+          ` (${savedName} - Passo ${this.state.step} de ${
+            this.state.steps.length
+          })`,
         this.state.steps[this.state.step - 1],
         false
       );
   }
 
   render() {
-    const { classes, title, subtitle, language, handleCancel } = this.props;
+    const {
+      classes,
+      title,
+      subtitle,
+      language,
+      handleCancel,
+      savedName,
+    } = this.props;
 
     let actionButton = (
       <Button
@@ -212,6 +222,7 @@ class SelfOperationDialog extends React.Component {
 
 SelfOperationDialog.propTypes = {
   classes: PropTypes.object.isRequired,
+  savedName: PropTypes.string,
   language: PropTypes.object,
   handleCancel: PropTypes.func,
   handleSave: PropTypes.func,

@@ -46,6 +46,7 @@ class OperationsMenu extends React.Component {
         <SelfOperationDialog
           title="Eliminar epsilon"
           subtitle="Eliminando produções com epsilon de "
+          savedName="sem epsilon"
           open={operation === 'eliminate-epsilon'}
           operation={toEpsilonFreeWithSteps}
           handleCancel={this.handleClose}
@@ -55,6 +56,7 @@ class OperationsMenu extends React.Component {
         <SelfOperationDialog
           title="Eliminar produções simples"
           subtitle="Eliminando produções simples de "
+          savedName="sem prod. simples"
           open={operation === 'eliminate-simple'}
           operation={eliminateSimpleProductionsWithSteps}
           handleCancel={this.handleClose}
@@ -64,6 +66,7 @@ class OperationsMenu extends React.Component {
         <SelfOperationDialog
           title="Eliminar inférteis"
           subtitle="Eliminando produções inférteis de "
+          savedName="sem inférteis"
           open={operation === 'eliminate-infertile'}
           operation={eliminateInfertileSymbolsWithSteps}
           handleCancel={this.handleClose}
@@ -73,6 +76,7 @@ class OperationsMenu extends React.Component {
         <SelfOperationDialog
           title="Eliminar inalcançáveis"
           subtitle="Eliminando símbolos inalcançáveis de "
+          savedName="sem inalcançáveis"
           operation={eliminateUnreachableSymbolsWithSteps}
           open={operation === 'eliminate-unreachable'}
           handleCancel={this.handleClose}
@@ -82,6 +86,7 @@ class OperationsMenu extends React.Component {
         <SelfOperationDialog
           title="Transformar em GLC Própria"
           subtitle="Transformando em GLC Própria "
+          savedName="própria"
           open={operation === 'transform-to-own'}
           operation={toOwnWithSteps}
           handleCancel={this.handleClose}
@@ -91,6 +96,7 @@ class OperationsMenu extends React.Component {
         <SelfOperationDialog
           title="Clonar"
           subtitle="Clonando"
+          savedName="cópia"
           open={operation === 'clone'}
           operation={cloneGrammarWithSteps}
           handleCancel={this.handleClose}
