@@ -42,6 +42,7 @@ export function removeSimpleProductions(steps = [], grammar) {
     step = grammar.clone();
   }
   grammar.P = newProductions;
+  grammar.removeEmptyNonTerminal();
 }
 
 export function getNonTerminalsFromProduction(p, grammar) {

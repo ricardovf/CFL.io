@@ -85,6 +85,12 @@ export function removeInfertileSymbols(grammar, steps) {
   grammar.Vt = R.uniq(newVt);
   grammar.Vn = R.uniq(newVn);
   grammar.S = grammar.Vn.includes(grammar.S) ? grammar.S : null;
+  grammar.removeEmptyNonTerminal();
+  step.P = newProductions;
+  step.Vt = newVt;
+  step.Vn = newVn;
+  step.S = step.Vn.includes(step.S) ? step.S : null;
+  steps.push(step)
 }
 
 export function removeUnreachableSymbols(steps = [], grammar) {
@@ -131,10 +137,16 @@ export function removeUnreachableSymbols(steps = [], grammar) {
     step = grammar.clone();
   }
 
+  grammar.removeEmptyNonTerminal();
   grammar.P = newProductions;
   grammar.Vn = R.uniq(newVn);
   grammar.Vt = R.uniq(newVt);
   grammar.S = grammar.Vn.includes(grammar.S) ? grammar.S : null;
+  step.P = newProductions;
+  step.Vt = R.uniq(newVt);
+  step.Vn = R.uniq(newVn);
+  step.S = step.Vn.includes(step.S) ? step.S : null;
+  steps.push(step);
 }
 
 export function getInfertileSymbols(fertileSymbols, grammar) {
