@@ -74,6 +74,12 @@ class InformationCard extends React.Component {
             </ListItem>
           ) : null}
 
+          {grammar && grammar.hasCycle() ? (
+            <ListItem disableGutters>
+              <ListItemText primary=" - Contém ciclo" />
+            </ListItem>
+          ) : null}
+
           {grammar && grammar.hasInfertileSymbols() ? (
             <ListItem disableGutters>
               <ListItemText primary=" - Contém não terminais (Vn) inférteis" />
@@ -85,6 +91,16 @@ class InformationCard extends React.Component {
               <ListItemText primary=" - Contém símbolos inalcançáveis" />
             </ListItem>
           ) : null}
+
+          {grammar && grammar.isOwn() ? (
+            <ListItem disableGutters>
+              <ListItemText primary=" - É gramática própria" />
+            </ListItem>
+          ) : (
+            <ListItem disableGutters>
+              <ListItemText primary=" - Não é gramática própria" />
+            </ListItem>
+          )}
         </List>
       </React.Fragment>
     );

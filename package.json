@@ -29,11 +29,12 @@
     "xregexp": "^4.1.1"
   },
   "scripts": {
+    "git-info": "echo export default \"{\\\"logMessage\\\": \\\"$(git log -1 --format=%cd)\\\"}\"  > src/_git_commit.js",
     "styleguide": "styleguidist server",
     "styleguide:build": "styleguidist build",
     "analyze": "source-map-explorer gh-pages/static/js/main.*",
-    "start": "react-app-rewired start",
-    "build": "react-app-rewired build",
+    "start": "yarn git-info; react-app-rewired start",
+    "build": "yarn git-info; react-app-rewired build",
     "test": "react-app-rewired test --env=jsdom",
     "coverage": "react-app-rewired test --env=jsdom --coverage",
     "eject": "react-app-rewired eject",

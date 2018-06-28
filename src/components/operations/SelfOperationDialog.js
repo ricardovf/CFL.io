@@ -179,14 +179,18 @@ class SelfOperationDialog extends React.Component {
         <DialogContent>
           {Array.isArray(this.state.steps) && (
             <div>
-              <div
-                className={classes.graphContainer}
-                dangerouslySetInnerHTML={{
-                  __html: this.state.steps[this.state.step - 1]
-                    .getFormattedText()
-                    .replace(/\n/g, '<br />'),
-                }}
-              />
+              {this.state.steps[this.state.step - 1].isValid() ? (
+                <div
+                  className={classes.graphContainer}
+                  dangerouslySetInnerHTML={{
+                    __html: this.state.steps[this.state.step - 1]
+                      .getFormattedText()
+                      .replace(/\n/g, '<br />'),
+                  }}
+                />
+              ) : (
+                '(Resultou em uma gramática vazia)'
+              )}
             </div>
           )}
         </DialogContent>

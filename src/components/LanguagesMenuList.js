@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import List, { ListItem, ListItemText } from 'material-ui/List';
 import Button from 'material-ui/Button';
 import { withStyles } from 'material-ui';
+import GitCommit from '../_git_commit';
 
 const isSelected = (item, language) =>
   language !== undefined && language.id === item.id;
@@ -16,6 +17,10 @@ const styles = theme => ({
     '&:hover': {
       background: theme.palette.primary.light,
     },
+  },
+  version: {
+    color: '#999',
+    fontSize: '12px',
   },
 });
 
@@ -31,6 +36,7 @@ class LanguagesMenuList extends React.Component {
 
     const listItems = languages.map(item => (
       <ListItem
+        dense
         className={isSelected(item, language) ? classes.selected : undefined}
         button
         key={item.id}
@@ -54,6 +60,14 @@ class LanguagesMenuList extends React.Component {
           >
             Nova linguagem
           </Button>
+        </ListItem>
+
+        <ListItem className={classes.version}>
+          Versão:{' '}
+          {GitCommit.logMessage
+            .split(' ')
+            .slice(1, 4)
+            .join(', ')}
         </ListItem>
       </List>
     );

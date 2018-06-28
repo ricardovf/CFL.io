@@ -137,4 +137,15 @@ describe('Grammar', () => {
       expect(grammar.tokenizeString('BB')).toEqual(['B', 'B']);
     });
   });
+
+  describe('own', () => {
+    it('should make turn into invalid when making to own', () => {
+      const grammar = Grammar.fromText(`S -> B`);
+      expect(grammar.isValid()).toBeTruthy();
+      expect(grammar.isOwn()).toBeFalsy();
+      grammar.toOwn();
+      expect(grammar.isValid()).toBeFalsy();
+      expect(grammar.isOwn()).toBeFalsy();
+    });
+  });
 });

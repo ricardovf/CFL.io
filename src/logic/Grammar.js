@@ -405,14 +405,18 @@ export default class Grammar {
 
     this.Vn = R.uniq(R.without(eliminate, this.Vn));
     this.P = R.omit(eliminate, this.P);
+
+    if (this.S && !this.Vn.includes(this.S)) this.S = null;
   }
 
   toOwn(steps = []) {
-    this.toEpsilonFree(steps);
+    if (this.isValid()) this.toEpsilonFree(steps);
 
-    if (this.hasSimpleProductions()) this.removeSimpleProductions(steps);
+    if (this.isValid() && this.hasCycle()) {
+      this.removeSimpleProductions(steps);
+    }
 
-    this.removeUselessSymbols(steps);
+    if (this.isValid()) this.removeUselessSymbols(steps);
   }
 
   hasCycle(symbol = this.S, visited = []) {

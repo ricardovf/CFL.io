@@ -32,6 +32,9 @@ export default {
               : Grammar.fromPlainObject(language.grammar);
           language.grammar = grammar;
           language.valid = grammar.isValid();
+          if (!language.valid && language.grammarInputText) {
+            language.grammarInputText = '';
+          }
         } catch (e) {
           language.grammar = undefined;
           language.valid = false;

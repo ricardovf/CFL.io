@@ -9,6 +9,7 @@ import {
   removeUnreachableSymbols,
 } from './UselessSymbols';
 import * as R from 'ramda';
+import Grammar from '../Grammar';
 
 export function cloneGrammarWithSteps(grammar) {
   return [grammar.clone()];
@@ -16,31 +17,52 @@ export function cloneGrammarWithSteps(grammar) {
 
 export function toEpsilonFreeWithSteps(grammar) {
   let steps = [grammar.clone()];
-  toEpsilonFree(steps, grammar.clone());
+  if (!grammar.isEpsilonFree()) {
+    steps = [];
+    toEpsilonFree(steps, grammar.clone());
+  }
   return _makeStepsUnique(steps);
 }
 
 export function eliminateSimpleProductionsWithSteps(grammar) {
   let steps = [grammar.clone()];
-  removeSimpleProductions(steps, grammar.clone());
+  if (grammar.hasSimpleProductions()) {
+    steps = [];
+    removeSimpleProductions(steps, grammar.clone());
+    if (steps.length === 0) steps = [Grammar.makeEmptyGrammar()];
+  }
   return _makeStepsUnique(steps);
 }
 
 export function eliminateInfertileSymbolsWithSteps(grammar) {
   let steps = [grammar.clone()];
-  removeInfertileSymbols(grammar.clone(), steps);
+  if (grammar.hasInfertileSymbols()) {
+    steps = [];
+    removeInfertileSymbols(grammar.clone(), steps);
+    if (steps.length === 0) steps = [Grammar.makeEmptyGrammar()];
+  }
   return _makeStepsUnique(steps);
 }
 
 export function eliminateUnreachableSymbolsWithSteps(grammar) {
   let steps = [grammar.clone()];
-  removeUnreachableSymbols(steps, grammar.clone());
+  if (grammar.hasUnreachableSymbols()) {
+    steps = [];
+    removeUnreachableSymbols(steps, grammar.clone());
+    if (steps.length === 0) steps = [Grammar.makeEmptyGrammar()];
+  }
   return _makeStepsUnique(steps);
 }
 
 export function toOwnWithSteps(grammar) {
   let steps = [grammar.clone()];
-  grammar.clone().toOwn(steps);
+  if (!grammar.isOwn()) {
+    steps = [];
+    let newGrammar = grammar.clone();
+    newGrammar.toOwn(steps);
+    if (!newGrammar.isValid() || steps.length === 0)
+      steps = [Grammar.makeEmptyGrammar()];
+  }
   return _makeStepsUnique(steps);
 }
 
