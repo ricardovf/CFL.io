@@ -96,9 +96,9 @@ export default {
       }
     },
 
-    async createAndSelect(payload, rootState) {
+    async createAndSelect({ name }, rootState) {
       const newLanguage = _makeNewLanguage(
-        `Gramática #${rootState.languages.length}`
+        name ? name : `Gramática #${rootState.languages.length}`
       );
       dispatch.languages.create({ language: newLanguage });
       dispatch.selectedLanguage.select({ id: newLanguage.id });

@@ -4,6 +4,8 @@ import List, { ListItem, ListItemText } from 'material-ui/List';
 import Button from 'material-ui/Button';
 import { withStyles } from 'material-ui';
 import GitCommit from '../_git_commit';
+import { toEpsilonFreeWithSteps } from '../logic/Grammar/Operations';
+import NewGrammarDialog from './NewGrammarDialog';
 
 const isSelected = (item, language) =>
   language !== undefined && language.id === item.id;
@@ -25,14 +27,24 @@ const styles = theme => ({
 });
 
 class LanguagesMenuList extends React.Component {
+  state = {
+    newGrammarDialogOpened: false,
+  };
+
+  handleClose = () => {
+    this.setState({ newGrammarDialogOpened: false });
+  };
+
   render() {
     const {
       classes,
       language,
       languages,
       selectLanguageOnClick,
-      newLanguageOnClick,
+      saveNewLanguage,
     } = this.props;
+
+    const { newGrammarDialogOpened } = this.state;
 
     const listItems = languages.map(item => (
       <ListItem
@@ -56,10 +68,18 @@ class LanguagesMenuList extends React.Component {
             variant="raised"
             color="secondary"
             size="medium"
-            onClick={newLanguageOnClick}
+            onClick={event => {
+              this.setState({ newGrammarDialogOpened: true });
+            }}
           >
             Nova gramática
           </Button>
+
+          <NewGrammarDialog
+            open={newGrammarDialogOpened}
+            handleCancel={this.handleClose}
+            handleSave={saveNewLanguage}
+          />
         </ListItem>
 
         <ListItem className={classes.version}>
@@ -78,7 +98,7 @@ LanguagesMenuList.propTypes = {
   language: PropTypes.object,
   languages: PropTypes.array.isRequired,
   selectLanguageOnClick: PropTypes.func.isRequired,
-  newLanguageOnClick: PropTypes.func.isRequired,
+  saveNewLanguage: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles, { withTheme: true })(LanguagesMenuList);
