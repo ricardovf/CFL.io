@@ -40,7 +40,6 @@ export function removeFactors(grammar, maxSteps = 10) {
 
     // If we have left recursion, we must eliminate in order to be able to factor
     if (grammar.hasLeftRecursion()) {
-      // console.log('HAS LEFT RECURSION!!!');
       grammar.removeLeftRecursion();
 
       if (grammar.hasLeftRecursion()) {

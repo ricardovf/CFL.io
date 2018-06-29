@@ -21,7 +21,7 @@ const styles = () => ({
   },
 });
 
-class NewGrammarDialog extends React.Component {
+class SaveGrammarDialog extends React.Component {
   state = {
     name: '',
   };
@@ -39,6 +39,11 @@ class NewGrammarDialog extends React.Component {
       return {
         name: '',
       };
+    else if (nextProps.defaultName) {
+      return {
+        name: nextProps.defaultName,
+      };
+    }
 
     return null;
   }
@@ -57,7 +62,7 @@ class NewGrammarDialog extends React.Component {
   }
 
   render() {
-    const { classes, handleCancel } = this.props;
+    const { classes, handleCancel, defaultName } = this.props;
 
     return (
       <Dialog
@@ -68,25 +73,25 @@ class NewGrammarDialog extends React.Component {
         aria-labelledby="dialog-operation-title"
         aria-describedby="dialog-operation-description"
       >
-        <DialogTitle id="dialog-operation-title">Nova gramática</DialogTitle>
+        <DialogTitle id="dialog-operation-title">Salvar gramática</DialogTitle>
         <DialogContent>
           <div>
             <TextField
               inputRef={ref => {
                 this.inputNameRef = ref;
               }}
+              defaultValue={defaultName}
               autoFocus={true}
               required={true}
               fullWidth
               onChange={event => {
                 this.setState({ name: event.target.value.trim() });
               }}
-              onKeyPress={event => {
-                if (event.key === 'Enter') {
-                  event.target.blur();
-                  this.handleSaveAndClose();
-                }
-              }}
+              helperText={
+                this.state.name === defaultName
+                  ? 'A gramática atual será substituida. Use um nome diferente para não subsitutir.'
+                  : undefined
+              }
               id="name"
               label="Nome"
               margin="normal"
@@ -108,10 +113,11 @@ class NewGrammarDialog extends React.Component {
   }
 }
 
-NewGrammarDialog.propTypes = {
+SaveGrammarDialog.propTypes = {
   classes: PropTypes.object.isRequired,
+  defaultName: PropTypes.string,
   handleCancel: PropTypes.func,
   handleSave: PropTypes.func,
 };
 
-export default withStyles(styles)(NewGrammarDialog);
+export default withStyles(styles)(SaveGrammarDialog);

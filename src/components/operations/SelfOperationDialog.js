@@ -11,6 +11,7 @@ import { Typography } from 'material-ui';
 import Grammar from '../../logic/Grammar';
 import * as R from 'ramda';
 import PropTypes from 'prop-types';
+import SaveGrammarDialog from './SaveGrammarDialog';
 
 const styles = () => ({
   graphContainer: {
@@ -31,6 +32,8 @@ class SelfOperationDialog extends React.Component {
   state = {
     steps: undefined,
     step: undefined,
+    saveGrammarDialogOpened: false,
+    closeAfterSave: false,
   };
 
   constructor(props) {
@@ -38,8 +41,11 @@ class SelfOperationDialog extends React.Component {
 
     this.handleNext = this.handleNext.bind(this);
     this.handlePrevious = this.handlePrevious.bind(this);
+    this.handleSaveButtonClick = this.handleSaveButtonClick.bind(this);
     this.handleSave = this.handleSave.bind(this);
-    this.handleSaveAndClose = this.handleSaveAndClose.bind(this);
+    this.handleSaveAndCloseButtonClick = this.handleSaveAndCloseButtonClick.bind(
+      this
+    );
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
@@ -71,6 +77,7 @@ class SelfOperationDialog extends React.Component {
       return {
         steps: undefined,
         step: undefined,
+        saveGrammarDialogOpened: false,
       };
 
     return null;
@@ -88,34 +95,40 @@ class SelfOperationDialog extends React.Component {
     }
   }
 
-  handleSaveAndClose() {
-    const { language, title, handleCancel, handleSave, savedName } = this.props;
+  handleSaveAndCloseButtonClick() {
+    const { language, handleSave } = this.props;
 
-    if (handleSave && language && Array.isArray(this.state.steps))
-      handleSave(
-        language.id,
-        language.name + ` (${savedName})`,
-        this.state.steps[this.state.step - 1],
-        true
-      );
-
-    if (handleCancel) handleCancel();
+    if (handleSave && language && Array.isArray(this.state.steps)) {
+      this.setState({ saveGrammarDialogOpened: true, closeAfterSave: true });
+    }
   }
 
-  handleSave() {
-    const { language, title, handleSave, savedName } = this.props;
+  handleSaveButtonClick() {
+    const { language, handleSave } = this.props;
 
-    if (handleSave && language && Array.isArray(this.state.steps))
+    if (handleSave && language && Array.isArray(this.state.steps)) {
+      this.setState({ saveGrammarDialogOpened: true, closeAfterSave: false });
+    }
+  }
+
+  handleSave(saveName) {
+    const { language, handleSave, handleCancel } = this.props;
+
+    if (handleSave && language && Array.isArray(this.state.steps)) {
       handleSave(
         language.id,
-        language.name +
-          ` (${savedName} - Passo ${this.state.step} de ${
-            this.state.steps.length
-          })`,
+        saveName,
         this.state.steps[this.state.step - 1],
-        false
+        this.state.closeAfterSave
       );
+    }
+
+    if (this.state.closeAfterSave && handleCancel) handleCancel();
   }
+
+  handleSaveDialogClose = () => {
+    this.setState({ saveGrammarDialogOpened: false, closeAfterSave: false });
+  };
 
   render() {
     const {
@@ -144,17 +157,21 @@ class SelfOperationDialog extends React.Component {
       if (this.state.step === this.state.steps.length)
         actionButton = (
           <Button
+            disabled={!this.state.steps[this.state.step - 1].isValid()}
             variant="raised"
-            onClick={this.handleSaveAndClose}
+            onClick={this.handleSaveAndCloseButtonClick}
             color="primary"
             autoFocus
           >
             Salvar
           </Button>
         );
-      else if (this.state.steps.length > 1) {
+      else if (
+        this.state.steps.length > 1 &&
+        this.state.steps[this.state.step - 1].isValid()
+      ) {
         saveButton = (
-          <Button onClick={this.handleSave} color="secondary">
+          <Button onClick={this.handleSaveButtonClick} color="secondary">
             Salvar intermediário
           </Button>
         );
@@ -171,7 +188,6 @@ class SelfOperationDialog extends React.Component {
 
     return (
       <Dialog
-        disableBackdropClick
         classes={{ paper: classes.modal }}
         fullWidth
         maxWidth={'md'}
@@ -214,6 +230,12 @@ class SelfOperationDialog extends React.Component {
           {saveButton}
           {previousButton}
           {actionButton}
+          <SaveGrammarDialog
+            open={this.state.saveGrammarDialogOpened}
+            defaultName={language.name}
+            handleCancel={this.handleSaveDialogClose}
+            handleSave={this.handleSave}
+          />
         </DialogActions>
       </Dialog>
     );

@@ -84,15 +84,28 @@ export default {
       if (language) {
         if (grammar instanceof Grammar) grammar = grammar.toPlainObject();
 
-        let newLanguage = _makeNewLanguage(name);
+        // If the name is not equal, we create a new grammar, otherwise, replace.
+        let newLanguage = language;
+        let isNew = false;
+        if (language.name !== name) {
+          newLanguage = _makeNewLanguage(name);
+          isNew = true;
+        }
+
         newLanguage.grammar = grammar;
         newLanguage.valid = Grammar.fromPlainObject(grammar).isValid();
         newLanguage.grammarInputText = language.grammarInputText;
         newLanguage.factorizationSteps = language.factorizationSteps;
 
-        dispatch.languages.create({ language: newLanguage });
-
-        if (select) dispatch.selectedLanguage.select({ id: newLanguage.id });
+        if (isNew) {
+          dispatch.languages.create({ language: newLanguage });
+          if (select) dispatch.selectedLanguage.select({ id: newLanguage.id });
+        } else {
+          dispatch.languages._updateLanguage({
+            id,
+            language: newLanguage,
+          });
+        }
       }
     },
 
