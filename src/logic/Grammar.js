@@ -166,6 +166,16 @@ export default class Grammar {
    * @return {boolean}
    */
   nonTerminalDerivesInitialSymbol() {
+    // Acho que esse método pode se trocado por isso:
+    //
+    // if (Array.isArray(this.Vn) && this.S) {
+    //   for (let nT of R.without([this.S], this.Vn)) {
+    //     if (firstNT(this, nT).includes(this.S)) return true;
+    //   }
+    // }
+    //
+    // return false;
+
     let prod = '';
 
     if (Array.isArray(this.Vn)) {
@@ -403,7 +413,8 @@ export default class Grammar {
     for (let nonTerminal of this.Vn)
       if (this.P[nonTerminal].length === 0) eliminate.push(nonTerminal);
 
-    this.Vn = R.uniq(R.without(eliminate, this.Vn));
+    this.Vt = this.Vt.sort();
+    this.Vn = R.uniq(R.without(eliminate, this.Vn)).sort();
     this.P = R.omit(eliminate, this.P);
 
     if (this.S && !this.Vn.includes(this.S)) this.S = null;

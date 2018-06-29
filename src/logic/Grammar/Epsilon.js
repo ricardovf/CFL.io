@@ -87,6 +87,7 @@ export function toEpsilonFree(steps = [], grammar) {
     grammar.P[grammar.S] = [oldInitialSymbol, '&'];
     grammar.P = R.map(p => R.uniq(p).sort(), grammar.P);
     grammar.Vn.push(grammar.S);
+    grammar.removeEmptyNonTerminal();
   }
   grammar.removeEmptyNonTerminal();
   step.P = grammar.P;

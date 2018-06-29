@@ -32,8 +32,8 @@ function LayoutDashboard(props) {
     return (
       <Paper elevation={1} className={classes.messagePaper}>
         {hasLanguages
-          ? 'Selecione uma linguagem no menu lateral'
-          : 'Crie a sua primeira linguagem no menu lateral'}
+          ? 'Selecione uma gramática no menu lateral'
+          : 'Crie a sua primeira gramática no menu lateral'}
       </Paper>
     );
   }

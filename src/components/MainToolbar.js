@@ -4,6 +4,7 @@ import { Icon, IconButton, Toolbar, Typography } from 'material-ui';
 import { withStyles } from 'material-ui/styles';
 import RenameLanguage from './RenameLanguage';
 import OperationsMenuConnector from '../connectors/operations/MenuConnector';
+import Tooltip from 'material-ui/Tooltip';
 
 const styles = theme => ({
   navIconHide: {
@@ -33,13 +34,15 @@ class MainToolbar extends React.Component {
     const buttons = language && (
       <React.Fragment>
         <OperationsMenuConnector />
-        <IconButton
-          color="inherit"
-          size="small"
-          onClick={deleteOnClick.bind(this, language.id)}
-        >
-          <Icon>delete</Icon>
-        </IconButton>
+        <Tooltip title="Remover a gramática" placement="bottom-start">
+          <IconButton
+            color="inherit"
+            size="small"
+            onClick={deleteOnClick.bind(this, language.id)}
+          >
+            <Icon>delete</Icon>
+          </IconButton>
+        </Tooltip>
       </React.Fragment>
     );
 

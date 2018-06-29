@@ -58,7 +58,7 @@ class LanguagesMenuList extends React.Component {
             size="medium"
             onClick={newLanguageOnClick}
           >
-            Nova linguagem
+            Nova gramática
           </Button>
         </ListItem>
 

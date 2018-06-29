@@ -56,8 +56,73 @@ describe('Grammar', () => {
         `S -> & | A | a
          B -> S`
       );
-      expect(grammar.hasEpsilonTransitions()).toBeTruthy();
+      expect(grammar.isEpsilonFree()).toBeFalsy();
+      grammar.toEpsilonFree();
+      expect(grammar.isEpsilonFree()).toBeTruthy();
       expect(grammar.areProductionsUnique()).toBeTruthy();
+    });
+
+    it('should transform to epsilon a crazy example', () => {
+      const grammar = Grammar.fromText(
+        `S -> B
+         B -> B1
+         B1 -> & | S`
+      );
+      expect(grammar.isEpsilonFree()).toBeFalsy();
+      grammar.toEpsilonFree();
+      expect(grammar.isEpsilonFree()).toBeTruthy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
+      const rules = grammar.rules();
+      expect(grammar.S).toEqual('S0');
+      expect(grammar.Vn).toEqual(['S0', 'S']);
+      expect(grammar.Vt).toEqual(['&']);
+      expect(rules).toEqual({
+        S0: ['&', 'S'],
+        S: ['S'],
+      });
+    });
+
+    it('should transform to epsilon a crazy example (with simple names)', () => {
+      const grammar = Grammar.fromText(
+        `S -> B
+         B -> C
+         C -> & | S`
+      );
+      expect(grammar.isEpsilonFree()).toBeFalsy();
+      grammar.toEpsilonFree();
+      expect(grammar.isEpsilonFree()).toBeTruthy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
+      const rules = grammar.rules();
+      expect(grammar.S).toEqual('S0');
+      expect(grammar.Vn).toEqual(['S0', 'S']);
+      expect(grammar.Vt).toEqual(['&']);
+      expect(rules).toEqual({
+        S0: ['&', 'S'],
+        S: ['S'],
+      });
+    });
+
+    it('should transform to epsilon a crazy example 2', () => {
+      const grammar = Grammar.fromText(
+        `S -> A B C
+         A -> & | a
+         B -> & | b
+         C -> c`
+      );
+      expect(grammar.isEpsilonFree()).toBeFalsy();
+      grammar.toEpsilonFree();
+      expect(grammar.isEpsilonFree()).toBeTruthy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
+      const rules = grammar.rules();
+      expect(grammar.S).toEqual('S');
+      expect(grammar.Vn).toEqual(['A', 'B', 'C', 'S']);
+      expect(grammar.Vt).toEqual(['&', 'a', 'b', 'c']);
+      expect(rules).toEqual({
+        S: ['A B C', 'A C', 'B C', 'C'],
+        A: ['a'],
+        B: ['b'],
+        C: ['c'],
+      });
     });
   });
 });
