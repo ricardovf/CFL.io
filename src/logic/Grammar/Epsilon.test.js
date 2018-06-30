@@ -83,6 +83,7 @@ describe('Grammar', () => {
         S: ['B'],
         S0: ['&', 'S']
       });
+      grammar.toOwn()
     });
 
     it('should transform to epsilon a crazy example using steps', () => {

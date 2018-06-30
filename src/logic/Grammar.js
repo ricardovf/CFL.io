@@ -410,8 +410,9 @@ export default class Grammar {
 
   removeEmptyNonTerminal() {
     let eliminate = [];
-    for (let nonTerminal of this.Vn)
+    for (let nonTerminal of Object.keys(this.P)) {
       if (this.P[nonTerminal].length === 0) eliminate.push(nonTerminal);
+    }
 
     this.Vt = this.Vt.sort();
     this.Vn = R.uniq(R.without(eliminate, this.Vn)).sort();
