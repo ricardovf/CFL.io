@@ -75,11 +75,13 @@ describe('Grammar', () => {
       expect(grammar.areProductionsUnique()).toBeTruthy();
       const rules = grammar.rules();
       expect(grammar.S).toEqual('S0');
-      expect(grammar.Vn).toEqual(['S0', 'S']);
+      expect(grammar.Vn).toEqual(['B', 'B1', 'S', 'S0']);
       expect(grammar.Vt).toEqual(['&']);
       expect(rules).toEqual({
-        S0: ['&', 'S'],
-        S: ['S'],
+        B: ['B1'],
+        B1: ['S'],
+        S: ['B'],
+        S0: ['&', 'S']
       });
     });
 
@@ -98,11 +100,13 @@ describe('Grammar', () => {
       expect(grammar.areProductionsUnique()).toBeTruthy();
       const rules = grammar.rules();
       expect(grammar.S).toEqual('S0');
-      expect(grammar.Vn).toEqual(['S0', 'S']);
+      expect(grammar.Vn).toEqual(['B', 'B1', 'S', 'S0']);
       expect(grammar.Vt).toEqual(['&']);
       expect(rules).toEqual({
-        S0: ['&', 'S'],
-        S: ['S'],
+        B: ['B1'],
+        B1: ['S'],
+        S: ['B'],
+        S0: ['&', 'S']
       });
     });
 
@@ -118,11 +122,13 @@ describe('Grammar', () => {
       expect(grammar.areProductionsUnique()).toBeTruthy();
       const rules = grammar.rules();
       expect(grammar.S).toEqual('S0');
-      expect(grammar.Vn).toEqual(['S0', 'S']);
+      expect(grammar.Vn).toEqual(['B', 'C', 'S', 'S0']);
       expect(grammar.Vt).toEqual(['&']);
       expect(rules).toEqual({
+        S: ['B'],
+        B: ['C'],
+        C: ['S'],
         S0: ['&', 'S'],
-        S: ['S'],
       });
     });
 

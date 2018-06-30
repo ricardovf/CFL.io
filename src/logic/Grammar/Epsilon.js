@@ -3,6 +3,7 @@ import * as R from 'ramda';
 import { ACCEPT_STATE, EPSILON } from '../SymbolValidator';
 import { makeNewUniqueNonTerminalName } from '../helpers';
 import { first } from './First';
+import { getNonTerminalsFromProduction } from './SimpleProductions';
 
 export function getEpsilonProducers(grammar) {
   let epsilonProducers = [];
@@ -40,18 +41,22 @@ export function toEpsilonFree(steps = [], grammar) {
   let step = grammar.clone();
   let newProductionsNum = 0;
   let newProduction;
+  let nonTerminals;
   while (oldNumProductions !== newProductionsNum) {
     for (let symbol of grammar.Vn) {
       for (let production of grammar.P[symbol]) {
+        nonTerminals = getNonTerminalsFromProduction(production, grammar);
         for (let epsilonProducer of epsilonProducers) {
-          if (production.includes(epsilonProducer)) {
-            newProduction = production
-              .replace(epsilonProducer, '')
-              .replace(/\s+/g, ' ')
-              .replace(/^\s|\s$/g, '');
-            if (newProduction === '') newProduction = '&';
-            if (!grammar.P[symbol].includes(newProduction))
-              grammar.P[symbol].push(newProduction);
+          for (let nonTerminal of nonTerminals) {
+            if (nonTerminal === epsilonProducer) {
+              newProduction = production
+                .replace(epsilonProducer, '')
+                .replace(/\s+/g, ' ')
+                .replace(/^\s|\s$/g, '');
+              if (newProduction === '') newProduction = '&';
+              if (!grammar.P[symbol].includes(newProduction))
+                grammar.P[symbol].push(newProduction);
+            }
           }
         }
         if (
