@@ -30,7 +30,10 @@ export function toEpsilonFree(steps = [], grammar) {
     return;
   }
 
-  grammar.removeUselessSymbols();
+  if (grammar.hasUselessSymbols()) {
+    grammar.removeUselessSymbols();
+    steps.push(grammar.clone());
+  }
 
   let epsilonProducers = grammar.getEpsilonProducers();
   let oldNumProductions = grammar.getNumberOfProductions();
@@ -60,7 +63,7 @@ export function toEpsilonFree(steps = [], grammar) {
       grammar.P = R.map(p => R.uniq(p).sort(), grammar.P);
     }
     step.P = grammar.P;
-    steps.push(step);
+    //steps.push(step);
     oldNumProductions = newProductionsNum;
     newProductionsNum = grammar.getNumberOfProductions();
   }
@@ -70,7 +73,7 @@ export function toEpsilonFree(steps = [], grammar) {
         grammar.P[symbol].splice(grammar.P[symbol].indexOf('&'), 1);
 
   step.P = grammar.P;
-  steps.push(step);
+  //steps.push(step);
   step = grammar.clone();
   if (
     grammar.nonTerminalDerivesInitialSymbol() &&
@@ -91,7 +94,8 @@ export function toEpsilonFree(steps = [], grammar) {
   }
   grammar.removeEmptyNonTerminal();
   step.P = grammar.P;
-  steps.push(step);
+  steps.push(grammar.clone());
+  // steps.push(step);
 }
 
 export function isEpsilonFree(grammar) {

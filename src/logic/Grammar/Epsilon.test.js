@@ -1,5 +1,6 @@
 import Grammar from '../Grammar';
 import { ACCEPT_STATE, EPSILON } from '../SymbolValidator';
+import { toEpsilonFreeWithSteps } from './Operations';
 
 describe('Grammar', () => {
   describe('epsilon', () => {
@@ -82,6 +83,29 @@ describe('Grammar', () => {
       });
     });
 
+    it('should transform to epsilon a crazy example using steps', () => {
+      let grammar = Grammar.fromText(
+        `S -> B
+         B -> B1
+         B1 -> & | S`
+      );
+
+      let steps = toEpsilonFreeWithSteps(grammar);
+
+      grammar = steps[steps.length - 1];
+
+      expect(grammar.isEpsilonFree()).toBeTruthy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
+      const rules = grammar.rules();
+      expect(grammar.S).toEqual('S0');
+      expect(grammar.Vn).toEqual(['S0', 'S']);
+      expect(grammar.Vt).toEqual(['&']);
+      expect(rules).toEqual({
+        S0: ['&', 'S'],
+        S: ['S'],
+      });
+    });
+
     it('should transform to epsilon a crazy example (with simple names)', () => {
       const grammar = Grammar.fromText(
         `S -> B
@@ -122,6 +146,49 @@ describe('Grammar', () => {
         A: ['a'],
         B: ['b'],
         C: ['c'],
+      });
+    });
+
+    it('should transform to epsilon a crazy example 3', () => {
+      const grammar = Grammar.fromText(
+        `S -> B | a
+         B -> & | S | b`
+      );
+      expect(grammar.isEpsilonFree()).toBeFalsy();
+      grammar.toEpsilonFree();
+      expect(grammar.isEpsilonFree()).toBeTruthy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
+      const rules = grammar.rules();
+      expect(grammar.S).toEqual('S0');
+      expect(grammar.Vn).toEqual(['B', 'S', 'S0']);
+      expect(grammar.Vt).toEqual(['&', 'a', 'b']);
+      expect(rules).toEqual({
+        S0: ['&', 'S'],
+        S: ['B', 'a'],
+        B: ['S', 'b'],
+      });
+    });
+
+    it('should transform to epsilon a crazy example 3 using steps', () => {
+      let grammar = Grammar.fromText(
+        `S -> B | a
+         B -> & | S | b`
+      );
+
+      let steps = toEpsilonFreeWithSteps(grammar);
+
+      grammar = steps[steps.length - 1];
+
+      expect(grammar.isEpsilonFree()).toBeTruthy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
+      const rules = grammar.rules();
+      expect(grammar.S).toEqual('S0');
+      expect(grammar.Vn).toEqual(['B', 'S', 'S0']);
+      expect(grammar.Vt).toEqual(['&', 'a', 'b']);
+      expect(rules).toEqual({
+        S0: ['&', 'S'],
+        S: ['B', 'a'],
+        B: ['S', 'b'],
       });
     });
   });
