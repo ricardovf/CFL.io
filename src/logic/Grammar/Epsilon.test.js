@@ -81,9 +81,9 @@ describe('Grammar', () => {
         B: ['B1'],
         B1: ['S'],
         S: ['B'],
-        S0: ['&', 'S']
+        S0: ['&', 'S'],
       });
-      grammar.toOwn()
+      grammar.toOwn();
     });
 
     it('should transform to epsilon a crazy example using steps', () => {
@@ -107,7 +107,7 @@ describe('Grammar', () => {
         B: ['B1'],
         B1: ['S'],
         S: ['B'],
-        S0: ['&', 'S']
+        S0: ['&', 'S'],
       });
     });
 

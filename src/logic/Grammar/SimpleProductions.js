@@ -2,6 +2,19 @@ import * as R from 'ramda';
 import SymbolValidator, { EPSILON } from '../SymbolValidator';
 
 export function removeSimpleProductions(steps = [], grammar) {
+  // Remove productions of kind C -> C
+  for (let nT of grammar.Vn) {
+    if (grammar.P[nT] && grammar.P[nT].includes(nT)) {
+      grammar.P[nT] = R.without([nT], grammar.P[nT]);
+    }
+  }
+
+  if (!hasSimpleProductions(grammar)) {
+    grammar.removeEmptyNonTerminal();
+    steps.push(grammar.clone());
+    return;
+  }
+
   if (grammar.hasEpsilonTransitions()) {
     grammar.toEpsilonFree();
   }

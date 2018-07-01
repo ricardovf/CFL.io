@@ -292,5 +292,27 @@ describe('Left Recursion', () => {
       expect(grammar.initialSymbol()).toEqual(initialSymbol);
       expect(grammar.rules()).toEqual(rules);
     });
+
+    it('should remove left indirect epsilon recursions on grammar 4', () => {
+      let rules = {};
+      const grammar = Grammar.fromText(
+        ` P -> d P | M L
+          M -> m ; M | &
+          L -> C ; L | &
+          C -> id ( E ) | id = E | b P e | C
+          E -> E + id | id`
+      );
+      expect(grammar.isValid()).toBeTruthy();
+      expect(grammar.hasLeftRecursion()).toBeTruthy();
+
+      const leftRecursions = grammar.getLeftRecursions();
+      expect(leftRecursions).toEqual({
+        C: { direct: ['C'] },
+        E: { direct: ['E + id'] },
+      });
+
+      grammar.removeLeftRecursion();
+      expect(grammar.hasLeftRecursion()).toBeFalsy();
+    });
   });
 });

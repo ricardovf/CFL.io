@@ -27,6 +27,11 @@ export function removeLeftRecursion(grammar) {
             grammar.toOwn();
             break;
           }
+
+          if (grammar.hasCycle()) {
+            grammar.removeSimpleProductions();
+            continue; //lets continue to refresh the list of recursions
+          }
         }
 
         _removeDirectLeftRecursions(grammar, recursions);
@@ -110,6 +115,9 @@ function _removeIndirectLeftRecursions(grammar, recursions) {
           grammar.getFormattedText()
       );
     }
+
+    // we return and wait to be called again with a new set of recursions
+    return;
   }
 
   // 1 – Ordene os não-terminais de G em uma ordem

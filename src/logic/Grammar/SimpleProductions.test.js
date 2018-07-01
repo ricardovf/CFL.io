@@ -61,5 +61,77 @@ describe('Grammar', () => {
       // expect(grammar.hasSimpleProductions()).toBeFalsy();
       // expect(grammar.areProductionsUnique()).toBeTruthy();
     });
+
+    it('should remove simple productions recursive 1', () => {
+      const grammar = Grammar.fromText(`S -> a | S`);
+      expect(grammar.hasSimpleProductions()).toBeTruthy();
+      grammar.removeSimpleProductions();
+      expect(grammar.hasSimpleProductions()).toBeFalsy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
+      expect(grammar.rules()).toEqual({
+        S: ['a'],
+      });
+    });
+
+    it('should remove simple productions recursive 2', () => {
+      const grammar = Grammar.fromText(`S -> S`);
+      expect(grammar.hasSimpleProductions()).toBeTruthy();
+      grammar.removeSimpleProductions();
+      expect(grammar.hasSimpleProductions()).toBeFalsy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
+      expect(grammar.rules()).toEqual({});
+      expect(grammar.isValid()).toBeFalsy();
+    });
+
+    it('should remove simple productions recursive 3', () => {
+      const grammar = Grammar.fromText(
+        `S -> a | B
+        B -> S`
+      );
+      expect(grammar.hasSimpleProductions()).toBeTruthy();
+      grammar.removeSimpleProductions();
+      expect(grammar.hasSimpleProductions()).toBeFalsy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
+      expect(grammar.rules()).toEqual({
+        S: ['a'],
+        B: ['a'],
+      });
+    });
+
+    it('should remove simple productions recursive 4', () => {
+      const grammar = Grammar.fromText(
+        `S -> a | BC
+        B -> S
+        C -> &`
+      );
+      expect(grammar.hasSimpleProductions()).toBeTruthy();
+      grammar.removeSimpleProductions();
+      expect(grammar.hasSimpleProductions()).toBeFalsy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
+      expect(grammar.rules()).toEqual({
+        S: ['a'],
+      });
+    });
+
+    it('should remove simple productions recursive 5', () => {
+      const grammar = Grammar.fromText(
+        `P -> d P | M L
+          M -> m ; M | &
+          L -> C ; L | &
+          C -> id ( E ) | id = E | b P e | C
+          E -> E + id | id`
+      );
+      expect(grammar.hasSimpleProductions()).toBeTruthy();
+      grammar.removeSimpleProductions();
+      expect(grammar.hasSimpleProductions()).toBeFalsy();
+      expect(grammar.areProductionsUnique()).toBeTruthy();
+      expect(grammar.rules()).toEqual({
+        P: ['M L', 'd P'],
+        M: ['&', 'm ; M'],
+        L: ['&', 'C ; L'],
+        C: ['b P e', 'id ( E )', 'id = E'],
+        E: ['E + id', 'id'],
+      });
+    });
   });
 });
