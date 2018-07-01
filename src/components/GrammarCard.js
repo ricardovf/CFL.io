@@ -48,13 +48,11 @@ class GrammarCard extends React.Component {
               ? grammar.getFormattedText()
               : language.grammarInputText
         }
-        onChange={event => {
+        onBlur={event => {
           onGrammarChange(
             language ? language.id : undefined,
             event.target.value
           );
-        }}
-        onBlur={event => {
           this.setState({ isFocused: false });
         }}
         onFocus={event => {
