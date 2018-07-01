@@ -435,11 +435,15 @@ export default class Grammar {
     visited.push(symbol);
 
     if (this.P[symbol]) {
-      for (let production of this.P[symbol]) {
-        if (production.length === 1 && this.Vn.includes(production)) {
-          if (visited.includes(production)) return true;
-          visited.push(production);
-          if (this.hasCycle(production, visited)) return true;
+      for (let nonTerminal of this.Vn) {
+        if (this.P[nonTerminal]) {
+          for (let production of this.P[nonTerminal]) {
+            if (production.length === 1 && this.Vn.includes(production)) {
+              if (visited.includes(production)) return true;
+              visited.push(production);
+              if (this.hasCycle(production, visited)) return true;
+            }
+          }
         }
       }
     }

@@ -60,5 +60,15 @@ describe('Grammar', () => {
       const grammar = Grammar.fromText(`S -> A | B c\nB -> B B`);
       expect(grammar.getLanguageFinitude()).toBe(EMPTY);
     });
+
+    it('should return a cycle in grammar', () => {
+      const grammar = Grammar.fromText(`
+          P -> d P | M L
+          M -> m ; M | &
+          L -> C ; L | &
+          C -> id ( E ) | id = E | b P e | C
+          E -> E + id | id`);
+      expect(grammar.hasCycle()).toBeTruthy();
+    });
   });
 });
