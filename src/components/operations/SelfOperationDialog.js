@@ -33,7 +33,7 @@ class SelfOperationDialog extends React.Component {
     steps: undefined,
     step: undefined,
     saveGrammarDialogOpened: false,
-    closeAfterSave: false,
+    closeAfterSave: true,
   };
 
   constructor(props) {
@@ -78,6 +78,7 @@ class SelfOperationDialog extends React.Component {
         steps: undefined,
         step: undefined,
         saveGrammarDialogOpened: false,
+        closeAfterSave: true,
       };
 
     return null;
@@ -107,7 +108,7 @@ class SelfOperationDialog extends React.Component {
     const { language, handleSave } = this.props;
 
     if (handleSave && language && Array.isArray(this.state.steps)) {
-      this.setState({ saveGrammarDialogOpened: true, closeAfterSave: false });
+      this.setState({ saveGrammarDialogOpened: true, closeAfterSave: true });
     }
   }
 
@@ -127,7 +128,7 @@ class SelfOperationDialog extends React.Component {
   }
 
   handleSaveDialogClose = () => {
-    this.setState({ saveGrammarDialogOpened: false, closeAfterSave: false });
+    this.setState({ saveGrammarDialogOpened: false, closeAfterSave: true });
   };
 
   render() {

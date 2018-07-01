@@ -92,6 +92,12 @@ class SaveGrammarDialog extends React.Component {
                   ? 'A gramática atual será substituida. Use um nome diferente para não subsitutir.'
                   : undefined
               }
+              onKeyPress={event => {
+                if (event.key === 'Enter') {
+                  event.target.blur();
+                  this.handleSaveAndClose();
+                }
+              }}
               id="name"
               label="Nome"
               margin="normal"
