@@ -70,5 +70,16 @@ describe('Grammar', () => {
           E -> E + id | id`);
       expect(grammar.hasCycle()).toBeTruthy();
     });
+
+    it('should not return a cycle in grammar', () => {
+      const grammar = Grammar.fromText(`
+        P -> begin D C end
+        D -> & | int I
+        I -> & | , id I
+        C -> C ; T = E | T = E | com
+        E -> E + T | T
+        T -> id | id [ E ]`);
+      expect(grammar.hasCycle()).toBeFalsy();
+    });
   });
 });

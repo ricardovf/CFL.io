@@ -431,23 +431,37 @@ export default class Grammar {
     if (this.isValid()) this.removeUselessSymbols(steps);
   }
 
-  hasCycle(symbol = this.S, visited = []) {
-    visited.push(symbol);
+  hasCycle(visited = []) {
+    let grammar = this.clone();
+    grammar.toEpsilonFree();
 
-    if (this.P[symbol]) {
-      for (let nonTerminal of this.Vn) {
-        if (this.P[nonTerminal]) {
-          for (let production of this.P[nonTerminal]) {
-            if (production.length === 1 && this.Vn.includes(production)) {
-              if (visited.includes(production)) return true;
-              visited.push(production);
-              if (this.hasCycle(production, visited)) return true;
-            }
+    for (let symbol of grammar.Vn) {
+      if (grammar.P[symbol]) {
+        visited.push(symbol);
+        for (let production of grammar.P[symbol]) {
+          if (production.length === 1 && grammar.Vn.includes(production)) {
+            if (visited.includes(production)) return true;
+            visited.push(production);
+            if (grammar.hasCycleNonTerminal(production, visited, grammar)) return true;
           }
         }
+        visited.splice(visited.indexOf(symbol), 1);
       }
     }
 
+    return false;
+  }
+
+  hasCycleNonTerminal(symbol, visited, grammar) {
+    if (this.P[symbol]) {
+      for (let production of this.P[symbol]) {
+        if (production.length === 1 && this.Vn.includes(production)) {
+          if (visited.includes(production)) return true;
+          visited.push(production);
+          if (this.hasCycleNonTerminal(production, visited)) return true;
+        }
+      }
+    }
     visited.splice(visited.indexOf(symbol), 1);
     return false;
   }
